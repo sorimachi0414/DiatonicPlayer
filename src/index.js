@@ -114,22 +114,28 @@ class Board extends React.Component{
       step:e.args.step,
       nextStep:e.args.nextStep,
     })
-    //play beats
+    //play wav
     const source = audioContext.createBufferSource();
     source.buffer = bufferLoader.bufferList[this.state.step];
     source.connect(audioContext.destination);
-    source.start(0);
+    //source.start(0);
 
     var t0 = e.playbackTime;
     var t1 = t0 + e.args.duration;
     var osc = audioContext.createOscillator();
     var amp = audioContext.createGain();
 
+    //wave playing
+    source.start(t0)
+    source.stop(t1)
+
+
+    /*
     osc.frequency.value = e.args.frequency;
     osc.start(t0);
     osc.stop(t1);
     osc.connect(amp);
-
+    */
     amp.gain.setValueAtTime(0.5, t0);
     amp.gain.exponentialRampToValueAtTime(1e-6, t1);
     amp.connect(masterGain);
