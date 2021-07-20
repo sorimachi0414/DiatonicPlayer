@@ -7,6 +7,21 @@ const WebAudioScheduler = require("web-audio-scheduler");
 var bpm=40
 var step=60/bpm
 
+const soundNameList=[
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'A',
+  'B',
+]
+
+const chordTypeNameList=[
+  'M',
+  'm',
+  '5',
+]
 
 // ----------------------------------------
 var audioContext = new AudioContext();
@@ -66,10 +81,20 @@ class BufferLoader {
 const bufferLoader = new BufferLoader(
   audioContext,
   [
-    'CMajor.wav',
+    'GuitarCMajor.mp3',
+    'DMajor.wav',
+    'EMajor.wav',
+    'FMajor.wav',
     'GMajor.wav',
+    'AMajor.wav',
+    'BMajor.wav',
+    'Cminor.wav',
+    'Dminor.wav',
+    'Eminor.wav',
+    'Fminor.wav',
+    'Gminor.wav',
     'Aminor.wav',
-    'FMajor.wav'
+    'Bminor.wav',
   ]
 );
 bufferLoader.load();
@@ -79,7 +104,9 @@ class Board extends React.Component{
   constructor(props) {
     super(props);
     this.state = {
-      blocks:Array(9).fill(0),
+      blocks:Array(7).fill(0),
+      chordTypes:Array(4).fill(0),
+
       blocksColor:Array(4).fill("chordSelector"),
       color:"chordSelector",
       Scales2:[
@@ -91,9 +118,18 @@ class Board extends React.Component{
       Scales:[
         [0,4,5,7,11],
         [0,4,5,7,11],
+        [0,4,5,7,11],
+        [0,4,5,7,11],
+      ],
+      /*
+      Scales:[
+        [0,4,5,7,11],
+        [0,4,5,7,11],
         [4,8,9,11,3],
         [4,8,9,11,3],
       ],
+
+       */
       halfStep:0,
       step:0,
       nextStep:1
@@ -114,11 +150,14 @@ class Board extends React.Component{
       step:e.args.step,
       nextStep:e.args.nextStep,
     })
+
     //play wav
     const source = audioContext.createBufferSource();
-    source.buffer = bufferLoader.bufferList[this.state.step];
+    //音源選択
+    let listPointer = this.state.blocks[this.state.step]+7*this.state.chordTypes[this.state.step]
+    source.buffer = bufferLoader.bufferList[listPointer];
     source.connect(audioContext.destination);
-    //source.start(0);
+
 
     var t0 = e.playbackTime;
     var t1 = t0 + e.args.duration;
@@ -128,7 +167,6 @@ class Board extends React.Component{
     //wave playing
     source.start(t0)
     source.stop(t1)
-
 
     /*
     osc.frequency.value = e.args.frequency;
@@ -174,13 +212,27 @@ class Board extends React.Component{
   //------------------------------------------------
 
   changeChord(i) {
+    //コードブロックの数字をインクリメント
     let blocks = this.state.blocks.slice()
     blocks[i] +=1
-    if (blocks[i]>= blocks.length){
+    if (blocks[i]>= soundNameList.length){
       blocks[i]=0
     }
     this.setState({
       blocks:blocks
+      }
+    )
+  }
+
+  changeChordType(i) {
+    //コードブロックの数字をインクリメント
+    let list = this.state.chordTypes.slice()
+    list[i] +=1
+    if (list[i]>= chordTypeNameList.length){
+      list[i]=0
+    }
+    this.setState({
+      chordTypes:list
       }
     )
   }
@@ -199,11 +251,18 @@ class Board extends React.Component{
   //コードブロックを配置
   arrangeBlock(i){
       return (
-        <Block
-          color={this.state.blocksColor[i]}
-          value={this.state.blocks[i]}
-          onClick={() => this.changeChord(i)}
-        />
+        <div>
+          <ChordNoteSelector
+            color={this.state.blocksColor[i]}
+            value={this.state.blocks[i]}
+            onClick={() => this.changeChord(i)}
+          />
+          <ChordTypeSelector
+            color={this.state.blocksColor[i]}
+            value={this.state.chordTypes[i]}
+            onClick={() => this.changeChordType(i)}
+          />
+        </div>
       );
   }
 
@@ -360,14 +419,26 @@ class FingerBoard extends React.Component{
   }
 }
 
-class Block extends  React.Component{
+class ChordTypeSelector extends  React.Component {
   constructor(props) {
     super(props);
   }
 
   render(){
     return(
-      <button className={this.props.color} value={this.props.value} onClick={this.props.onClick}>{this.props.value}</button>
+      <button className={this.props.color} value={this.props.value} onClick={this.props.onClick}>{chordTypeNameList[this.props.value]}</button>
+    )
+  }
+}
+
+class ChordNoteSelector extends  React.Component{
+  constructor(props) {
+    super(props);
+  }
+
+  render(){
+    return(
+      <button className={this.props.color} value={this.props.value} onClick={this.props.onClick}>{soundNameList[this.props.value]}</button>
     )
   }
 }
