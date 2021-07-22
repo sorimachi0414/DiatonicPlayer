@@ -2,18 +2,35 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 const WebAudioScheduler = require("web-audio-scheduler");
+//-------System
+/*
+* MainClock
+* --MainClock
+* --ScaleSelector
+* ----FingerBoard
+*
+* */
+
+
 //--------------
 //General Setting
 var bpm=40
-var step=60/bpm
+var seqStep=60/bpm
+var halfStepTiming=0.3
+
 
 const soundNameList=[
   'C',
+  'C#',
   'D',
+  'D#',
   'E',
   'F',
+  'F#',
   'G',
+  'G#',
   'A',
+  'A#',
   'B',
 ]
 
@@ -21,6 +38,13 @@ const chordTypeNameList=[
   'M',
   'm',
   '5',
+]
+
+const scaleTypeNameList=[
+  'Ryukyu',
+  'Major',
+  'm5t',
+
 ]
 
 // ----------------------------------------
@@ -81,12 +105,18 @@ class BufferLoader {
 const bufferLoader = new BufferLoader(
   audioContext,
   [
-    'GuitarCMajor.mp3',
+    'CMajor.wav',
+    'CMajor.wav',
+    'DMajor.wav',
     'DMajor.wav',
     'EMajor.wav',
     'FMajor.wav',
+    'FMajor.wav',
+    'GMajor.wav',
     'GMajor.wav',
     'AMajor.wav',
+    'AMajor.wav',
+    'BMajor.wav',
     'BMajor.wav',
     'Cminor.wav',
     'Dminor.wav',
@@ -99,8 +129,9 @@ const bufferLoader = new BufferLoader(
 );
 bufferLoader.load();
 
+
 // ----------------------------------------
-class Board extends React.Component{
+class MainClock extends React.Component{
   constructor(props) {
     super(props);
     this.state = {
@@ -109,27 +140,6 @@ class Board extends React.Component{
 
       blocksColor:Array(4).fill("chordSelector"),
       color:"chordSelector",
-      Scales2:[
-        [2,6,7,9,1],
-        [4,8,9,11,5],
-        [0,4,5,7,11],
-        [4,8,9,11,3],
-      ],
-      Scales:[
-        [0,4,5,7,11],
-        [0,4,5,7,11],
-        [0,4,5,7,11],
-        [0,4,5,7,11],
-      ],
-      /*
-      Scales:[
-        [0,4,5,7,11],
-        [0,4,5,7,11],
-        [4,8,9,11,3],
-        [4,8,9,11,3],
-      ],
-
-       */
       halfStep:0,
       step:0,
       nextStep:1
@@ -144,12 +154,12 @@ class Board extends React.Component{
   ticktack(e) {
     //Display Change
     this.changeColor(e.args.step)
-    //this.changeFingerBoard(e.args.step)
     this.setState({
       halfStep:0,
       step:e.args.step,
       nextStep:e.args.nextStep,
     })
+    console.log(this.state.halfStep)
 
     //play wav
     const source = audioContext.createBufferSource();
@@ -194,14 +204,14 @@ class Board extends React.Component{
   metronome(e) {
     var t0 = e.playbackTime;
     sched.insert(t0 + 0.000, this.ticktack, {frequency: 146.8, duration: 5.0, step: 0, nextStep:1});
-    sched.insert(t0 + 0.5*step, this.halfStep, {halfStep:1});
-    sched.insert(t0 + 1*step, this.ticktack, {frequency: 164.8, duration: 5.0, step: 1, nextStep:2});
-    sched.insert(t0 + 1.5*step, this.halfStep, {halfStep:1});
-    sched.insert(t0 + 2*step, this.ticktack, {frequency: 130.8, duration: 5.0, step: 2, nextStep:3});
-    sched.insert(t0 + 2.5*step, this.halfStep, {halfStep:1});
-    sched.insert(t0 + 3*step, this.ticktack, {frequency: 195.9, duration: 5.0, step: 3, nextStep:0});
-    sched.insert(t0 + 3.5*step, this.halfStep, {halfStep:1});
-    sched.insert(t0 + 4*step, this.metronome);
+    sched.insert(t0 + halfStepTiming*seqStep, this.halfStep, {halfStep:1});
+    sched.insert(t0 + 1*seqStep, this.ticktack, {frequency: 164.8, duration: 5.0, step: 1, nextStep:2});
+    sched.insert(t0 + halfStepTiming*seqStep+1*seqStep, this.halfStep, {halfStep:1});
+    sched.insert(t0 + 2*seqStep, this.ticktack, {frequency: 130.8, duration: 5.0, step: 2, nextStep:3});
+    sched.insert(t0 + halfStepTiming*seqStep+2*seqStep, this.halfStep, {halfStep:1});
+    sched.insert(t0 + 3*seqStep, this.ticktack, {frequency: 195.9, duration: 5.0, step: 3, nextStep:0});
+    sched.insert(t0 + halfStepTiming*seqStep+3*seqStep, this.halfStep, {halfStep:1});
+    sched.insert(t0 + 4*seqStep, this.metronome);
   }
   start() {
     sched.start(this.metronome);
@@ -285,11 +295,13 @@ class Board extends React.Component{
           onClick={() => this.stop()}
         />
         <div className="spacer"></div>
-        <FingerBoard
-          nowScale={this.state.Scales[this.state.step]}
-          nextScale={this.state.Scales[this.state.nextStep]}
-          halfStep={this.state.halfStep}
+        <ScaleSelector
+        step={this.state.step}
+        hstep={this.state.halfStep}
+        nextStep={this.state.nextStep}
         />
+        <div className="spacer"></div>
+
       </div>
     )
   }
@@ -351,14 +363,13 @@ class FingerBoard extends React.Component{
 
     //次の音に向け、ステップの半分で見た目変化を開始
     if(this.props.halfStep>0){
-      //if(noteClass=="note"){noteClass="noteTrans"}
-      //else if(noteClass=="noteBase"){noteClass="noteBaseTrans"}
       if(noteClass==="noteNext"){noteClass="noteNextTrans"}
       else if(noteClass==="noteBaseNext"){noteClass="noteBaseNextTrans"}
       else if(noteClass==="noteTrans"){noteClass="note"}
       else if(noteClass==="noteBaseTrans"){noteClass="noteBase"}
-      else if(noteClass==="noteNextTrans"){noteClass="noteNext"}
-      else if(noteClass==="noteBaseNextTrans"){noteClass="noteBaseNext"}
+      else if(noteClass==="noteBaseNextTrans"){noteClass="noteBaseNext"} //bug
+      else if(noteClass==="noteNextTrans"){noteClass="noteNext"} //There is bug
+
     }
 
     return(
@@ -419,6 +430,126 @@ class FingerBoard extends React.Component{
   }
 }
 
+const baseScales=[
+  [0,4,5,7,11],
+  [0,2,4,5,7,9,11],
+  [0,3,5,7,10],
+]
+
+function scaleProcessor(key,type){
+  let myScale=baseScales[type].map(x => (x+key) % 12)
+  return myScale
+}
+
+
+class ScaleSelector extends React.Component{
+  constructor(props) {
+    super(props);
+    this.state={
+      selectedScaleNoteList:Array(4).fill(0),
+      selectedScaleTypeList:Array(4).fill(0),
+      Scales:[
+        [0,4,5,7,11],
+        [0,4,5,7,11],
+        [0,4,5,7,11],
+        [0,4,5,7,11],
+      ],
+    }
+  }
+
+  changeScaleTone(i){
+    //コードブロックの数字をインクリメント
+    let list = this.state.selectedScaleNoteList.slice()
+    list[i] +=1
+    if (list[i]>= 12){
+      list[i]=0
+    }
+    this.setState({
+      selectedScaleNoteList:list
+      }
+    )
+  }
+
+  changeScaleType(i){
+    //コードブロックの数字をインクリメント
+    let list = this.state.selectedScaleTypeList.slice()
+    list[i] +=1
+    if (list[i]>= baseScales.length){
+      list[i]=0
+    }
+    this.setState({
+      selectedScaleTypeList:list
+      }
+    )
+
+  }
+
+  repeatSelector(i){
+    return(
+      <div>
+        <ScaleToneSelector
+          class={"chordSelector"}
+          value={soundNameList[this.state.selectedScaleNoteList[i]]}
+          onClick={() => this.changeScaleTone(i)}
+
+        />
+        <ScaleTypeSelector
+          class={"chordSelector"}
+          value={scaleTypeNameList[this.state.selectedScaleTypeList[i]]}
+          onClick={() => this.changeScaleType(i)}
+        />
+      </div>
+    )
+  }
+
+  render(){
+    //definition
+    let step=this.props.step
+    let hstep=this.props.hstep
+    let nextStep = this.props.nextStep
+    let selectors=[]
+    const selectorLength=4
+    for(let i=0;i<selectorLength;i++){
+      selectors.push(
+        this.repeatSelector(i)
+      )
+    }
+    return(
+      <div>
+        {selectors}
+        <div className="spacer"></div>
+        <FingerBoard
+          nowScale={scaleProcessor(this.state.selectedScaleNoteList[step],this.state.selectedScaleTypeList[step])}
+          nextScale={scaleProcessor(this.state.selectedScaleNoteList[nextStep],this.state.selectedScaleTypeList[nextStep])}
+          halfStep={hstep}
+        />
+      </div>
+    )
+  }
+}
+
+class ScaleToneSelector extends  React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render(){
+    return(
+      <button className={this.props.class} value={this.props.value} onClick={this.props.onClick}>{this.props.value}</button>
+    )
+  }
+}
+
+class ScaleTypeSelector extends  React.Component {
+  constructor(props) {
+    super(props);
+  }
+  render(){
+    return(
+      <button className={this.props.class} value={this.props.value} onClick={this.props.onClick}>{this.props.value}</button>
+    )
+  }
+}
+
 class ChordTypeSelector extends  React.Component {
   constructor(props) {
     super(props);
@@ -443,6 +574,8 @@ class ChordNoteSelector extends  React.Component{
   }
 }
 
+
+
 function PlayButton(props){
   return (
     <button onClick={props.onClick}>
@@ -461,6 +594,6 @@ function StopButton(props){
 
 // ----------------------------------------
 ReactDOM.render(
-  <Board />,
+  <MainClock />,
   document.getElementById('root')
 );

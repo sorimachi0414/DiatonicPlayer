@@ -17,6 +17,7 @@
   clear:left;
   position:relative;
 }
+
 .note{
   position: absolute;
   font-size:20px;
@@ -67,7 +68,7 @@
   left:6px;
   z-index:99;
   color: #292;
-  transition:2s;
+  transition:1s;
   opacity:0.8;
 
 }
@@ -79,7 +80,7 @@
   left:6px;
   z-index:99;
   color: #E71;
-  transition:2s;
+  transition:1s;
   opacity:0.8;
 }
 
