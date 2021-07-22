@@ -298,6 +298,7 @@ class FingerBoard extends React.Component{
   }
 }
 
+
 function scaleProcessor(key,type){
   console.log("ScaleProcessor")
   console.log(type)
