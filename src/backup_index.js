@@ -1,42 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import * as Tone from "tone";
-
 const WebAudioScheduler = require("web-audio-scheduler");
 /*
 F-G-Am
 C-Am-F-G
 Dm-G-C-A7
 A7-D7
+
  */
-//Debug Tone.js
-const fRatio=1.059463
-
-//Tone.Transport.bpm.value = 80;
-
-const sampler = new Tone.Sampler({
-  urls: {
-    C2: "C2single.mp3",
-    C3: "C3single.mp3",
-  },
-  baseUrl: "./",
-}).toDestination();
-Tone.Transport.scheduleRepeat((time) => {
-  sampler.triggerAttackRelease(["C3", "E3","G3",], "8n")
-  console.log("tic")
-}, "4n", "0m");
-
-function settingTone(){
-  console.log("settingTone")
-  sampler.context._context.resume()
-  Tone.Transport.start();
-}
-
-function stopTone(){
-  Tone.Transport.stop();
-}
-
 //--------------
 //General Setting
 var bpm=20
@@ -126,9 +98,9 @@ class MainClock extends React.Component{
 
   metronome(e) {
     var t0 = e.playbackTime;
-    sched.insert(t0 + 0.000, this.ticktack, {frequency: 146.8, duration: 0, step: 0, nextStep:1});
+    sched.insert(t0 + 0.000, this.ticktack, {frequency: 146.8, duration: 2.0, step: 0, nextStep:1});
     sched.insert(t0 + halfStepTiming*seqStep, this.halfStep, {halfStep:1});
-    sched.insert(t0 + 1*seqStep, this.ticktack, {frequency: 164.8, duration: 0, step: 1, nextStep:2});
+    sched.insert(t0 + 1*seqStep, this.ticktack, {frequency: 164.8, duration: 10.0, step: 1, nextStep:2});
     sched.insert(t0 + halfStepTiming*seqStep+1*seqStep, this.halfStep, {halfStep:1});
     sched.insert(t0 + 2*seqStep, this.ticktack, {frequency: 130.8, duration: 1.0, step: 2, nextStep:3});
     sched.insert(t0 + halfStepTiming*seqStep+2*seqStep, this.halfStep, {halfStep:1});
@@ -149,7 +121,7 @@ class MainClock extends React.Component{
     let blocks = this.state.blocks.slice()
     blocks[i] = (blocks[i] < soundNameList.length) ? blocks[i]+1 : 0
     this.setState({
-      blocks:blocks
+        blocks:blocks
       }
     )
   }
@@ -159,7 +131,7 @@ class MainClock extends React.Component{
     let list = this.state.chordTypes.slice()
     list[i] = (list[i] < chordTypeNameList.length) ?list[i]+1 : 0
     this.setState({
-      chordTypes:list
+        chordTypes:list
       }
     )
   }
@@ -170,27 +142,27 @@ class MainClock extends React.Component{
     blocksColor=Array(4).fill("chordSelector")
     blocksColor[i]="chordSelectorActive"
     this.setState({
-      blocksColor:blocksColor
+        blocksColor:blocksColor
       }
     )
   }
 
   //コードブロックを配置
   arrangeBlock(i){
-      return (
-        <div>
-          <ChordNoteSelector
-            color={this.state.blocksColor[i]}
-            value={this.state.blocks[i]}
-            onClick={() => this.changeChord(i)}
-          />
-          <ChordTypeSelector
-            color={this.state.blocksColor[i]}
-            value={this.state.chordTypes[i]}
-            onClick={() => this.changeChordType(i)}
-          />
-        </div>
-      );
+    return (
+      <div>
+        <ChordNoteSelector
+          color={this.state.blocksColor[i]}
+          value={this.state.blocks[i]}
+          onClick={() => this.changeChord(i)}
+        />
+        <ChordTypeSelector
+          color={this.state.blocksColor[i]}
+          value={this.state.chordTypes[i]}
+          onClick={() => this.changeChordType(i)}
+        />
+      </div>
+    );
   }
 
   render(){
@@ -206,12 +178,6 @@ class MainClock extends React.Component{
         {blocks}
         <div className="board-row"></div>
         <PlayButton
-          onClick={()=>settingTone()}
-        />
-        <StopButton
-          onClick={()=>stopTone()}
-        />
-        <PlayButton
           onClick={() => this.start()}
         />
         <StopButton
@@ -219,9 +185,9 @@ class MainClock extends React.Component{
         />
         <div className="spacer"></div>
         <ScaleSelector
-        step={this.state.step}
-        hstep={this.state.halfStep}
-        nextStep={this.state.nextStep}
+          step={this.state.step}
+          hstep={this.state.halfStep}
+          nextStep={this.state.nextStep}
         />
         <div className="spacer"></div>
       </div>
@@ -380,7 +346,7 @@ class ScaleSelector extends React.Component{
 
      */
     this.setState({
-      selectedScaleNoteList:list
+        selectedScaleNoteList:list
       }
     )
   }
@@ -399,8 +365,8 @@ class ScaleSelector extends React.Component{
 
      */
     this.setState({
-      selectedScaleTypeList:list
-      //selectedScaleTypeList:masterScale[arg]
+        selectedScaleTypeList:list
+        //selectedScaleTypeList:masterScale[arg]
       }
     )
 
@@ -521,8 +487,6 @@ class ChordNoteSelector extends  React.Component{
 
 function PlayButton(props){
   return (
-    //<button onClick={startTone()}>
-    //<button onClick={()=>startTone("e")}>
     <button onClick={props.onClick}>
       Play
     </button>
@@ -536,6 +500,10 @@ function StopButton(props){
     </button>
   );
 }
+
+//Refactor
+const fRatio=1.059463
+
 
 
 // ----------------------------------------
