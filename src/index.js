@@ -2,10 +2,16 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 const WebAudioScheduler = require("web-audio-scheduler");
+/*
+F-G-Am
+C-Am-F-G
+Dm-G-C-A7
+A7-D7
 
+ */
 //--------------
 //General Setting
-var bpm=40
+var bpm=20
 var seqStep=60/bpm
 var halfStepTiming=0.3
 
@@ -60,6 +66,10 @@ class MainClock extends React.Component{
     //音源選択
     let listPointer = this.state.blocks[this.state.step]+7*this.state.chordTypes[this.state.step]
     source.buffer = bufferLoader.bufferList[listPointer];
+    //音源変調
+    //source.playbackRate.value = 0.5;
+
+
     source.connect(audioContext.destination);
 
     var t0 = e.playbackTime;
@@ -88,13 +98,13 @@ class MainClock extends React.Component{
 
   metronome(e) {
     var t0 = e.playbackTime;
-    sched.insert(t0 + 0.000, this.ticktack, {frequency: 146.8, duration: 5.0, step: 0, nextStep:1});
+    sched.insert(t0 + 0.000, this.ticktack, {frequency: 146.8, duration: 2.0, step: 0, nextStep:1});
     sched.insert(t0 + halfStepTiming*seqStep, this.halfStep, {halfStep:1});
-    sched.insert(t0 + 1*seqStep, this.ticktack, {frequency: 164.8, duration: 5.0, step: 1, nextStep:2});
+    sched.insert(t0 + 1*seqStep, this.ticktack, {frequency: 164.8, duration: 10.0, step: 1, nextStep:2});
     sched.insert(t0 + halfStepTiming*seqStep+1*seqStep, this.halfStep, {halfStep:1});
-    sched.insert(t0 + 2*seqStep, this.ticktack, {frequency: 130.8, duration: 5.0, step: 2, nextStep:3});
+    sched.insert(t0 + 2*seqStep, this.ticktack, {frequency: 130.8, duration: 1.0, step: 2, nextStep:3});
     sched.insert(t0 + halfStepTiming*seqStep+2*seqStep, this.halfStep, {halfStep:1});
-    sched.insert(t0 + 3*seqStep, this.ticktack, {frequency: 195.9, duration: 5.0, step: 3, nextStep:0});
+    sched.insert(t0 + 3*seqStep, this.ticktack, {frequency: 195.9, duration: 1.0, step: 3, nextStep:0});
     sched.insert(t0 + halfStepTiming*seqStep+3*seqStep, this.halfStep, {halfStep:1});
     sched.insert(t0 + 4*seqStep, this.metronome);
   }
@@ -323,13 +333,18 @@ class ScaleSelector extends React.Component{
     }
   }
 
-  changeScaleTone(i){
+  changeScaleTone(i,val){
     //コードブロックの数字をインクリメント
     let list = this.state.selectedScaleNoteList.slice()
-    list[i] +=1
+    list[i] = (list[i]+val>=12) ? 0 : (list[i]+val<0) ? 11 : list[i]+val
+    console.log(list[i])
+    /*
+    list[i] +=val
     if (list[i]>= 12){
       list[i]=0
     }
+
+     */
     this.setState({
       selectedScaleNoteList:list
       }
@@ -359,15 +374,16 @@ class ScaleSelector extends React.Component{
 
   repeatSelector(i){
     return(
-      <div>
+      <div className="scaleBlock">
         <ScaleToneSelector
-          class={"chordSelector"}
+          class={"scaleNoteSelecotr"}
           value={soundNameList[this.state.selectedScaleNoteList[i]]}
-          onClick={() => this.changeScaleTone(i)}
+          onClickP={() => this.changeScaleTone(i,1)}
+          onClickN={() => this.changeScaleTone(i,-1)}
 
         />
         <ScaleTypeSelector
-          class={"chordSelectorSelect"}
+          class={"scaleTypeSelector"}
           boxNum={i}
           //value={scaleTypeNameList[this.state.selectedScaleTypeList[i]]}
           value={masterScale[this.state.selectedScaleTypeList[i]]}
@@ -409,7 +425,11 @@ class ScaleToneSelector extends  React.Component {
   }
   render(){
     return(
-      <button className={this.props.class} value={this.props.value} onClick={this.props.onClick}>{this.props.value}</button>
+      <div>
+        <button className="scaleNoteShifter" value={this.props.value} onClick={this.props.onClickN}>{"<"}</button>
+        <button className="scaleNoteSelecotr" value={this.props.value} onClick={this.props.onClick}>{this.props.value}</button>
+        <button className="scaleNoteShifter" value={this.props.value} onClick={this.props.onClickP}>{">"}</button>
+      </div>
     )
   }
 }
@@ -433,7 +453,7 @@ class ScaleTypeSelector extends  React.Component {
       )
     }
     return(
-      <select className={this.props.class} onChange={(e)=>this.changeScaleByName(e)}>
+      <select className="scaleTypeSelector" onChange={(e)=>this.changeScaleByName(e)}>
         {scaleForSelect}
       </select>
       //<button className={this.props.class} value={this.props.value} onClick={this.props.onClick}>{this.props.value}</button>
@@ -480,6 +500,11 @@ function StopButton(props){
     </button>
   );
 }
+
+//Refactor
+const fRatio=1.059463
+
+
 
 // ----------------------------------------
 var audioContext = new AudioContext();
