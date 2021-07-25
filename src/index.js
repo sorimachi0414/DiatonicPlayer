@@ -3,7 +3,18 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import * as Tone from "tone";
 
-const WebAudioScheduler = require("web-audio-scheduler");
+// ----------------------------------------
+//General Setting
+const soundNameList=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B',]
+const chordTypeNameList=['M','m','5',]
+const masterScale = {
+  'Major':[0,2,4,5,7,9,11],
+  'minor':[0,2,3,5,7,8,10],
+  'm5t':  [0,3,5,7,10],
+  'Ryukyu':[0,4,5,7,11],
+}
+// ----------------------------------------
+
 /*
 F-G-Am
 C-Am-F-G
@@ -11,9 +22,7 @@ Dm-G-C-A7
 A7-D7
  */
 //Debug Tone.js
-const fRatio=1.059463
-
-//Tone.Transport.bpm.value = 80;
+Tone.Transport.bpm.value = 40;
 
 const sampler = new Tone.Sampler({
   urls: {
@@ -22,10 +31,6 @@ const sampler = new Tone.Sampler({
   },
   baseUrl: "./",
 }).toDestination();
-Tone.Transport.scheduleRepeat((time) => {
-  sampler.triggerAttackRelease(["C3", "E3","G3",], "8n")
-  console.log("tic")
-}, "4n", "0m");
 
 function settingTone(){
   console.log("settingTone")
@@ -37,28 +42,7 @@ function stopTone(){
   Tone.Transport.stop();
 }
 
-//--------------
-//General Setting
-var bpm=20
-var seqStep=60/bpm
-var halfStepTiming=0.3
 
-const soundNameList=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B',]
-const chordTypeNameList=['M','m','5',]
-const masterScale = {
-  'Major':[0,2,4,5,7,9,11],
-  'minor':[0,2,3,5,7,8,10],
-  'm5t':  [0,3,5,7,10],
-  'Ryukyu':[0,4,5,7,11],
-
-
-}
-const scaleTypeNameList=['Ryukyu','Major','m5t',]
-const baseScales=[
-  [0,4,5,7,11],
-  [0,2,4,5,7,9,11],
-  [0,3,5,7,10],
-]
 // ----------------------------------------
 class MainClock extends React.Component{
   constructor(props) {
@@ -69,79 +53,46 @@ class MainClock extends React.Component{
 
       blocksColor:Array(4).fill("chordSelector"),
       color:"chordSelector",
-      halfStep:0,
-      step:0,
-      nextStep:1
+      halfStep:1,
+      step:3,
+      nextStep:0
     };
     this.ticktack = this.ticktack.bind(this);
     this.halfStep = this.halfStep.bind(this);
-    this.metronome = this.metronome.bind(this);
+    Tone.Transport.scheduleRepeat((time) => {
+      //Call Back
+      if(this.state.halfStep==0){
+        this.setState({halfStep:1})
+      }else{
+        this.setState({halfStep:0})
+        sampler.triggerAttackRelease(["C3", "E3","G3",], "4n")
+        this.ticktack()
+      }
+    }, "8n", "0m");
   }
 
   //------------------------------------------------
   //CallBack
-  ticktack(e) {
+  ticktack() {
+    let step=this.state.step
+    step+=1
+    if(step>=4){step=0}
+    let nextStep=step+1
+    if(nextStep>=4){nextStep=0}
     //Display Change
-    this.changeColor(e.args.step)
+    this.changeColor(step)
     this.setState({
       halfStep:0,
-      step:e.args.step,
-      nextStep:e.args.nextStep,
+      step:step,
+      nextStep:nextStep
     })
-
-    //play wav
-    const source = audioContext.createBufferSource();
-    //音源選択
-    let listPointer = this.state.blocks[this.state.step]+7*this.state.chordTypes[this.state.step]
-    source.buffer = bufferLoader.bufferList[listPointer];
-    //音源変調
-    //source.playbackRate.value = 0.5;
-
-
-    source.connect(audioContext.destination);
-
-    var t0 = e.playbackTime;
-    var t1 = t0 + e.args.duration;
-    var osc = audioContext.createOscillator();
-    var amp = audioContext.createGain();
-
-    //wave playing
-    source.start(t0)
-    source.stop(t1)
-
-    amp.gain.setValueAtTime(0.5, t0);
-    amp.gain.exponentialRampToValueAtTime(1e-6, t1);
-    amp.connect(masterGain);
-
-    sched.nextTick(t1, function () {
-      osc.disconnect();
-      amp.disconnect();
-    });
-  }
+    }
 
   //発音しない、ハーフステップでのコールバック
   halfStep(e){
     this.setState({halfStep:1,})
   }
 
-  metronome(e) {
-    var t0 = e.playbackTime;
-    sched.insert(t0 + 0.000, this.ticktack, {frequency: 146.8, duration: 0, step: 0, nextStep:1});
-    sched.insert(t0 + halfStepTiming*seqStep, this.halfStep, {halfStep:1});
-    sched.insert(t0 + 1*seqStep, this.ticktack, {frequency: 164.8, duration: 0, step: 1, nextStep:2});
-    sched.insert(t0 + halfStepTiming*seqStep+1*seqStep, this.halfStep, {halfStep:1});
-    sched.insert(t0 + 2*seqStep, this.ticktack, {frequency: 130.8, duration: 1.0, step: 2, nextStep:3});
-    sched.insert(t0 + halfStepTiming*seqStep+2*seqStep, this.halfStep, {halfStep:1});
-    sched.insert(t0 + 3*seqStep, this.ticktack, {frequency: 195.9, duration: 1.0, step: 3, nextStep:0});
-    sched.insert(t0 + halfStepTiming*seqStep+3*seqStep, this.halfStep, {halfStep:1});
-    sched.insert(t0 + 4*seqStep, this.metronome);
-  }
-  start() {
-    sched.start(this.metronome);
-  }
-  stop() {
-    sched.stop(true);
-  }
   //------------------------------------------------
 
   changeChord(i) {
@@ -237,7 +188,6 @@ class FingerBoard extends React.Component{
 
   //各弦の各フレットを配置
   arrangeFingerElements(i,j) {
-    let settingClass="square"
     let fletLetter=""
     let stringShift=0
     let noteClass=""
@@ -344,8 +294,8 @@ class FingerBoard extends React.Component{
 
 
 function scaleProcessor(key,type){
-  console.log("ScaleProcessor")
-  console.log(type)
+  //console.log("ScaleProcessor")
+  //console.log(type)
   let myScale=masterScale[type].map(x => (x+key) % 12)
   return myScale
 }
@@ -475,7 +425,7 @@ class ScaleTypeSelector extends  React.Component {
 
   //props.onClick
   changeScaleByName(e){
-    console.log(e.target.value)
+    //console.log(e.target.value)
     this.props.onChangeScale(this.props.boxNum,e.target.value)
   }
 
@@ -537,91 +487,12 @@ function StopButton(props){
   );
 }
 
-
-// ----------------------------------------
-var audioContext = new AudioContext();
-var sched = new WebAudioScheduler({ context: audioContext });
-var masterGain = null;
-
-sched.on("start", function() {
-  masterGain = audioContext.createGain();
-  masterGain.connect(audioContext.destination);
-});
-sched.on("stop", function() {
-  masterGain.disconnect();
-  masterGain = null;
-});
-
-document.addEventListener("visibilitychange", () => {
-  if (document.visibilityState === "visible") {
-    sched.aheadTime = 0.1;
-  } else {
-    sched.aheadTime = 1.0;
-    sched.process();
-  }
-});
-
-// ----------------------------------------
-// サウンドの読み込み
-const context = new AudioContext()
-class BufferLoader {
-
-  constructor(context, urlList) {
-    this.context = context;
-    this.urlList = urlList;
-    this.bufferList = new Array();
-  }
-
-  loadBuffer(url, index) {
-    const request = new XMLHttpRequest();
-    request.open("GET", url, true);
-    request.responseType = "arraybuffer";
-    request.onload = () => {
-      this.context.decodeAudioData(request.response).then(
-        (buffer) =>  this.bufferList[index] = buffer
-      );
-    }
-    request.onerror = (e) => {
-      console.error(`XHR Request error: ${e}`);
-    }
-    request.send();
-  }
-
-  load() {
-    this.urlList.forEach((url, i) => this.loadBuffer(url, i));
-  }
-};
-
-//loading audio buffers
-const bufferLoader = new BufferLoader(
-  audioContext,
-  [
-    'CMajor.wav',
-    'CMajor.wav',
-    'DMajor.wav',
-    'DMajor.wav',
-    'EMajor.wav',
-    'FMajor.wav',
-    'FMajor.wav',
-    'GMajor.wav',
-    'GMajor.wav',
-    'AMajor.wav',
-    'AMajor.wav',
-    'BMajor.wav',
-    'BMajor.wav',
-    'Cminor.wav',
-    'Dminor.wav',
-    'Eminor.wav',
-    'Fminor.wav',
-    'Gminor.wav',
-    'Aminor.wav',
-    'Bminor.wav',
-  ]
-);
-bufferLoader.load();
-
 // ----------------------------------------
 ReactDOM.render(
   <MainClock />,
   document.getElementById('root')
 );
+
+
+// ----------------------------------------
+// ----------------------------------------
