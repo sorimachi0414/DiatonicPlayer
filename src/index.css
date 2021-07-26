@@ -20,7 +20,7 @@
 //width: 34px;
 }
 
-.scaleNoteSelecotr {
+.scaleNoteSelector {
   background: #fff;
   border: 1px solid #999;
   float:none;
@@ -34,7 +34,7 @@
   padding: 0;
   text-align: center;
   width: 34px;
-  //width: 34px;
+  /*width: 34px;*/
 }
 
 .scaleTypeSelector{
@@ -52,9 +52,8 @@
   padding: 0;
   text-align: center;
   width: 102px;
-
-
 }
+
 .circle{
   position:absolute;
   width: 15px;
@@ -239,11 +238,11 @@ ol, ul {
 .chordSelector {
   background: #fff;
   border: 1px solid #999;
-  float: left;
+  float: none;
   font-size: 24px;
   font-weight: bold;
   line-height: 34px;
-  height: 34px;
+  height: 102px;
   margin-right: -1px;
   margin-top: -1px;
   padding: 0;
@@ -254,11 +253,11 @@ ol, ul {
 .chordSelectorActive {
   background: #c00;
   border: 1px solid #999;
-  float: left;
+  float: none;
   font-size: 24px;
   font-weight: bold;
   line-height: 34px;
-  height: 34px;
+  height: 102px;
   margin-right: -1px;
   margin-top: -1px;
   padding: 0;

@@ -132,46 +132,43 @@ class MainClock extends React.Component{
   }
 
   //------------------------------------------------
-  changeChord(i) {
-    //コードブロックの数字をインクリメント
-    let blocks = this.state.blocks.slice()
-    blocks[i] = (blocks[i] < soundNameList.length) ? blocks[i]+1 : 0
-    this.setState({
-      blocks:blocks
-      }
-    )
+  changeChord(i,val) {
+    //val = chordNote or chordType
+    // val = 3 => D# , val = 'm7' => minor 7th Chord
+    let shift,chordTones
+    if (typeof val== 'number'){
+      let list = this.state.blocks.slice()
+      let chordNotes=this.state.chordNotes.slice()
+      list[i] = (list[i]+val>=soundNameList.length) ? 0 : (list[i]+val<0) ? soundNameList.length-1 : list[i]+val
 
-    let chordNotes=this.state.chordNotes.slice()
-    chordNotes[i] +=1
-    this.setState({
-      chordNotes:chordNotes
-      }
-    )
-
-    this.makeChordString(i)
-  }
-
-  changeChordType(num,key) {
-    //コードブロックの数字をインクリメント
-    let list = this.state.chordTypes.slice()
-    list[num]=key
-    this.setState({
-      chordTypes:list
-      }
-    )
+      chordNotes[i]=list[i]
+      this.setState({
+        chordNotes:chordNotes,
+        blocks:list
+      })
+      chordTones = masterChord[this.state.chordTypes[i]]
+      shift = chordNotes[i] //0,1,2,...
+    }else if (typeof val== 'string'){
+      console.log('string')
+      let list = this.state.chordTypes.slice()
+      list[i]=val
+      this.setState({
+          chordTypes:list
+        }
+      )
+      chordTones = masterChord[val]
+      shift = this.state.chordNotes[i]
+    }
 
     //chordListの変更処理　Stateの更新が非同期なので、ここで行う
     let chordList=this.state.chordList.slice()
-    let chordTones = masterChord[key]
-    let shift = this.state.chordNotes[num] //0,1,2,...
     let chordTonesShifted=chordTones.map(x => (x+shift) %12)
     let chordToneABC=chordTonesShifted.map(x =>soundNameList[x]+'3')
-    chordList[num] = chordToneABC
+    chordList[i] = chordToneABC
     this.setState({
       chordList:chordList
     })
 
-    //this.makeChordString(num)
   }
 
   //アクティブなステップ（コード）を着色
@@ -194,27 +191,22 @@ class MainClock extends React.Component{
       )
     }
     return (
-      <div>
+      <div className="scaleBlock">
         <ChordNoteSelector
           color={this.state.blocksColor[i]}
           value={this.state.blocks[i]}
-          onClick={() => this.changeChord(i)}
+          onClick={() => this.changeChord(i,1)}
+          onClickP={() => this.changeChord(i,1)}
+          onClickN={() => this.changeChord(i,-1)}
         />
         <ChordTypeSelector
           class={"scaleTypeSelector"}
           boxNum={i}
           value={masterChord[this.state.chordTypes[i]]}
-          onChangeChord={(i,e) => this.changeChordType(i,e)}
+          onChangeChord={(i,e) => this.changeChord(i,String(e))}
         />
 
       </div>
-      /*
-<ChordTypeSelector
-  color={this.state.blocksColor[i]}
-  value={this.state.chordTypes[i]}
-  onClick={() => this.changeChordType(i)}
-/>
-*/
     );
   }
 
@@ -434,18 +426,7 @@ class ScaleSelector extends React.Component{
     //コードブロックの数字をインクリメント
     let list = this.state.selectedScaleNoteList.slice()
     list[i] = (list[i]+val>=12) ? 0 : (list[i]+val<0) ? 11 : list[i]+val
-    console.log(list[i])
-    /*
-    list[i] +=val
-    if (list[i]>= 12){
-      list[i]=0
-    }
-
-     */
-    this.setState({
-      selectedScaleNoteList:list
-      }
-    )
+    this.setState({selectedScaleNoteList:list})
   }
 
   changeScaleType(num,arg){
@@ -465,7 +446,7 @@ class ScaleSelector extends React.Component{
     return(
       <div className="scaleBlock">
         <ScaleToneSelector
-          class={"scaleNoteSelecotr"}
+          class={"scaleNoteSelector"}
           value={soundNameList[this.state.selectedScaleNoteList[i]]}
           onClickP={() => this.changeScaleTone(i,1)}
           onClickN={() => this.changeScaleTone(i,-1)}
@@ -516,7 +497,7 @@ class ScaleToneSelector extends  React.Component {
     return(
       <div>
         <button className="scaleNoteShifter" value={this.props.value} onClick={this.props.onClickN}>{"<"}</button>
-        <button className="scaleNoteSelecotr" value={this.props.value} onClick={this.props.onClick}>{this.props.value}</button>
+        <button className="scaleNoteSelector" value={this.props.value} onClick={this.props.onClick}>{this.props.value}</button>
         <button className="scaleNoteShifter" value={this.props.value} onClick={this.props.onClickP}>{">"}</button>
       </div>
     )
@@ -550,19 +531,6 @@ class ScaleTypeSelector extends  React.Component {
   }
 }
 
-/*
-class ChordTypeSelector extends  React.Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render(){
-    return(
-      <button className={this.props.color} value={this.props.value} onClick={this.props.onClick}>{chordTypeNameList[this.props.value]}</button>
-    )
-  }
-}
-*/
 class ChordNoteSelector extends  React.Component{
   constructor(props) {
     super(props);
@@ -570,7 +538,11 @@ class ChordNoteSelector extends  React.Component{
 
   render(){
     return(
-      <button className={this.props.color} value={this.props.value} onClick={this.props.onClick}>{soundNameList[this.props.value]}</button>
+      <div>
+        <button className="scaleNoteShifter" value={this.props.value} onClick={this.props.onClickN}>{"<"}</button>
+        <button className={this.props.color} value={this.props.value} onClick={this.props.onClick}>{soundNameList[this.props.value]}</button>
+        <button className="scaleNoteShifter" value={this.props.value} onClick={this.props.onClickP}>{">"}</button>
+      </div>
     )
   }
 }
