@@ -6,10 +6,11 @@ import * as Tone from "tone";
 // ----------------------------------------
 //General Setting
 const soundNameList=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B',]
-const chordTypeNameList=['M','m','5',]
+const chordTypeNameList=['M','m','5','7']
 const masterChord ={
   'M':[0,4,7],
   'm':[0,3,7],
+  '7':[0,4,7,10],
   '5':[0,4],
 
 }
@@ -28,7 +29,7 @@ Dm-G-C-A7
 A7-D7
  */
 //Debug Tone.js
-Tone.Transport.bpm.value = 40;
+
 
 const sampler = new Tone.Sampler({
   urls: {
@@ -62,9 +63,11 @@ class MainClock extends React.Component{
       color:"chordSelector",
       halfStep:1,
       step:3,
-      nextStep:0
+      nextStep:0,
+      bpm:100,
     };
     this.ticktack = this.ticktack.bind(this);
+    //発音部
     Tone.Transport.scheduleRepeat((time) => {
       //Call Back
       if(this.state.halfStep==0){
@@ -88,6 +91,7 @@ class MainClock extends React.Component{
   //------------------------------------------------
   //CallBack
   ticktack() {
+    Tone.Transport.bpm.value = this.state.bpm;
     let step=this.state.step
     step+=1
     if(step>=4){step=0}
@@ -210,6 +214,16 @@ class MainClock extends React.Component{
     );
   }
 
+  changeBPM(diff){
+    console.log(diff)
+    let bpm =this.state.bpm
+    bpm +=diff
+    console.log(bpm)
+    this.setState({
+      bpm:bpm,
+    })
+  }
+
   render(){
     let blocks=[]
     const blockLength=4
@@ -228,12 +242,15 @@ class MainClock extends React.Component{
         <StopButton
           onClick={()=>stopTone()}
         />
-        <PlayButton
-          onClick={() => this.start()}
+
+        <BPMChanger
+          bpm={this.state.bpm}
+          p10={()=>this.changeBPM(10)}
+          p1={()=>this.changeBPM(1)}
+          n1={()=>this.changeBPM(-1)}
+          n10={()=>this.changeBPM(-10)}
         />
-        <StopButton
-          onClick={() => this.stop()}
-        />
+
         <div className="spacer"></div>
         <ScaleSelector
         step={this.state.step}
@@ -342,17 +359,20 @@ class FingerBoard extends React.Component{
       else if(noteClass==="noteNextTrans"){noteClass="noteNext"} //There is bug
     }
 
+    let sqWidth = 46 -1*j //34 +2*12= 58
+
     return(
-      <div className={fletClass}>
-        <div className={noteClass}>{fletLetter}</div>
+      <div className={fletClass} style={{'width':sqWidth+'px'}}>
+        <div className={noteClass} >{fletLetter}</div>
         {positionMark}
       </div>
     )
   }
 
   addFletNumber(i){
+    let sqWidth = 46 -1*i //34 +2*12= 58
     return(
-      <div class="squareFletNumber">{i+1}</div>
+      <div class="squareFletNumber" style={{'width':sqWidth+'px'}}>{i+1}</div>
     )
   }
 
@@ -556,6 +576,19 @@ function PlayButton(props){
       Play
     </button>
   );
+}
+
+function BPMChanger(props){
+  return(
+    <div>
+      <button className="bpmButton" onClick={props.n10}>-10</button>
+      <button className="bpmButton" onClick={props.n1}>-1</button>
+      <span className="bpmDisplay">bpm:{props.bpm}</span>
+      <button className="bpmButton" onClick={props.p1}>+1</button>
+      <button className="bpmButton" onClick={props.p10}>+10</button>
+
+    </div>
+  )
 }
 
 function StopButton(props){
