@@ -8,10 +8,11 @@ import * as Tone from "tone";
 const soundNameList=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B',]
 const chordTypeNameList=['M','m','5','7']
 const masterChord ={
-  'M':[0,4,7],
-  'm':[0,3,7],
-  '7':[0,4,7,10],
-  '5':[0,4],
+  'M':[12,24+0,24+7,36+0,36+4,36+7],
+  'test':[12,],
+  'm':[24+0,24+7,36,36+3,36+7],
+  '7':[24+0,24+7,24+10,36+0,36+4,36+7],
+  '5':[24+0,24+4,36],
 
 }
 const masterScale = {
@@ -31,17 +32,48 @@ A7-D7
 //Debug Tone.js
 
 
-const sampler = new Tone.Sampler({
+let sampler = new Tone.Sampler({
   urls: {
+    C1: "SD.mp3",
     C2: "C2single.mp3",
     C3: "C3single.mp3",
   },
   baseUrl: "./",
 }).toDestination();
 
+const guitar = new Tone.Sampler(
+  {
+    urls:{
+      C1: "SD.mp3",
+      B2: "agB2.mp3",
+      B3: "agB3.mp3",
+      //B4: "agB4.mp3",
+      //C4: "guitarC4.mp3",
+    },
+    baseUrl:"./",
+  }
+).toDestination();
+
+const drum = new Tone.Sampler(
+  {
+    urls:{
+      C3: "BD.mp3",
+      C4: "SD.mp3",
+      C5: "HHC.mp3",
+    },
+    baseUrl:"./",
+  }
+).toDestination();
+
+//sampler=guitar
+//sampler.volume.value = -10;
+//drum.volume.value = 5;
+
 function settingTone(){
   console.log("settingTone")
   sampler.context._context.resume()
+  drum.context._context.resume()
+  guitar.context._context.resume()
   Tone.Transport.start();
 }
 
@@ -56,8 +88,8 @@ class MainClock extends React.Component{
     super(props);
     this.state = {
       blocks:Array(7).fill(0),
-      chordList:Array(4).fill(["C3", "E3","G3",]),
-      chordNotes:Array(4).fill(0),
+      chordList:Array(4).fill(["C3","G3","C4", "E4","G4",]),
+      chordNotes:Array(4).fill(36),
       chordTypes:Array(4).fill("M"),
       blocksColor:Array(4).fill("chordSelector"),
       color:"chordSelector",
@@ -68,6 +100,41 @@ class MainClock extends React.Component{
     };
     this.ticktack = this.ticktack.bind(this);
     //発音部
+    let optsMembrane = {
+      pitchDecay: 0.001,
+      envelope: {
+        attack: 0.001 ,
+        decay: 0.75 ,
+        sustain: 0.01 ,
+        release: 0.01
+      },
+      volume: 10
+    }
+
+    //const membrane = new Tone.MembraneSynth(optsMembrane).toDestination();
+
+    const kick = () => {
+      //membrane.triggerAttackRelease('C3','4n');
+      drum.triggerAttackRelease(['C3','G3'],'4n');
+    };
+
+    const melody = () => {
+      sampler.triggerAttackRelease(['C3','G3'],'4n');
+    };
+
+    let kickRhythm = [
+      0,1,2,3,
+    ];
+
+    let melodyRhythm = [
+      0,0.5,1,0.5
+    ];
+
+    let kickPart = new Tone.Part(kick, kickRhythm).start()
+    let melodyPart = new Tone.Part(melody, melodyRhythm).start()
+    //kickPart.loop = true;
+
+    /*
     Tone.Transport.scheduleRepeat((time) => {
       //Call Back
       if(this.state.halfStep==0){
@@ -77,21 +144,28 @@ class MainClock extends React.Component{
         this.ticktack()
         if(this.state.step===0) {
           sampler.triggerAttackRelease(this.state.chordList[0], "4n")
+          drum.triggerAttackRelease(['C3','C5'], "4n")
         }else if(this.state.step===1){
           sampler.triggerAttackRelease(this.state.chordList[1], "4n")
+          drum.triggerAttackRelease(['C5'], "4n")
         }else if(this.state.step===2){
           sampler.triggerAttackRelease(this.state.chordList[2], "4n")
+          drum.triggerAttackRelease(['C4','C5'], "4n")
         }else if(this.state.step===3){
           sampler.triggerAttackRelease(this.state.chordList[3], "4n")
+          drum.triggerAttackRelease(['C5'], "4n")
         }
       }
     }, "8n", "0m");
+
+     */
   }
 
   //------------------------------------------------
   //CallBack
   ticktack() {
-    Tone.Transport.bpm.value = this.state.bpm;
+
+    //Tone.Transport.bpm.value = this.state.bpm;
     let step=this.state.step
     step+=1
     if(step>=4){step=0}
@@ -104,35 +178,6 @@ class MainClock extends React.Component{
       step:step,
       nextStep:nextStep
     })
-  }
-
-  makeChordString(i) {
-    let chordList=this.state.chordList.slice()
-    let shift = this.state.chordNotes[i] //0,1,2,...
-    let chordKey = this.state.chordTypes[i] //M,m,m7,...
-
-    //コード種別を変更
-    let chordTones = masterChord[chordKey]
-    /*
-    console.log('chordTypes')
-    console.log(this.state.chordTypes)
-    console.log('chordTones')
-    console.log(chordTones)
-     */
-
-    //ピッチをシフト
-    let chordTonesShifted=chordTones.map(x => (x+shift) %12)
-
-    //convert Number to Alphabet
-    let chordToneABC=chordTonesShifted.map(x =>soundNameList[x]+'3')
-    chordList[i] = chordToneABC
-    console.log(chordToneABC)
-    console.log(chordList[i])
-
-    this.setState({
-      chordList:chordList
-    })
-    console.log(this.state.chordList)
   }
 
   //------------------------------------------------
@@ -166,8 +211,11 @@ class MainClock extends React.Component{
 
     //chordListの変更処理　Stateの更新が非同期なので、ここで行う
     let chordList=this.state.chordList.slice()
-    let chordTonesShifted=chordTones.map(x => (x+shift) %12)
-    let chordToneABC=chordTonesShifted.map(x =>soundNameList[x]+'3')
+    let chordTonesShifted=chordTones.map(x => soundNameList[(x+shift) %12] + Math.floor(x/12))
+    //let chordToneABC=chordTonesShifted.map(x =>soundNameList[x]+Math.floor(x))
+    //chordToneABC=chordToneABC.concat(chordTonesShifted.map(x =>soundNameList[x]+'2'))
+    let chordToneABC = chordTonesShifted
+    console.log(chordToneABC)
     chordList[i] = chordToneABC
     this.setState({
       chordList:chordList
