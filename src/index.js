@@ -81,10 +81,10 @@ function stopTone(){
   Tone.Transport.stop();
 }
 
-
 // ----------------------------------------
 class MainClock extends React.Component{
   constructor(props) {
+    const unit = 60/100
     super(props);
     this.state = {
       blocks:Array(7).fill(0),
@@ -97,6 +97,13 @@ class MainClock extends React.Component{
       step:3,
       nextStep:0,
       bpm:100,
+      bdSched:[0,4,8,12].map(x => x*unit),
+      sdSched:[2,6,10,14].map(x => x*unit),
+      hhcSched:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(x => x*unit),
+      chord1Sched:[0,].map(x => x*unit),
+      chord2Sched:[4,].map(x => x*unit),
+      chord3Sched:[8,].map(x => x*unit),
+      chord4Sched:[12,].map(x => x*unit),
     };
     this.ticktack = this.ticktack.bind(this);
     //発音部
@@ -110,56 +117,45 @@ class MainClock extends React.Component{
       },
       volume: 10
     }
-
     //const membrane = new Tone.MembraneSynth(optsMembrane).toDestination();
+    Tone.Transport.bpm.value = this.state.bpm;
 
-    const kick = () => {
-      //membrane.triggerAttackRelease('C3','4n');
-      drum.triggerAttackRelease(['C3','G3'],'4n');
-    };
+    const KK = () => {drum.triggerAttackRelease(['C3'],'4n')}
+    const SD = () => {drum.triggerAttackRelease(['C4'],'4n')}
+    const HHC = () => {drum.triggerAttackRelease(['C5'],'4n')}
 
-    const melody = () => {
-      sampler.triggerAttackRelease(['C3','G3'],'4n');
-    };
+    let chord1 = () => {sampler.triggerAttackRelease(this.state.chordList[0],'2n')}
+    let chord2 = () => {sampler.triggerAttackRelease(this.state.chordList[1],'2n')}
+    let chord3 = () => {sampler.triggerAttackRelease(this.state.chordList[2],'2n')}
+    let chord4 = () => {sampler.triggerAttackRelease(this.state.chordList[3],'2n')}
 
-    let kickRhythm = [
-      0,1,2,3,
-    ];
+    let KKPart = new Tone.Part(KK, this.state.bdSched).start()
+    let SDPart = new Tone.Part(SD, this.state.sdSched).start()
+    let HHCPart = new Tone.Part(HHC, this.state.hhcSched).start()
+    let melodyPart1 = new Tone.Part(chord1, this.state.chord1Sched).start()
+    let melodyPart2 = new Tone.Part(chord2, this.state.chord2Sched).start()
+    let melodyPart3 = new Tone.Part(chord3, this.state.chord3Sched).start()
+    let melodyPart4 = new Tone.Part(chord4, this.state.chord4Sched).start()
 
-    let melodyRhythm = [
-      0,0.5,1,0.5
-    ];
+    KKPart.loop=true
+    KKPart.loopEnd='1m'
+    SDPart.loop=true
+    SDPart.loopEnd='1m'
 
-    let kickPart = new Tone.Part(kick, kickRhythm).start()
-    let melodyPart = new Tone.Part(melody, melodyRhythm).start()
-    //kickPart.loop = true;
+    HHCPart.loop=true
+    HHCPart.loopEnd='1m'
 
-    /*
-    Tone.Transport.scheduleRepeat((time) => {
-      //Call Back
-      if(this.state.halfStep==0){
-        this.setState({halfStep:1})
-      }else{
-        this.setState({halfStep:0})
-        this.ticktack()
-        if(this.state.step===0) {
-          sampler.triggerAttackRelease(this.state.chordList[0], "4n")
-          drum.triggerAttackRelease(['C3','C5'], "4n")
-        }else if(this.state.step===1){
-          sampler.triggerAttackRelease(this.state.chordList[1], "4n")
-          drum.triggerAttackRelease(['C5'], "4n")
-        }else if(this.state.step===2){
-          sampler.triggerAttackRelease(this.state.chordList[2], "4n")
-          drum.triggerAttackRelease(['C4','C5'], "4n")
-        }else if(this.state.step===3){
-          sampler.triggerAttackRelease(this.state.chordList[3], "4n")
-          drum.triggerAttackRelease(['C5'], "4n")
-        }
-      }
-    }, "8n", "0m");
+    melodyPart1.loop=true
+    melodyPart1.loopEnd='1m'
+    melodyPart2.loop=true
+    melodyPart2.loopEnd='1m'
+    melodyPart3.loop=true
+    melodyPart3.loopEnd='1m'
+    melodyPart4.loop=true
+    melodyPart4.loopEnd='1m'
 
-     */
   }
+
 
   //------------------------------------------------
   //CallBack
