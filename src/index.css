@@ -90,92 +90,24 @@
   position:relative;
 }
 
+/*FletBoard's Circle Mark*/
 .note{
   position: relative;
   font-size:20px;
   top:-4px;
-  //left:auto;
   z-index:99;
   color: #292;
-  /*transition: 1s;
-  opacity: 0;*/
 }
 
-.noteBase{
-  position: relative;
-  font-size:20px;
-  top:-4px;
-  //left:6px;
-  z-index:99;
-  color: #E71
-}
+.noteBase{color: #E71}
+.noteTrans{opacity: 0.0;}
+.noteNext{font-size:15px;}
+.noteSlope{transition:2s;}
 
-.noteTrans{
-  position: absolute;
-  font-size:20px;
-  top:-4px;
-  left:6px;
-  z-index:99;
-  color: #292;
-  transition: 2s;
-  opacity: 0.0;
-}
-
-.noteBaseTrans{
-  position: absolute;
-  font-size:20px;
-  top:-4px;
-  left:6px;
-  z-index:99;
-  color: #E71;
-  transition: 2s;
-  opacity: 0.0;
-}
-
-
-.noteNext{
-  position: absolute;
-  font-size:20px;
-  top:-4px;
-  left:6px;
-  z-index:99;
-  color: #292;
-  transition:1s;
-  opacity:0.8;
-
-}
-
-.noteBaseNext{
-  position: absolute;
-  font-size:20px;
-  top:-4px;
-  left:6px;
-  z-index:99;
-  color: #E71;
+.noteGone{
   transition:1s;
   opacity:0.8;
 }
-
-.noteNextTrans{
-  position: absolute;
-  font-size:20px;
-  top:-4px;
-  left:6px;
-  z-index:99;
-  color: #292;
-  opacity: 0.0;
-}
-
-.noteBaseNextTrans{
-  position: absolute;
-  font-size:20px;
-  top:-4px;
-  left:6px;
-  z-index:99;
-  color: #E71;
-  opacity: 0.0;
-}
-
 
 
 .nut{

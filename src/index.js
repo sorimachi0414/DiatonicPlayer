@@ -2,53 +2,28 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as Tone from "tone";
-
+import * as Def from "./subCord.js"
 // ----------------------------------------
-//General Setting
-const soundNameList=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B',]
-const chordTypeNameList=['M','m','5','7']
-const masterChord ={
-  'M':[0,4,7],
-  'm':[0,3,7],
-  '7':[0,4,7,10],
-  '5':[0,4],
+const soundNameList=Def.soundNameList
+const masterChord=Def.masterChord
+const masterScale=Def.masterScale
 
-}
-const masterScale = {
-  'Major':[0,2,4,5,7,9,11],
-  'minor':[0,2,3,5,7,8,10],
-  'm5t':  [0,3,5,7,10],
-  'Ryukyu':[0,4,5,7,11],
-}
-// ----------------------------------------
+const drum = Def.drum
+const sampler = Def.sampler
 
-/*
-F-G-Am
-C-Am-F-G
-Dm-G-C-A7
-A7-D7
- */
-//Debug Tone.js
-
-
-const sampler = new Tone.Sampler({
-  urls: {
-    C2: "C2single.mp3",
-    C3: "C3single.mp3",
-  },
-  baseUrl: "./",
-}).toDestination();
+const BD = () => {drum.triggerAttackRelease(['C3'],'4n')}
+const SD = () => {drum.triggerAttackRelease(['C4'],'4n')}
+const HHC = () => {drum.triggerAttackRelease(['C5'],'4n')}
 
 function settingTone(){
   console.log("settingTone")
-  sampler.context._context.resume()
+  //sampler.context._context.resume()
   Tone.Transport.start();
 }
 
 function stopTone(){
   Tone.Transport.stop();
 }
-
 
 // ----------------------------------------
 class MainClock extends React.Component{
@@ -77,12 +52,18 @@ class MainClock extends React.Component{
         this.ticktack()
         if(this.state.step===0) {
           sampler.triggerAttackRelease(this.state.chordList[0], "4n")
+          BD()
+          HHC()
         }else if(this.state.step===1){
           sampler.triggerAttackRelease(this.state.chordList[1], "4n")
+          HHC()
         }else if(this.state.step===2){
           sampler.triggerAttackRelease(this.state.chordList[2], "4n")
+          SD()
+          HHC()
         }else if(this.state.step===3){
           sampler.triggerAttackRelease(this.state.chordList[3], "4n")
+          HHC()
         }
       }
     }, "8n", "0m");
@@ -329,35 +310,61 @@ class FingerBoard extends React.Component{
     //各フレットを音階に変換　C=0
     let fletSound=(stringShift+j+1) % 12
 
+    //スケール構成音の情報を整理
+    let noteInfo=[0,0,0,0]//'ActiveBaseNote','ActiveNote','NextBaseNote','NextNote',
+    if(this.props.nowScale.indexOf(fletSound)===0){noteInfo[0]=1}
+    if(this.props.nowScale.indexOf(fletSound)>0){noteInfo[1]=1}
+    if(this.props.nextScale.indexOf(fletSound)===0){noteInfo[2]=1}
+    if(this.props.nextScale.indexOf(fletSound)>0){noteInfo[3]=1}
+
     //スケール構成音に色付け
-    if(this.props.nowScale.indexOf(fletSound)>0){
+    if(noteInfo[0]>0){
       //構成音の場合
+      fletLetter="●"
+      noteClass="note noteBase"
+    }else if(noteInfo[1]>0){
       noteClass="note"
       fletLetter="●"
-    }else if(this.props.nowScale.indexOf(fletSound)===0){
-      fletLetter="●"
-      noteClass="noteBase"
-    }else if(this.props.nextScale.indexOf(fletSound)===0){
+    }else if(noteInfo[2]>0){
       //次のスケールの音の場合、予告
-      noteClass="noteBaseNextTrans"
+      noteClass="note noteBase noteNext noteTrans"
       fletLetter="○"
-    }else if(this.props.nextScale.indexOf(fletSound)>0){
+    }else if(noteInfo[3]>0){
       //次のスケールの音の場合、予告
-      noteClass="noteNextTrans"
+      noteClass="note noteNext noteTrans"
       fletLetter="○"
     }else{
-      noteClass=""
+      noteClass="note noteTrans"
     }
 
     //次の音に向け、ステップの半分で見た目変化を開始
-    if(this.props.halfStep>0){
-      if(noteClass==="noteNext"){noteClass="noteNextTrans"}
-      else if(noteClass==="noteBaseNext"){noteClass="noteBaseNextTrans"}
-      else if(noteClass==="noteTrans"){noteClass="note"}
-      else if(noteClass==="noteBaseTrans"){noteClass="noteBase"}
-      else if(noteClass==="noteBaseNextTrans"){noteClass="noteBaseNext"} //bug
-      else if(noteClass==="noteNextTrans"){noteClass="noteNext"} //There is bug
+    if(this.props.beat % 4 >1){
+      if(noteInfo[0]+noteInfo[1]>0){
+        //今Active
+        if(noteInfo[2]>0){
+          console.log()
+        }else if(noteInfo[3]>0){
+          console.log()
+        }else{
+          //次invalid
+          if(noteInfo[0]>0){
+            noteClass="note noteBase noteGone"
+          }else if(noteInfo[1]>0){
+            noteClass="note noteGone"
+          }
+        }
+      }else{
+        //今invalid
+        if(noteInfo[2]>0){
+          noteClass="note noteBase noteNext noteSlope"
+        }else if(noteInfo[3]>0){
+          noteClass="note noteNext noteSlope"
+        }else{
+          console.log()
+        }
+      }
     }
+
 
     let sqWidth = 46 -1*j //34 +2*12= 58
 
