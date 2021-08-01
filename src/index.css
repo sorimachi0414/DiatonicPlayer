@@ -102,11 +102,11 @@
 .noteBase{color: #E71}
 .noteTrans{opacity: 0.0;}
 .noteNext{font-size:15px;}
-.noteSlope{transition:2s;}
+.noteSlope{transition:1s;}
 
 .noteGone{
   transition:1s;
-  opacity:0.8;
+  opacity:0.6;
 }
 
 

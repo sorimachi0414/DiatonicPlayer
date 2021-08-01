@@ -2,7 +2,6 @@
 import * as Tone from "tone";
 
 export const soundNameList=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B',]
-export const chordTypeNameList=['M','m','5','7']
 export const masterChord ={
   'M':[0,4,7],
   'm':[0,3,7],
@@ -13,7 +12,7 @@ export const masterChord ={
 export const masterScale = {
   'Major':[0,2,4,5,7,9,11],
   'minor':[0,2,3,5,7,8,10],
-  'm5t':  [0,3,5,7,10],
+  'minorPentatonic':  [0,3,5,7,10],
   'Ryukyu':[0,4,5,7,11],
 }
 // ----------------------------------------
