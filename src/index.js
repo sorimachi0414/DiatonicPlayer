@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import * as Tone from "tone";
 import * as Def from "./subCord.js"
+import {startParts} from "./subCord.js";
 
 // ----------------------------------------
 //General Setting
@@ -27,23 +28,21 @@ function stopTone(){
   Tone.Transport.stop();
 }
 
+//Describe Sound Make constructor here
 Tone.Transport.start();
-const test = () => {drum.triggerAttackRelease(['C5'],'4n')}
-let testPart = new Tone.Part(test,[0,1,2])
-testPart.loop=true
-testPart.loopEnd=4*4*60/100
-testPart.start()
+let partClear = Def.partClear
+let setPartBD = Def.setPartBD
+let setPartSD = Def.setPartSD
+let setPartHHC = Def.setPartHHC
+let setMelodyPart1 =Def.setMelodyPart1
+let setMelodyPart2 =Def.setMelodyPart2
+let setMelodyPart3 =Def.setMelodyPart3
+let setMelodyPart4 =Def.setMelodyPart4
 
-function partClear(){
-  testPart.clear()
-}
-function setPart(sched,bpm){
-  //testPart.add(3)
-  testPart=new Tone.Part(test,sched.map(x=>x*60/bpm))
-  testPart.loop=true
-  testPart.loopEnd=4*4*60/bpm
-  testPart.start()
-}
+let changeChord1 = Def.changeChord1
+let changeChord2 = Def.changeChord2
+let changeChord3 = Def.changeChord3
+let changeChord4 = Def.changeChord4
 
 // ----------------------------------------
 class MainClock extends React.Component{
@@ -78,57 +77,34 @@ class MainClock extends React.Component{
     }
 
     Tone.Transport.bpm.value = this.state.bpm;
-
-    const KK = () => {drum.triggerAttackRelease(['C3'],'4n')}
-    const SD = () => {drum.triggerAttackRelease(['C4'],'4n')}
-    const HHC = () => {drum.triggerAttackRelease(['C5'],'4n')}
-
+    /*
     let chord1 = () => {sampler.triggerAttackRelease(this.state.chordList[0],'2n')}
     let chord2 = () => {sampler.triggerAttackRelease(this.state.chordList[1],'2n')}
     let chord3 = () => {sampler.triggerAttackRelease(this.state.chordList[2],'2n')}
     let chord4 = () => {sampler.triggerAttackRelease(this.state.chordList[3],'2n')}
+     */
 
     let RhythmMaster = new Tone.Part(this.every8nCallback,this.state.all8nSched.map(x=>x*60/this.state.bpm)).start()
     RhythmMaster.loop=true
     RhythmMaster.loopEnd=4*4*60/this.state.bpm;
-
-    //let KKPart = settingPart(KK,this.state.bdSched,this.state.bpm)
-    //let SDPart = settingPart(SD, this.state.sdSched,this.state.bpm)
-    //let HHCPart = this.settingPartNew(HHC, this.state.hhcSched,this.state.bpm)
-    //let melodyPart1 = settingPart(chord1, this.state.chord1Sched,this.state.bpm)
-    //let melodyPart2 = settingPart(chord2, this.state.chord2Sched,this.state.bpm)
-    //let melodyPart3 = settingPart(chord3, this.state.chord3Sched,this.state.bpm)
-    //let melodyPart4 = settingPart(chord4, this.state.chord4Sched,this.state.bpm)
-
-    //let HHCPart = new Tone.Part(HHC,[0])
-    //HHCPart.add(this.state.bpm/40)
-    //HHCPart.start()
-
-    /*
-    let part = new Tone.Part(HHC,[0,1])
-    //part.add(2)
-    //part.add(3)
-    part =new Tone.Part(HHC,[3,4])
-    //part.at([2,3,4])
-    part.start()
-     */
   }
   //End of Construnctor
 
-  settingPartNew(sound,schedule,bpm){
-    let absSchedule = schedule.map(x => x*60/this.state.bpm)
-    //let partObject = new Tone.Part(sound,absSchedule).start()
-    let partObject = new Tone.Part(sound).start()
-    partObject.loop=true
-    partObject.loopEnd=4*4*60/bpm; //ものによって1mの長さが異なるので、絶対時間で定義する
-    return partObject
-  }
-
-  testy(){
+  changeBpmChord(){
+    Tone.Transport.stop();
     partClear()
-    setPart(this.state.hhcSched,this.state.bpm)
-    console.log('testy')
-
+    changeChord1(this.state.chordList[0])
+    changeChord2(this.state.chordList[1])
+    changeChord3(this.state.chordList[2])
+    changeChord4(this.state.chordList[3])
+    setPartBD(this.state.bdSched,this.state.bpm)
+    setPartSD(this.state.sdSched,this.state.bpm)
+    setPartHHC(this.state.hhcSched,this.state.bpm)
+    setMelodyPart1([0,1,2,3],this.state.bpm)
+    setMelodyPart2([4,5,6,7],this.state.bpm)
+    setMelodyPart3([8,9,10,11],this.state.bpm)
+    setMelodyPart4([12,13,14,15],this.state.bpm)
+    Tone.Transport.start();
   }
 
   every8nCallback(){
@@ -225,7 +201,7 @@ class MainClock extends React.Component{
     this.setState({
       bpm:bpm,
     })
-    this.testy()
+    this.changeBpmChord()
   }
 
   render(){
@@ -245,8 +221,8 @@ class MainClock extends React.Component{
           //onClick={()=>this.testy()}
         />
         <PlayButton
-          onClick={()=>this.testy()}
-          //onClick={()=>this.testy()}
+          //onClick={()=>this.chordChange()}
+          onClick={()=>this.changeBpmChord()}
         />
         <StopButton
           onClick={()=>stopTone()}

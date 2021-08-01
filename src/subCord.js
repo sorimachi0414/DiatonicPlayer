@@ -1,5 +1,8 @@
 import * as Tone from "tone";
 
+export const soundNameList=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B',]
+export const chordTypeNameList=['M','m','5','7']
+
 export const masterChord ={
   'M':[12,24+0,24+7,36+0,36+4,36+7],
   'test':[12,],
@@ -7,8 +10,7 @@ export const masterChord ={
   '7':[24+0,24+7,24+10,36+0,36+4,36+7],
   '5':[24+0,24+4,36],
 }
-export const soundNameList=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B',]
-export const chordTypeNameList=['M','m','5','7']
+
 export const masterScale = {
   'Major':[0,2,4,5,7,9,11],
   'minor':[0,2,3,5,7,8,10],
@@ -22,6 +24,9 @@ export let sampler = new Tone.Sampler({
     C3: "C3single.mp3",
   },
   baseUrl: "./",
+  attack:0.5,
+  release:0.5,
+  volume:-12
 }).toDestination();
 
 export const guitar = new Tone.Sampler(
@@ -47,6 +52,116 @@ export const drum = new Tone.Sampler(
     baseUrl:"./",
   }
 ).toDestination();
+
+// ---------------------------
+// ---Sound Initial Setting
+// Set sound
+export const test = () => {drum.triggerAttackRelease(['C5'],'4n')}
+export const BD = () => {drum.triggerAttackRelease(['C3'],'4n')}
+export const SD = () => {drum.triggerAttackRelease(['C4'],'4n')}
+export const HHC = () => {drum.triggerAttackRelease(['C5'],'4n')}
+
+let chord1 = () => {sampler.triggerAttackRelease('C2','2n')}
+let chord2 = () => {sampler.triggerAttackRelease('C2','2n')}
+let chord3 = () => {sampler.triggerAttackRelease('C2','2n')}
+let chord4 = () => {sampler.triggerAttackRelease('C2','2n')}
+
+// Make Object
+let testPart = new Tone.Part()
+let BDPart = new Tone.Part()
+let SDPart = new Tone.Part()
+let HHCPart = new Tone.Part()
+
+let melodyPart1 = new Tone.Part()
+let melodyPart2 = new Tone.Part()
+let melodyPart3 = new Tone.Part()
+let melodyPart4 = new Tone.Part()
+
+// bpm change methods
+export function setPartBD(sched,bpm){
+  BDPart=new Tone.Part(BD,sched.map(x=>x*60/bpm))
+  BDPart.loop=true
+  BDPart.loopEnd=4*4*60/bpm
+  BDPart.start()
+}
+
+export function setPartSD(sched,bpm){
+  SDPart=new Tone.Part(SD,sched.map(x=>x*60/bpm))
+  SDPart.loop=true
+  SDPart.loopEnd=4*4*60/bpm
+  SDPart.start()
+}
+
+export function setPartHHC(sched,bpm){
+  HHCPart=new Tone.Part(HHC,sched.map(x=>x*60/bpm))
+  HHCPart.loop=true
+  HHCPart.loopEnd=4*4*60/bpm
+  HHCPart.start()
+}
+
+export function setMelodyPart1(sched,bpm){
+  melodyPart1=new Tone.Part(chord1,sched.map(x=>x*60/bpm))
+  melodyPart1.loop=true
+  melodyPart1.loopEnd=4*4*60/bpm
+  melodyPart1.start()
+}
+
+export function setMelodyPart2(sched,bpm){
+  melodyPart2=new Tone.Part(chord2,sched.map(x=>x*60/bpm))
+  melodyPart2.loop=true
+  melodyPart2.loopEnd=4*4*60/bpm
+  melodyPart2.start()
+}
+
+export function setMelodyPart3(sched,bpm){
+  melodyPart3=new Tone.Part(chord3,sched.map(x=>x*60/bpm))
+  melodyPart3.loop=true
+  melodyPart3.loopEnd=4*4*60/bpm
+  melodyPart3.start()
+}
+
+export function setMelodyPart4(sched,bpm){
+  melodyPart4=new Tone.Part(chord4,sched.map(x=>x*60/bpm))
+  melodyPart4.loop=true
+  melodyPart4.loopEnd=4*4*60/bpm
+  melodyPart4.start()
+}
+
+export function startParts(){
+  melodyPart1.start()
+  melodyPart2.start()
+  melodyPart3.start()
+  melodyPart4.start()
+}
+
+// Chord change methods
+export function changeChord1(list){
+  chord1 = () => {sampler.triggerAttackRelease(list,'2n')}
+}
+
+export function changeChord2(list){
+  chord2 = () => {sampler.triggerAttackRelease(list,'2n')}
+}
+
+export function changeChord3(list){
+  chord3 = () => {sampler.triggerAttackRelease(list,'2n')}
+}
+
+export function changeChord4(list){
+  chord4 = () => {sampler.triggerAttackRelease(list,'2n')}
+}
+
+// Add soume method
+export function partClear(){
+  testPart.clear()
+  BDPart.clear()
+  SDPart.clear()
+  HHCPart.clear()
+  melodyPart1.clear()
+  melodyPart2.clear()
+  melodyPart3.clear()
+  melodyPart4.clear()
+}
 
 // ----------------------------------------
 /*
