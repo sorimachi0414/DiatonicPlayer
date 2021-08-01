@@ -37,6 +37,16 @@ export const sampler = new Tone.Sampler({
   volume:-12,
 }).toDestination();
 
+export const stringNumToShift=[4,11,7,2,9,4]
+export const positionMarkArray=
+  [
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,],
+    [0,0,0,0,0,0,0,0,0,0,0,1,0,],
+    [0,0,1,0,1,0,1,0,1,0,0,0,0,],
+    [0,0,0,0,0,0,0,0,0,0,0,1,0,],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,],
+    [0,0,0,0,0,0,0,0,0,0,0,0,0,],
+  ]
 
 /*
 F-G-Am

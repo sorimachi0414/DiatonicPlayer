@@ -3,6 +3,10 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import * as Tone from "tone";
 import * as Def from "./subCord.js"
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Button from 'react-bootstrap/Button';
+
+
 // ----------------------------------------
 const soundNameList=Def.soundNameList
 const masterChord=Def.masterChord
@@ -111,10 +115,7 @@ class MainClock extends React.Component{
     // val = 3 => D# , val = 'm7' => minor 7th Chord
     let shift,chordTones
     if (typeof val== 'number'){
-      //let list = this.state.chordNotes.slice()
       let chordNotes=this.state.chordNotes.slice()
-      //list[i] = (list[i]+val>=soundNameList.length) ? 0 : (list[i]+val<0) ? soundNameList.length-1 : list[i]+val
-
       chordNotes[i]=(chordNotes[i]+val<0) ? 11:(chordNotes[i]+val)%12
 
       this.setState({
@@ -123,7 +124,6 @@ class MainClock extends React.Component{
       chordTones = masterChord[this.state.chordTypes[i]]
       shift = chordNotes[i] //0,1,2,...
     }else if (typeof val== 'string'){
-      console.log('string')
       let list = this.state.chordTypes.slice()
       list[i]=val
       this.setState({
@@ -137,8 +137,7 @@ class MainClock extends React.Component{
     //chordListの変更処理　Stateの更新が非同期なので、ここで行う
     let chordList=this.state.chordList.slice()
     let chordTonesShifted=chordTones.map(x => (x+shift) %12)
-    let chordToneABC=chordTonesShifted.map(x =>soundNameList[x]+'3')
-    chordList[i] = chordToneABC
+    chordList[i]=chordTonesShifted.map(x =>soundNameList[x]+'3')
     this.setState({
       chordList:chordList
     })
@@ -147,8 +146,8 @@ class MainClock extends React.Component{
   //アクティブなステップ（コード）を着色
   changeColor(i){
     i=Math.floor(i/4)
-    let blocksColor = this.state.blocksColor.slice()
-    blocksColor=Array(4).fill("chordSelector")
+    //let blocksColor = this.state.blocksColor.slice()
+    let blocksColor=Array(4).fill("chordSelector")
     blocksColor[i]="chordSelectorActive"
     this.setState({
       blocksColor:blocksColor
@@ -183,32 +182,37 @@ class MainClock extends React.Component{
     let check2=(this.state.chordPlan[i][2+i*4]>0)?'checked':''
     let check3=(this.state.chordPlan[i][3+i*4]>0)?'checked':''
     return (
-      <div className="scaleBlock">
+      <div key={i+'chopper'} className="scaleBlock">
         <ChordChopperCheckBox
+          key={'CC1c'+i}
           type="checkbox"
           checked={check0}
           onClick={()=>this.changeChordChopper(0,i)}
           value={this.state.chordPlan[i][0+i*4]}
         />
         <ChordChopperCheckBox
+          key={'CC2c'+i}
           type="checkbox"
           checked={check1}
           onClick={()=>this.changeChordChopper(1,i)}
           value={this.state.chordPlan[i][1+i*4]}
         />
         <ChordChopperCheckBox
+          key={'CC3c'+i}
           type="checkbox"
           checked={check2}
           onClick={()=>this.changeChordChopper(2,i)}
           value={this.state.chordPlan[i][2+i*4]}
         />
         <ChordChopperCheckBox
+          key={'CC4c'+i}
           type="checkbox"
           checked={check3}
           onClick={()=>this.changeChordChopper(3,i)}
           value={this.state.chordPlan[i][3+i*4]}
         />
         <ChordNoteSelector
+          key={'cns'+i}
           color={this.state.blocksColor[i]}
           value={this.state.chordNotes[i]}
           onClick={() => this.changeChord(i,1)}
@@ -216,23 +220,19 @@ class MainClock extends React.Component{
           onClickN={() => this.changeChord(i,-1)}
         />
         <ChordTypeSelector
+          key={'cts'+i}
           class={"scaleTypeSelector"}
           boxNum={i}
           value={masterChord[this.state.chordTypes[i]]}
           onChangeChord={(i,e) => this.changeChord(i,String(e))}
         />
-
       </div>
     );
   }
 
   changeBPM(diff){
-    console.log(diff)
-    let bpm =this.state.bpm
-    bpm +=diff
-    console.log(bpm)
     this.setState({
-      bpm:bpm,
+      bpm:this.state.bpm +diff,
     })
   }
 
@@ -246,17 +246,20 @@ class MainClock extends React.Component{
     }
 
     return(
-      <div>
+      <div key="scalediv">
         {chordSelectors}
-        <div className="board-row"></div>
+        <div key={111} className="board-row"></div>
         <PlayButton
+          key="pb"
           onClick={()=>settingTone()}
         />
         <StopButton
+          key="sb"
           onClick={()=>stopTone()}
         />
 
         <BPMChanger
+          key="bpmc"
           bpm={this.state.bpm}
           p10={()=>this.changeBPM(10)}
           p1={()=>this.changeBPM(1)}
@@ -264,12 +267,13 @@ class MainClock extends React.Component{
           n10={()=>this.changeBPM(-10)}
         />
 
-        <div className="spacer"></div>
+        <div key={11} className="spacer"></div>
         <ScaleSelector
-        step={this.state.step}
-        nextStep={this.state.nextStep}
+          key="scaleSelector"
+          step={this.state.step}
+          nextStep={this.state.nextStep}
         />
-        <div className="spacer"></div>
+        <div key={22} className="spacer"></div>
       </div>
     )
   }
@@ -298,7 +302,7 @@ class ChordTypeSelector extends React.Component{
     let chordForSelect=[]
     for (let key in masterChord) {
       chordForSelect.push(
-        <option value={key}>{key}</option>
+        <option key={key} value={key}>{key}</option>
       )
     }
     return(
@@ -317,21 +321,16 @@ class FingerBoard extends React.Component{
 
   //各弦の各フレットを配置
   arrangeFingerElements(i,j) {
-    let fletLetter=""
-    let stringShift=0
-    let noteClass=""
+    let stringShift
+    let noteClass
+    let fletLetter
 
     //ポジションマーク
-    let positionMark = (i===2&&(j===2||j===4||j===6||j===8)||((i===1||i===3)&&j===11)) ? <div className="circle"></div> : ""
+    let positionMark = (Def.positionMarkArray[i][j]>0) ? <div className="circle"></div> : ""
     let fletClass = j===0 ? "square nut" : "square"
 
     //各フレットを音名に変換、スケールと照合
-    if(i===0){stringShift=4}
-    if(i===1){stringShift=11}
-    if(i===2){stringShift=7}
-    if(i===3){stringShift=2}
-    if(i===4){stringShift=9}
-    if(i===5){stringShift=4}
+    stringShift=Def.stringNumToShift[i]
 
     //各フレットを音階に変換　C=0
     let fletSound=(stringShift+j+1) % 12
@@ -365,7 +364,6 @@ class FingerBoard extends React.Component{
 
     //次の音に向け、ステップの半分で見た目変化を開始
     if(this.props.step % 4 >1){
-      console.log('change')
       if(noteInfo[0]+noteInfo[1]>0){
         //今Active
         if(noteInfo[2]>0){
@@ -405,13 +403,13 @@ class FingerBoard extends React.Component{
   addFletNumber(i){
     let sqWidth = 46 -1*i //34 +2*12= 58
     return(
-      <div class="squareFletNumber" style={{'width':sqWidth+'px'}}>{i+1}</div>
+      <div className="squareFletNumber" style={{'width':sqWidth+'px'}}>{i+1}</div>
     )
   }
 
   render(){
     let eachStrings=[]
-    let fingerElements=[]
+    let fingerElements
     const fingerFlets=12
     const strings=6
 
@@ -450,14 +448,9 @@ class FingerBoard extends React.Component{
   }
 }
 
-
 function scaleProcessor(key,type){
-  //console.log("ScaleProcessor")
-  //console.log(type)
-  let myScale=masterScale[type].map(x => (x+key) % 12)
-  return myScale
+  return masterScale[type].map(x => (x+key) % 12)
 }
-
 
 class ScaleSelector extends React.Component{
   constructor(props) {
@@ -477,16 +470,12 @@ class ScaleSelector extends React.Component{
   }
 
   changeScaleType(num,arg){
-    console.log(num,arg)
     let list = this.state.selectedScaleTypeList.slice()
     list[num]=arg
-
     this.setState({
       selectedScaleTypeList:list
-      //selectedScaleTypeList:masterScale[arg]
       }
     )
-
   }
 
   repeatSelector(i){
@@ -497,7 +486,6 @@ class ScaleSelector extends React.Component{
           value={soundNameList[this.state.selectedScaleNoteList[i]]}
           onClickP={() => this.changeScaleTone(i,1)}
           onClickN={() => this.changeScaleTone(i,-1)}
-
         />
         <ScaleTypeSelector
           class={"scaleTypeSelector"}
@@ -559,7 +547,6 @@ class ScaleTypeSelector extends  React.Component {
     }
   }
 
-  //props.onClick
   changeScaleByName(e){
     //console.log(e.target.value)
     this.props.onChangeScale(this.props.boxNum,e.target.value)
@@ -572,13 +559,11 @@ class ScaleTypeSelector extends  React.Component {
     })
   }
 
-
-
   render(){
     let scaleForSelect=[]
     for (let key in masterScale) {
       scaleForSelect.push(
-        <option value={key}>{key}</option>
+        <option key={key} value={key}>{key}</option>
       )
     }
     return(
@@ -596,7 +581,7 @@ class ChordChopperCheckBox extends React.Component{
   }
   render(){
     return(
-      <input type="checkbox" checked={this.props.checked} value={this.props.value} onClick={this.props.onClick}></input>
+      <input className="form-check-input p-2 mx-1" type="checkbox" checked={this.props.checked} value={this.props.value} onChange={this.props.onClick}></input>
     )
   }
 }
@@ -620,9 +605,7 @@ class ChordNoteSelector extends  React.Component{
 
 function PlayButton(props){
   return (
-    //<button onClick={startTone()}>
-    //<button onClick={()=>startTone("e")}>
-    <button onClick={props.onClick}>
+    <button onClick={props.onClick} className="btn btn-primary m-1">
       Play
     </button>
   );
@@ -631,11 +614,11 @@ function PlayButton(props){
 function BPMChanger(props){
   return(
     <div>
-      <button className="bpmButton" onClick={props.n10}>-10</button>
-      <button className="bpmButton" onClick={props.n1}>-1</button>
+      <button className="btn btn-outline-success m-1 p-1 px-2" onClick={props.n10}>-10</button>
+      <button className="btn btn-outline-success m-1 p-1 px-2" onClick={props.n1}>-1</button>
       <span className="bpmDisplay">bpm:{props.bpm}</span>
-      <button className="bpmButton" onClick={props.p1}>+1</button>
-      <button className="bpmButton" onClick={props.p10}>+10</button>
+      <button className="btn btn-outline-success m-1 p-1 px-2" onClick={props.p1}>+1</button>
+      <button className="btn btn-outline-success m-1 p-1 px-2" onClick={props.p10}>+10</button>
 
     </div>
   )
@@ -643,7 +626,7 @@ function BPMChanger(props){
 
 function StopButton(props){
   return (
-    <button onClick={props.onClick}>
+    <button onClick={props.onClick}　className="btn btn-outline-primary m-1">
       Stop
     </button>
   );
@@ -654,7 +637,3 @@ ReactDOM.render(
   <MainClock />,
   document.getElementById('root')
 );
-
-
-// ----------------------------------------
-// ----------------------------------------
