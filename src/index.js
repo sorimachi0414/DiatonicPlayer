@@ -2,72 +2,18 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import * as Tone from "tone";
+import * as Def from "./subCord.js"
 
 // ----------------------------------------
 //General Setting
-const soundNameList=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B',]
-const chordTypeNameList=['M','m','5','7']
-const masterChord ={
-  'M':[12,24+0,24+7,36+0,36+4,36+7],
-  'test':[12,],
-  'm':[24+0,24+7,36,36+3,36+7],
-  '7':[24+0,24+7,24+10,36+0,36+4,36+7],
-  '5':[24+0,24+4,36],
+const soundNameList=Def.soundNameList
+const chordTypeNameList=Def.chordTypeNameList
+const masterChord=Def.masterChord
+const masterScale = Def.masterScale
 
-}
-const masterScale = {
-  'Major':[0,2,4,5,7,9,11],
-  'minor':[0,2,3,5,7,8,10],
-  'm5t':  [0,3,5,7,10],
-  'Ryukyu':[0,4,5,7,11],
-}
-// ----------------------------------------
-
-/*
-F-G-Am
-C-Am-F-G
-Dm-G-C-A7
-A7-D7
- */
-//Debug Tone.js
-
-
-let sampler = new Tone.Sampler({
-  urls: {
-    C1: "SD.mp3",
-    C2: "C2single.mp3",
-    C3: "C3single.mp3",
-  },
-  baseUrl: "./",
-}).toDestination();
-
-const guitar = new Tone.Sampler(
-  {
-    urls:{
-      C1: "SD.mp3",
-      B2: "agB2.mp3",
-      B3: "agB3.mp3",
-      //B4: "agB4.mp3",
-      //C4: "guitarC4.mp3",
-    },
-    baseUrl:"./",
-  }
-).toDestination();
-
-const drum = new Tone.Sampler(
-  {
-    urls:{
-      C3: "BD.mp3",
-      C4: "SD.mp3",
-      C5: "HHC.mp3",
-    },
-    baseUrl:"./",
-  }
-).toDestination();
-
-//sampler=guitar
-//sampler.volume.value = -10;
-//drum.volume.value = 5;
+const sampler =Def.sampler
+const guitar = Def.guitar
+const drum = Def.drum
 
 function settingTone(){
   console.log("settingTone")
@@ -81,43 +27,56 @@ function stopTone(){
   Tone.Transport.stop();
 }
 
+Tone.Transport.start();
+const test = () => {drum.triggerAttackRelease(['C5'],'4n')}
+let testPart = new Tone.Part(test,[0,1,2])
+testPart.loop=true
+testPart.loopEnd=4*4*60/100
+testPart.start()
+
+function partClear(){
+  testPart.clear()
+}
+function setPart(sched,bpm){
+  //testPart.add(3)
+  testPart=new Tone.Part(test,sched.map(x=>x*60/bpm))
+  testPart.loop=true
+  testPart.loopEnd=4*4*60/bpm
+  testPart.start()
+}
+
 // ----------------------------------------
 class MainClock extends React.Component{
   constructor(props) {
-    const unit = 60/100
     super(props);
     this.state = {
-      blocks:Array(7).fill(0),
+      chordActives:Array(4).fill(0),
       chordList:Array(4).fill(["C3","G3","C4", "E4","G4",]),
       chordNotes:Array(4).fill(36),
       chordTypes:Array(4).fill("M"),
       blocksColor:Array(4).fill("chordSelector"),
-      color:"chordSelector",
-      halfStep:1,
-      step:3,
-      nextStep:0,
+      beat:0,
+      nextBeat:1,
       bpm:100,
-      bdSched:[0,4,8,12].map(x => x*unit),
-      sdSched:[2,6,10,14].map(x => x*unit),
-      hhcSched:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15].map(x => x*unit),
-      chord1Sched:[0,].map(x => x*unit),
-      chord2Sched:[4,].map(x => x*unit),
-      chord3Sched:[8,].map(x => x*unit),
-      chord4Sched:[12,].map(x => x*unit),
+      all8nSched:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+      bdSched:[0,4,8,12],
+      sdSched:[2,6,10,14],
+      hhcSched:[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15],
+      chord1Sched:[0,],
+      chord2Sched:[4,],
+      chord3Sched:[8,],
+      chord4Sched:[12,],
     };
-    this.ticktack = this.ticktack.bind(this);
-    //発音部
-    let optsMembrane = {
-      pitchDecay: 0.001,
-      envelope: {
-        attack: 0.001 ,
-        decay: 0.75 ,
-        sustain: 0.01 ,
-        release: 0.01
-      },
-      volume: 10
+    this.every8nCallback = this.every8nCallback.bind(this);
+
+    function settingPart(sound,schedule,bpm){
+      let absSchedule = schedule.map(x => x*60/bpm)
+      let partObject = new Tone.Part(sound,absSchedule).start()
+      partObject.loop=true
+      partObject.loopEnd=4*4*60/bpm; //ものによって1mの長さが異なるので、絶対時間で定義する
+      return partObject
     }
-    //const membrane = new Tone.MembraneSynth(optsMembrane).toDestination();
+
     Tone.Transport.bpm.value = this.state.bpm;
 
     const KK = () => {drum.triggerAttackRelease(['C3'],'4n')}
@@ -129,50 +88,61 @@ class MainClock extends React.Component{
     let chord3 = () => {sampler.triggerAttackRelease(this.state.chordList[2],'2n')}
     let chord4 = () => {sampler.triggerAttackRelease(this.state.chordList[3],'2n')}
 
-    let KKPart = new Tone.Part(KK, this.state.bdSched).start()
-    let SDPart = new Tone.Part(SD, this.state.sdSched).start()
-    let HHCPart = new Tone.Part(HHC, this.state.hhcSched).start()
-    let melodyPart1 = new Tone.Part(chord1, this.state.chord1Sched).start()
-    let melodyPart2 = new Tone.Part(chord2, this.state.chord2Sched).start()
-    let melodyPart3 = new Tone.Part(chord3, this.state.chord3Sched).start()
-    let melodyPart4 = new Tone.Part(chord4, this.state.chord4Sched).start()
+    let RhythmMaster = new Tone.Part(this.every8nCallback,this.state.all8nSched.map(x=>x*60/this.state.bpm)).start()
+    RhythmMaster.loop=true
+    RhythmMaster.loopEnd=4*4*60/this.state.bpm;
 
-    KKPart.loop=true
-    KKPart.loopEnd='1m'
-    SDPart.loop=true
-    SDPart.loopEnd='1m'
+    //let KKPart = settingPart(KK,this.state.bdSched,this.state.bpm)
+    //let SDPart = settingPart(SD, this.state.sdSched,this.state.bpm)
+    //let HHCPart = this.settingPartNew(HHC, this.state.hhcSched,this.state.bpm)
+    //let melodyPart1 = settingPart(chord1, this.state.chord1Sched,this.state.bpm)
+    //let melodyPart2 = settingPart(chord2, this.state.chord2Sched,this.state.bpm)
+    //let melodyPart3 = settingPart(chord3, this.state.chord3Sched,this.state.bpm)
+    //let melodyPart4 = settingPart(chord4, this.state.chord4Sched,this.state.bpm)
 
-    HHCPart.loop=true
-    HHCPart.loopEnd='1m'
+    //let HHCPart = new Tone.Part(HHC,[0])
+    //HHCPart.add(this.state.bpm/40)
+    //HHCPart.start()
 
-    melodyPart1.loop=true
-    melodyPart1.loopEnd='1m'
-    melodyPart2.loop=true
-    melodyPart2.loopEnd='1m'
-    melodyPart3.loop=true
-    melodyPart3.loopEnd='1m'
-    melodyPart4.loop=true
-    melodyPart4.loopEnd='1m'
+    /*
+    let part = new Tone.Part(HHC,[0,1])
+    //part.add(2)
+    //part.add(3)
+    part =new Tone.Part(HHC,[3,4])
+    //part.at([2,3,4])
+    part.start()
+     */
+  }
+  //End of Construnctor
+
+  settingPartNew(sound,schedule,bpm){
+    let absSchedule = schedule.map(x => x*60/this.state.bpm)
+    //let partObject = new Tone.Part(sound,absSchedule).start()
+    let partObject = new Tone.Part(sound).start()
+    partObject.loop=true
+    partObject.loopEnd=4*4*60/bpm; //ものによって1mの長さが異なるので、絶対時間で定義する
+    return partObject
+  }
+
+  testy(){
+    partClear()
+    setPart(this.state.hhcSched,this.state.bpm)
+    console.log('testy')
 
   }
 
-
-  //------------------------------------------------
-  //CallBack
-  ticktack() {
-
-    //Tone.Transport.bpm.value = this.state.bpm;
-    let step=this.state.step
-    step+=1
-    if(step>=4){step=0}
-    let nextStep=step+1
-    if(nextStep>=4){nextStep=0}
-    //Display Change
-    this.changeColor(step)
+  every8nCallback(){
+    let beat = this.state.beat
+    let nextBeat = this.state.nextBeat
+    function incrementBeat(b){
+      b = (b>=15) ? 0:b+1
+      return b
+    }
+    beat= incrementBeat(beat)
+    nextBeat= incrementBeat(nextBeat)
     this.setState({
-      halfStep:0,
-      step:step,
-      nextStep:nextStep
+      beat:beat,
+      nextBeat:nextBeat,
     })
   }
 
@@ -182,19 +152,19 @@ class MainClock extends React.Component{
     // val = 3 => D# , val = 'm7' => minor 7th Chord
     let shift,chordTones
     if (typeof val== 'number'){
-      let list = this.state.blocks.slice()
+      //Chord Note
+      let list = this.state.chordNotes.slice()
       let chordNotes=this.state.chordNotes.slice()
-      list[i] = (list[i]+val>=soundNameList.length) ? 0 : (list[i]+val<0) ? soundNameList.length-1 : list[i]+val
-
-      chordNotes[i]=list[i]
+      chordNotes[i] = chordNotes[i]+val
+      chordNotes[i] = chordNotes[i]<0 ? 0:chordNotes[i]
       this.setState({
         chordNotes:chordNotes,
-        blocks:list
       })
       chordTones = masterChord[this.state.chordTypes[i]]
       shift = chordNotes[i] //0,1,2,...
+      console.log(shift)
     }else if (typeof val== 'string'){
-      console.log('string')
+      //Chord Type
       let list = this.state.chordTypes.slice()
       list[i]=val
       this.setState({
@@ -208,41 +178,34 @@ class MainClock extends React.Component{
     //chordListの変更処理　Stateの更新が非同期なので、ここで行う
     let chordList=this.state.chordList.slice()
     let chordTonesShifted=chordTones.map(x => soundNameList[(x+shift) %12] + Math.floor(x/12))
-    //let chordToneABC=chordTonesShifted.map(x =>soundNameList[x]+Math.floor(x))
-    //chordToneABC=chordToneABC.concat(chordTonesShifted.map(x =>soundNameList[x]+'2'))
-    let chordToneABC = chordTonesShifted
-    console.log(chordToneABC)
-    chordList[i] = chordToneABC
+    chordList[i] = chordTonesShifted
     this.setState({
       chordList:chordList
     })
 
   }
 
-  //アクティブなステップ（コード）を着色
-  changeColor(i){
-    let blocksColor = this.state.blocksColor.slice()
-    blocksColor=Array(4).fill("chordSelector")
-    blocksColor[i]="chordSelectorActive"
-    this.setState({
-      blocksColor:blocksColor
-      }
-    )
-  }
-
   //コードブロックを配置
   arrangeBlock(i){
+    const chordSelectorClass=['chordSelector','chordSelectorActive']
     let chordForSelect=[]
     for (let key in masterChord) {
       chordForSelect.push(
         <option value={key}>{key}</option>
       )
     }
+    let chordSelectorClassIndex=0
+
+    //beatを取得して、アクティブかどうか判定
+    if(Math.floor(this.state.beat/4)==i){
+      chordSelectorClassIndex=1
+    }
     return (
       <div className="scaleBlock">
         <ChordNoteSelector
+          class={chordSelectorClass[chordSelectorClassIndex]}
           color={this.state.blocksColor[i]}
-          value={this.state.blocks[i]}
+          value={this.state.chordNotes[i]}
           onClick={() => this.changeChord(i,1)}
           onClickP={() => this.changeChord(i,1)}
           onClickN={() => this.changeChord(i,-1)}
@@ -253,19 +216,16 @@ class MainClock extends React.Component{
           value={masterChord[this.state.chordTypes[i]]}
           onChangeChord={(i,e) => this.changeChord(i,String(e))}
         />
-
       </div>
     );
   }
 
   changeBPM(diff){
-    console.log(diff)
-    let bpm =this.state.bpm
-    bpm +=diff
-    console.log(bpm)
+    let bpm =this.state.bpm +diff
     this.setState({
       bpm:bpm,
     })
+    this.testy()
   }
 
   render(){
@@ -282,6 +242,11 @@ class MainClock extends React.Component{
         <div className="board-row"></div>
         <PlayButton
           onClick={()=>settingTone()}
+          //onClick={()=>this.testy()}
+        />
+        <PlayButton
+          onClick={()=>this.testy()}
+          //onClick={()=>this.testy()}
         />
         <StopButton
           onClick={()=>stopTone()}
@@ -297,17 +262,14 @@ class MainClock extends React.Component{
 
         <div className="spacer"></div>
         <ScaleSelector
-        step={this.state.step}
-        hstep={this.state.halfStep}
-        nextStep={this.state.nextStep}
+          beat={this.state.beat}
+          nextBeat={this.state.nextBeat}
         />
         <div className="spacer"></div>
       </div>
     )
   }
 }
-
-
 
 class ChordTypeSelector extends React.Component{
   constructor(props) {
@@ -342,7 +304,6 @@ class ChordTypeSelector extends React.Component{
       </select>
     )
   }
-
 }
 
 
@@ -354,6 +315,7 @@ class FingerBoard extends React.Component{
 
   //各弦の各フレットを配置
   arrangeFingerElements(i,j) {
+    //i=string, j=flet
     let fletLetter=""
     let stringShift=0
     let noteClass=""
@@ -373,34 +335,59 @@ class FingerBoard extends React.Component{
     //各フレットを音階に変換　C=0
     let fletSound=(stringShift+j+1) % 12
 
+    //スケール構成音の情報を整理
+    let noteInfo=[0,0,0,0]//'ActiveBaseNote','ActiveNote','NextBaseNote','NextNote',
+    if(this.props.nowScale.indexOf(fletSound)===0){noteInfo[0]=1}
+    if(this.props.nowScale.indexOf(fletSound)>0){noteInfo[1]=1}
+    if(this.props.nextScale.indexOf(fletSound)===0){noteInfo[2]=1}
+    if(this.props.nextScale.indexOf(fletSound)>0){noteInfo[3]=1}
+
     //スケール構成音に色付け
-    if(this.props.nowScale.indexOf(fletSound)>0){
+    if(noteInfo[0]>0){
       //構成音の場合
+      fletLetter="●"
+      noteClass="note noteBase"
+    }else if(noteInfo[1]>0){
       noteClass="note"
       fletLetter="●"
-    }else if(this.props.nowScale.indexOf(fletSound)===0){
-      fletLetter="●"
-      noteClass="noteBase"
-    }else if(this.props.nextScale.indexOf(fletSound)===0){
+    }else if(noteInfo[2]>0){
       //次のスケールの音の場合、予告
-      noteClass="noteBaseNextTrans"
+      noteClass="note noteBase noteNext noteTrans"
       fletLetter="○"
-    }else if(this.props.nextScale.indexOf(fletSound)>0){
+    }else if(noteInfo[3]>0){
       //次のスケールの音の場合、予告
-      noteClass="noteNextTrans"
+      noteClass="note noteNext noteTrans"
       fletLetter="○"
     }else{
-      noteClass=""
+      noteClass="note noteTrans"
     }
 
     //次の音に向け、ステップの半分で見た目変化を開始
-    if(this.props.halfStep>0){
-      if(noteClass==="noteNext"){noteClass="noteNextTrans"}
-      else if(noteClass==="noteBaseNext"){noteClass="noteBaseNextTrans"}
-      else if(noteClass==="noteTrans"){noteClass="note"}
-      else if(noteClass==="noteBaseTrans"){noteClass="noteBase"}
-      else if(noteClass==="noteBaseNextTrans"){noteClass="noteBaseNext"} //bug
-      else if(noteClass==="noteNextTrans"){noteClass="noteNext"} //There is bug
+    if(this.props.beat % 4 >1){
+      if(noteInfo[0]+noteInfo[1]>0){
+        //今Active
+        if(noteInfo[2]>0){
+         console.log()
+        }else if(noteInfo[3]>0){
+          console.log()
+        }else{
+          //次invalid
+          if(noteInfo[0]>0){
+            noteClass="note noteBase noteGone"
+          }else if(noteInfo[1]>0){
+            noteClass="note noteGone"
+          }
+        }
+      }else{
+        //今invalid
+        if(noteInfo[2]>0){
+          noteClass="note noteBase noteNext noteSlope"
+        }else if(noteInfo[3]>0){
+          noteClass="note noteNext noteSlope"
+        }else{
+          console.log()
+        }
+      }
     }
 
     let sqWidth = 46 -1*j //34 +2*12= 58
@@ -463,8 +450,6 @@ class FingerBoard extends React.Component{
 
 
 function scaleProcessor(key,type){
-  //console.log("ScaleProcessor")
-  //console.log(type)
   let myScale=masterScale[type].map(x => (x+key) % 12)
   return myScale
 }
@@ -477,12 +462,6 @@ class ScaleSelector extends React.Component{
     this.state={
       selectedScaleNoteList:Array(4).fill(0),
       selectedScaleTypeList:Array(4).fill("Major"),
-      Scales:[
-        [0,4,5,7,11],
-        [0,4,5,7,11],
-        [0,4,5,7,11],
-        [0,4,5,7,11],
-      ],
     }
   }
 
@@ -529,9 +508,10 @@ class ScaleSelector extends React.Component{
 
   render(){
     //definition
-    let step=this.props.step
-    let hstep=this.props.hstep
-    let nextStep = this.props.nextStep
+    let beat = this.props.beat
+    let barIndex = Math.floor(this.props.beat /4)
+    let nextBarIndex = (barIndex>=3) ? 0:barIndex+1
+
     let selectors=[]
     const selectorLength=4
     for(let i=0;i<selectorLength;i++){
@@ -544,9 +524,9 @@ class ScaleSelector extends React.Component{
         {selectors}
         <div className="spacer"></div>
         <FingerBoard
-          nowScale={scaleProcessor(this.state.selectedScaleNoteList[step],this.state.selectedScaleTypeList[step])}
-          nextScale={scaleProcessor(this.state.selectedScaleNoteList[nextStep],this.state.selectedScaleTypeList[nextStep])}
-          halfStep={hstep}
+          beat={beat}
+          nowScale={scaleProcessor(this.state.selectedScaleNoteList[barIndex],this.state.selectedScaleTypeList[barIndex])}
+          nextScale={scaleProcessor(this.state.selectedScaleNoteList[nextBarIndex],this.state.selectedScaleTypeList[nextBarIndex])}
         />
       </div>
     )
@@ -573,9 +553,7 @@ class ScaleTypeSelector extends  React.Component {
     super(props);
   }
 
-  //props.onClick
   changeScaleByName(e){
-    //console.log(e.target.value)
     this.props.onChangeScale(this.props.boxNum,e.target.value)
   }
 
@@ -604,7 +582,7 @@ class ChordNoteSelector extends  React.Component{
     return(
       <div>
         <button className="scaleNoteShifter" value={this.props.value} onClick={this.props.onClickN}>{"<"}</button>
-        <button className={this.props.color} value={this.props.value} onClick={this.props.onClick}>{soundNameList[this.props.value]}</button>
+        <button className={this.props.class} value={this.props.value} onClick={this.props.onClick}>{soundNameList[this.props.value%12]}</button>
         <button className="scaleNoteShifter" value={this.props.value} onClick={this.props.onClickP}>{">"}</button>
       </div>
     )
@@ -648,7 +626,3 @@ ReactDOM.render(
   <MainClock />,
   document.getElementById('root')
 );
-
-
-// ----------------------------------------
-// ----------------------------------------
