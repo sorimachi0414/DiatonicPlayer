@@ -5,6 +5,13 @@ import * as Tone from "tone";
 import * as Def from "./subCord.js"
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container'
+//import Grid from 'react-bootstrap/Grid';
+
+//import Row from 'react-bootstrap/Row';
+//import Col from 'react-bootstrap/Col';
 
 
 // ----------------------------------------
@@ -246,34 +253,53 @@ class MainClock extends React.Component{
     }
 
     return(
-      <div key="scalediv">
-        {chordSelectors}
-        <div key={111} className="board-row"></div>
-        <PlayButton
-          key="pb"
-          onClick={()=>settingTone()}
-        />
-        <StopButton
-          key="sb"
-          onClick={()=>stopTone()}
-        />
+      <div>
 
-        <BPMChanger
-          key="bpmc"
-          bpm={this.state.bpm}
-          p10={()=>this.changeBPM(10)}
-          p1={()=>this.changeBPM(1)}
-          n1={()=>this.changeBPM(-1)}
-          n10={()=>this.changeBPM(-10)}
-        />
+        <Container fluid>
+          <Row className="justify-content-center">
+            <Col xs="auto">
+              {chordSelectors}
+              <div key={111} className="board-row"></div>
+              <div key={11} className="spacer"></div>
+              <ScaleSelector
+                key="scaleSelector"
+                step={this.state.step}
+                nextStep={this.state.nextStep}
+              />
+              <div key={22} className="spacer"></div>
+            </Col>
+          </Row>
+        </Container>
 
-        <div key={11} className="spacer"></div>
-        <ScaleSelector
-          key="scaleSelector"
-          step={this.state.step}
-          nextStep={this.state.nextStep}
-        />
-        <div key={22} className="spacer"></div>
+        <Container>
+          <div className="navbar navbar-light bg-light fixed-bottom justify-content-center p-2">
+          <Row>
+            <Col xs={2} md={2}>
+            <PlayButton
+              key="pb"
+              onClick={()=>settingTone()}
+            />
+            </Col>
+            <Col xs={2} md={2}>
+            <StopButton
+              key="sb"
+              onClick={()=>stopTone()}
+            />
+          </Col>
+            <Col xs={8} md={8}>
+            <BPMChanger
+              key="bpmc"
+              bpm={this.state.bpm}
+              p10={()=>this.changeBPM(10)}
+              p1={()=>this.changeBPM(1)}
+              n1={()=>this.changeBPM(-1)}
+              n10={()=>this.changeBPM(-10)}
+            />
+          </Col>
+        </Row>
+
+      </div>
+        </Container>
       </div>
     )
   }
@@ -605,8 +631,17 @@ class ChordNoteSelector extends  React.Component{
 
 function PlayButton(props){
   return (
-    <button onClick={props.onClick} className="btn btn-primary m-1">
+    <button onClick={props.onClick} className="btn btn-primary fs-2 px-2">
       Play
+    </button>
+
+  );
+}
+
+function StopButton(props){
+  return (
+    <button onClick={props.onClick}　className="btn btn-outline-primary fs-2 px-2">
+      Stop
     </button>
   );
 }
@@ -614,22 +649,14 @@ function PlayButton(props){
 function BPMChanger(props){
   return(
     <div>
-      <button className="btn btn-outline-success m-1 p-1 px-2" onClick={props.n10}>-10</button>
-      <button className="btn btn-outline-success m-1 p-1 px-2" onClick={props.n1}>-1</button>
-      <span className="bpmDisplay">bpm:{props.bpm}</span>
-      <button className="btn btn-outline-success m-1 p-1 px-2" onClick={props.p1}>+1</button>
-      <button className="btn btn-outline-success m-1 p-1 px-2" onClick={props.p10}>+10</button>
-
+      <button className="btn btn-outline-success mx-1 px-2" onClick={props.n10}>-10</button>
+      <button className="btn btn-outline-success mx-1  px-2" onClick={props.n1}>-1</button>
+      <span className="fw-bolder fs-3 mx-1">bpm</span>
+      <span className="text-info fw-bolder fs-3">{props.bpm}</span>
+      <button className="btn btn-outline-success mx-1  px-2" onClick={props.p1}>+1</button>
+      <button className="btn btn-outline-success mx-1  px-2" onClick={props.p10}>+10</button>
     </div>
   )
-}
-
-function StopButton(props){
-  return (
-    <button onClick={props.onClick}　className="btn btn-outline-primary m-1">
-      Stop
-    </button>
-  );
 }
 
 // ----------------------------------------
