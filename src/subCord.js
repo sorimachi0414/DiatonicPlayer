@@ -13,8 +13,10 @@ export const masterScale = {
   'Major':[0,2,4,5,7,9,11],
   'minor':[0,2,3,5,7,8,10],
   'minorPentatonic':  [0,3,5,7,10],
+  'MajorPentatonic':  [0,3,5,8,10],
   'Ryukyu':[0,4,5,7,11],
 }
+
 // ----------------------------------------
 
 export const drum = new Tone.Sampler(
@@ -28,7 +30,7 @@ export const drum = new Tone.Sampler(
   }
 ).toDestination();
 
-export const sampler = new Tone.Sampler({
+export const piano = new Tone.Sampler({
   urls: {
     C2: "C2single.mp3",
     C3: "C3single.mp3",
@@ -36,6 +38,27 @@ export const sampler = new Tone.Sampler({
   baseUrl: "./",
   volume:-12,
 }).toDestination();
+
+export const eGuitar = new Tone.Sampler({
+  urls: {
+    C3:'GuitarC3.mp3',
+    C4:'GuitarC4.mp3',
+  },
+  baseUrl: "./",
+  volume:-10,
+}).toDestination();
+
+export const aGuitar = new Tone.Sampler({
+  urls: {
+    B2: "agB2.mp3",
+    B3: "agB3.mp3",
+    B4: "agB4.mp3",
+  },
+  baseUrl: "./",
+  volume:-10,
+}).toDestination();
+
+
 
 export const stringNumToShift=[4,11,7,2,9,4]
 export const positionMarkArray=
