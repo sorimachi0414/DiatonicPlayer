@@ -199,6 +199,7 @@ class MainClock extends React.Component{
      <Col xs={3}>
        <Row>
          <Col xs={12}>
+
           <ChordChopperCheckBox
             key={'CC1c'+i}
             type="checkbox"
@@ -273,22 +274,36 @@ class MainClock extends React.Component{
     return(
       <div>
         <Container fluid>
-          <Row className="justify-content-center">
-            <Col xs="12" sm={10} md={9} lg={8}>
-              <InstSelctor
-                changeInst={(e)=>this.changeInstP(e)}
-              />
-              <Row className="scaleBlock">
-                {chordSelectors}
-              </Row>
-              <div key={111} className="board-row"></div>
-              <div key={11} className="spacer"></div>
-              <ScaleSelector
-                key="scaleSelector"
-                step={this.state.step}
-                nextStep={this.state.nextStep}
-              />
-              <div key={22} className="spacer"></div>
+          <Row className="justify-content-center mb-5">
+            Step "Solo Jam session" Sequencer
+            <Col xs="12" sm={10} md={9} lg={8} className="px-0">
+
+              <div className="card my-2">
+                <div className="card-header">
+                  Chord Selector
+                </div>
+                <Row className="card-body pt-1">
+                  <Col xs={3} className="p-2">
+                    <InstSelctor
+                      changeInst={(e)=>this.changeInstP(e)}
+                    />
+                  </Col>
+                  <Col className="col-9"></Col>
+                  {chordSelectors}
+                </Row>
+              </div>
+              <div className="card my-2">
+                <div className="card-header">
+                  Scale Selector
+                </div>
+                <div className="card-body pt-1">
+                  <ScaleSelector
+                    key="scaleSelector"
+                    step={this.state.step}
+                    nextStep={this.state.nextStep}
+                  />
+                </div>
+              </div>
             </Col>
           </Row>
         </Container>
@@ -360,7 +375,7 @@ class ChordTypeSelector extends React.Component{
     }
     return(
       //valueがSelectの初期値となる。valueが入っていると、他に変更してもValueに戻る。
-      <select size={4} value={this.state.list[this.props.boxNum]} className="form-select" onClick={(e)=>this.changeChordByName(e)}>
+      <select size={3} value={this.state.list[this.props.boxNum]} className="form-select p-1" onClick={(e)=>this.changeChordByName(e)}>
         {chordForSelect}
       </select>
     )
@@ -487,8 +502,7 @@ class FingerBoard extends React.Component{
     }
     eachStrings.push(fingerElements)
     return(
-      <div>
-        <div className="spacer"></div>
+      <div className="pt-4">
         <div className="next-row">{eachStrings[0]}</div>
         <div className="next-row">{eachStrings[1]}</div>
         <div className="next-row">{eachStrings[2]}</div>
@@ -526,7 +540,7 @@ class InstSelctor extends React.Component{
 
   render(){
     return(
-      <select value={this.state.nowInst} className="scaleTypeSelector" onChange={(e)=>this.changeInst(e)}>
+      <select value={this.state.nowInst} className="scaleTypeSelector" onClick={(e)=>this.changeInst(e)}>
         <option key="" value="piano">piano</option>
         <option key="" value="eGuitar">eGuitar</option>
         <option key="" value="aGuitar">aGuitar</option>
@@ -566,21 +580,22 @@ class ScaleSelector extends React.Component{
 
   repeatSelector(i){
     return(
-      <div className="scaleBlock">
-        <ScaleToneSelector
-          class={"scaleNoteSelector"}
-          value={soundNameList[this.state.selectedScaleNoteList[i]]}
-          onClickP={() => this.changeScaleTone(i,1)}
-          onClickN={() => this.changeScaleTone(i,-1)}
-        />
-        <ScaleTypeSelector
-          class={"scaleTypeSelector"}
-          boxNum={i}
-          //value={scaleTypeNameList[this.state.selectedScaleTypeList[i]]}
-          value={masterScale[this.state.selectedScaleTypeList[i]]}
-          onChangeScale={(e,i) => this.changeScaleType(e,i)}
-        />
-      </div>
+        <Col xs={3}>
+          <ScaleToneSelector
+            class={"scaleNoteSelector"}
+            value={soundNameList[this.state.selectedScaleNoteList[i]]}
+            onClickP={() => this.changeScaleTone(i,1)}
+            onClickN={() => this.changeScaleTone(i,-1)}
+          />
+          <ScaleTypeSelector
+            class={"scaleTypeSelector"}
+            boxNum={i}
+            //value={scaleTypeNameList[this.state.selectedScaleTypeList[i]]}
+            value={masterScale[this.state.selectedScaleTypeList[i]]}
+            onChangeScale={(e,i) => this.changeScaleType(e,i)}
+          />
+        </Col>
+
     )
   }
 
@@ -596,15 +611,14 @@ class ScaleSelector extends React.Component{
       )
     }
     return(
-      <div>
+      <Row>
         {selectors}
-        <div className="spacer"></div>
         <FingerBoard
           step={this.props.step}
           nowScale={scaleProcessor(this.state.selectedScaleNoteList[beat1m],this.state.selectedScaleTypeList[beat1m])}
           nextScale={scaleProcessor(this.state.selectedScaleNoteList[nextBeat1m],this.state.selectedScaleTypeList[nextBeat1m])}
         />
-      </div>
+      </Row>
     )
   }
 }
@@ -615,11 +629,17 @@ class ScaleToneSelector extends  React.Component {
   }
   render(){
     return(
-      <div>
-        <button className="scaleNoteShifter" value={this.props.value} onClick={this.props.onClickN}>{"<"}</button>
-        <button className="scaleNoteSelector" value={this.props.value} onClick={this.props.onClick}>{this.props.value}</button>
-        <button className="scaleNoteShifter" value={this.props.value} onClick={this.props.onClickP}>{">"}</button>
-      </div>
+      <Row className="p-2">
+        <Col sm={3} md={3} className="p-0 m-0">
+          <button className="btn btn-outline-primary p-0 w-100 h-100" value={this.props.value} onClick={this.props.onClickN}>{"<"}</button>
+        </Col>
+        <Col sm={6} md={6} className="p-0 m-0">
+        <button className="btn btn-outline-primary w-100" value={this.props.value} onClick={this.props.onClick}><span className="fs-2">{this.props.value}</span></button>
+        </Col>
+        <Col sm={3} md={3} className="p-0 m-0">
+          <button className="btn btn-outline-primary p-0 w-100 h-100" value={this.props.value} onClick={this.props.onClickP}>{">"}</button>
+        </Col>
+      </Row>
     )
   }
 }
@@ -653,7 +673,7 @@ class ScaleTypeSelector extends  React.Component {
       )
     }
     return(
-      <select value={this.state.list[this.props.boxNum]} className="scaleTypeSelector" onChange={(e)=>this.changeScaleByName(e)}>
+      <select value={this.state.list[this.props.boxNum]} className="form-select p-1"  size={3} onChange={(e)=>this.changeScaleByName(e)}>
         {scaleForSelect}
       </select>
       //<button className={this.props.class} value={this.props.value} onClick={this.props.onClick}>{this.props.value}</button>

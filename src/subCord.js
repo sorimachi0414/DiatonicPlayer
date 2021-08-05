@@ -13,7 +13,7 @@ export const masterScale = {
   'Major':[0,2,4,5,7,9,11],
   'minor':[0,2,3,5,7,8,10],
   'minorPentatonic':  [0,3,5,7,10],
-  'MajorPentatonic':  [0,3,5,8,10],
+  'MajorPentatonic':  [0,2,4,7,9],
   'Ryukyu':[0,4,5,7,11],
 }
 
