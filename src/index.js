@@ -25,9 +25,18 @@ const instList={
   'piano':Def.piano,
   'eGuitar':Def.eGuitar,
   'aGuitar':Def.aGuitar,
+  'organ':Def.organ,
+}
+
+const rhythmList={
+  'Rock':Def.rockDrum,
+  'jazz':Def.jazzDrum,
+  'silent':Def.silentDrum,
+  'blue':Def.blueDrum,
 }
 
 let instrument=instList['piano']
+let nowRhythm=rhythmList['Rock']
 
 const BD = (en,time) => {if(en>0)drum.triggerAttackRelease(['C3'],'4n',time)}
 const SD = (en,time) => {if(en>0)drum.triggerAttackRelease(['C4'],'4n',time)}
@@ -55,9 +64,9 @@ class MainClock extends React.Component{
       chordNotes:[9,9,2,2],
       chordTypes:Array(4).fill('7'),
       blocksColor:Array(4).fill("btn btn-outline-primary w-100"),
-      bdPlan:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,],
-      sdPlan:[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,],
-      hhcPlan:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
+      bdPlan  :rhythmList["Rock"]["BD"],
+      sdPlan  :rhythmList["Rock"]["SD"],
+      hhcPlan :rhythmList["Rock"]["HHC"],
       chordPlan:[
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
         [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,],
@@ -258,8 +267,16 @@ class MainClock extends React.Component{
   }
 
   changeInstP(e){
-    console.log(e)
     instrument=instList[e]
+  }
+
+  changeDrum(e){
+    //instrument=rhythmList[e]
+    this.setState({
+      bdPlan  :rhythmList[e]["BD"],
+      sdPlan  :rhythmList[e]["SD"],
+      hhcPlan :rhythmList[e]["HHC"],
+    })
   }
 
   render(){
@@ -275,8 +292,10 @@ class MainClock extends React.Component{
       <div>
         <Container fluid>
           <Row className="justify-content-center mb-5">
+            <Col  xs={12} className="text-center">
             Step "Solo Jam session" Sequencer
-            <Col xs="12" sm={10} md={9} lg={8} className="px-0">
+            </Col>
+            <Col xs="12" sm={10} md={8} lg={6} className="px-0">
 
               <div className="card my-2">
                 <div className="card-header">
@@ -288,7 +307,12 @@ class MainClock extends React.Component{
                       changeInst={(e)=>this.changeInstP(e)}
                     />
                   </Col>
-                  <Col className="col-9"></Col>
+                  <Col xs={3} className="p-2">
+                    <DrumSelector
+                      change={(e)=>this.changeDrum(e)}
+                    />
+                  </Col>
+                  <Col className="col-6"></Col>
                   {chordSelectors}
                 </Row>
               </div>
@@ -519,6 +543,37 @@ function scaleProcessor(key,type){
   return masterScale[type].map(x => (x+key) % 12)
 }
 
+class DrumSelector extends React.Component{
+  constructor(props) {
+    super(props);
+    this.state={
+      nowRhythm:"Rock"
+    }
+  }
+  change(e){
+    this.props.change(e.target.value)
+    this.setState({
+      nowRhythm:e.target.value
+    })
+  }
+
+  render(){
+    let options=[]
+    for(let key in rhythmList){
+      options.push(
+        <option key="" value={key}>{key}</option>
+      )
+    }
+    return(
+      <select value={this.state.nowRhythm} className="scaleTypeSelector" onChange={(e)=>this.change(e)}>
+        {options}
+      </select>
+    )
+
+  }
+}
+
+
 class InstSelctor extends React.Component{
   constructor(props) {
     super(props);
@@ -539,11 +594,15 @@ class InstSelctor extends React.Component{
   }
 
   render(){
+    let options=[]
+    for(let key in instList){
+      options.push(
+        <option key="" value={key}>{key}</option>
+      )
+    }
     return(
-      <select value={this.state.nowInst} className="scaleTypeSelector" onClick={(e)=>this.changeInst(e)}>
-        <option key="" value="piano">piano</option>
-        <option key="" value="eGuitar">eGuitar</option>
-        <option key="" value="aGuitar">aGuitar</option>
+      <select value={this.state.nowInst} className="scaleTypeSelector" onChange={(e)=>this.changeInst(e)}>
+        {options}
       </select>
     )
 
