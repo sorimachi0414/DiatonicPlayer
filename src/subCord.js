@@ -94,9 +94,9 @@ export const jazzDrum={
   "HHC" :[0,1,0,0,1,0,1,0,0,1,0,1,0,1,0,1,],
 }
 export const silentDrum={
-  "BD"  :[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,],
-  "SD"  :[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0,],
-  "HHC" :[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
+  "BD"  :[0,0,0,0,  1,0,0,0,  1,0,0,0,  0,0,0,0,],
+  "SD"  :[0,0,0,0,  0,0,0,0,  0,0,0,0,  0,0,0,0,],
+  "HHC" :[1,0,0,0,  1,0,0,0,  1,0,0,0,  1,0,0,0,],
 }
 export const blueDrum={
   "BD"  :[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,],
@@ -104,6 +104,19 @@ export const blueDrum={
   "HHC" :[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,],
 }
 
+export const instList={
+  'piano':piano,
+  'eGuitar':eGuitar,
+  'aGuitar':aGuitar,
+  'organ':organ,
+}
+
+export const rhythmList={
+  'Rock':rockDrum,
+  'jazz':jazzDrum,
+  'silent':silentDrum,
+  'blue':blueDrum,
+}
 
 /*
 F-G-Am
