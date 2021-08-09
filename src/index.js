@@ -18,6 +18,7 @@ const fretWidthMin = 5 //%
 const fretWidthMaxThin = 10 //%
 const fretWidthMinThin = 6 //%
 
+/*
 function RenderEachString(props){
 
   function arrangeFingerElements(i,j,nowScale,nextScale,step,fretNumArg){
@@ -191,6 +192,7 @@ function RenderPositionMark(props){
   )
 }
 
+ */
 
 //fretNum= Index()
 
@@ -761,8 +763,6 @@ class FingerBoard extends React.Component{
   constructor(props) {
     super(props);
  }
-
-
   /**/
   //各弦の各フレットを配置
   arrangeFingerElements(i,j) {
@@ -808,7 +808,7 @@ class FingerBoard extends React.Component{
     }
 
     //次の音に向け、ステップの半分で見た目変化を開始
-    let beat1m=Math.floor(this.props.step/(stepNum/4))
+    let beat1m=Math.floor(this.props.step/(stepNum/(4*4)))
     if(beat1m % 4 >1){
       if(noteInfo[0]+noteInfo[1]>0){
         //今Active
@@ -838,18 +838,27 @@ class FingerBoard extends React.Component{
 
     let sqWidth = fretWidthMax-(fretWidthMax - fretWidthMin)/fretNum * j
 
+    if(j>=12){
+      fretClass+=' over'
+    }
+    fretClass+=' wd-'+j
+
+
     return(
-      <RenderPositionMark i={i} j={j} fretClass={fretClass} noteClass={noteClass} fretLetter={fretLetter} positionMark={positionMark}/>
+        <div key={'p'+i+'and'+j} className={fretClass} >
+          <div key={i*100} className={noteClass}>{fretLetter}</div>
+          {positionMark}
+        </div>
     )
-    //<div key={'p'+i+'and'+j} className={fretClass} style={{'width':sqWidth+'%'}}>
-    //</div>
   }
 
   addFretNumber(i){
+    //let sqWidth = 46 -1*i //34 +2*12= 58
+    let tempClass ='squareFretNumber fs-6'
+    tempClass +=' wd-'+i
     let sqWidth = fretWidthMax-(fretWidthMax - fretWidthMin)/fretNum * i
-    let fretNumClass = 'squareFretNumber fs-6'
     return(
-      <div key={i} className={fretNumClass} style={{'width':sqWidth+'%'}}>{i+1}</div>
+    <div key={i} className={tempClass} >{i+1}</div>
     )
   }
 
@@ -878,13 +887,13 @@ class FingerBoard extends React.Component{
       )
     }
     eachStrings.push(fingerElements)
-  }
+
 
    /**/
 
-  render(){
     //もう少しComponentで演算してから、RenderEachStringに渡してやる。
     return(
+    /*
       <div className="pt-4">
         <RenderEachString
           n={0}
@@ -893,7 +902,9 @@ class FingerBoard extends React.Component{
           step={this.props.step}/>
       </div>
     )
-    /*
+    */
+    /**/
+      <div className="pt-4">
         <div className="next-row">{eachStrings[0]}</div>
         <div className="next-row">{eachStrings[1]}</div>
         <div className="next-row">{eachStrings[2]}</div>
@@ -901,7 +912,9 @@ class FingerBoard extends React.Component{
         <div className="next-row">{eachStrings[4]}</div>
         <div className="next-row">{eachStrings[5]}</div>
         <div className="next-row">{eachStrings[6]}</div>
-    */
+      </div>
+    /**/
+  )
   }
 }
 
