@@ -10,14 +10,17 @@ import Container from 'react-bootstrap/Container'
 
 // ----------------------------------------
 const stepNum=96
+const fingerFrets=12
+const strings=6
+
 const soundNameList=Def.soundNameList
 const masterChord=Def.masterChord
 const masterScale=Def.masterScale
 const drum = Def.drum
 
-const fletWidthMax = 9.5 //%
-const fletWidthMin = 7 //%
-const fletNum=12
+const fretWidthMax = 9.5 //%
+const fretWidthMin = 7 //%
+const fretNum=12
 
 
 let instrument=Def.instList['piano']
@@ -75,12 +78,12 @@ class MainClock extends React.Component{
       nextStep:0,
       bpm:100,
     };
-    this.ticktack = this.ticktack.bind(this);
+    this.tickTack = this.tickTack.bind(this);
 
     //発音部
     Tone.Transport.scheduleRepeat((time) => {
       //Call Back
-      this.ticktack()
+      this.tickTack()
       //let beat1m = Math.floor(this.state.step/3)
       playThisChord(this.state.chordList[0],exPlan16to48(this.state.chordPlan[0])[this.state.step],time)
       playThisChord(this.state.chordList[1],exPlan16to48(this.state.chordPlan[1])[this.state.step],time)
@@ -94,7 +97,7 @@ class MainClock extends React.Component{
 
   //------------------------------------------------
   //CallBack
-  ticktack() {
+  tickTack() {
     Tone.Transport.bpm.value = this.state.bpm*(stepNum/16);
     let step=this.state.step
     step = (step>=stepNum-1) ? 0:step+1
@@ -185,13 +188,7 @@ class MainClock extends React.Component{
 
   //コードブロックを配置
   arrangeChordSelector(i){
-    let chordForSelect=[]
-    for (let key in masterChord) {
-      chordForSelect.push(
-        <option key={'acs'+key} value={key}>{key}</option>
-      )
-    }
-    let check0=(this.state.chordPlan[i][0+i*4]>0)?'checked':''
+    let check0=(this.state.chordPlan[i][i*4]>0)?'checked':''
     let check1=(this.state.chordPlan[i][1+i*4]>0)?'checked':''
     let check2=(this.state.chordPlan[i][2+i*4]>0)?'checked':''
     let check3=(this.state.chordPlan[i][3+i*4]>0)?'checked':''
@@ -205,7 +202,7 @@ class MainClock extends React.Component{
             type="checkbox"
             checked={check0}
             onClick={()=>this.changeChordChopper(0,i)}
-            value={this.state.chordPlan[i][0+i*4]}
+            value={this.state.chordPlan[i][i*4]}
           />
           <ChordChopperCheckBox
             key={'CC2c'+i}
@@ -298,7 +295,7 @@ class MainClock extends React.Component{
                     <DropDownSelector
                       change={(e)=>this.changeInstP(e)}
                       optionList={Def.instList}
-                      initValue={'eGUitar'}
+                      initValue={'organ'}
                     />
                   </Col>
                   <Col className="col-auto align-self-center">Drum</Col>
@@ -352,7 +349,7 @@ class MainClock extends React.Component{
                 </Col>
                 <Col xs={8} md={8} className='align-self-center px-1'>
                   <BPMChanger
-                    key="bpmc"
+                    key="bpmC"
                     bpm={this.state.bpm}
                     p10={()=>this.changeBPM(10)}
                     p1={()=>this.changeBPM(1)}
@@ -524,7 +521,7 @@ class ChordChopperCheckBox extends React.Component{
   //  }
   render(){
     return(
-      <input className="form-check-input p-2 mx-1" type="checkbox" checked={this.props.checked} value={this.props.value} onChange={this.props.onClick}></input>
+      <input className="form-check-input p-2 mx-1" type="checkbox" checked={this.props.checked} value={this.props.value} onChange={this.props.onClick} />
     )
   }
 }
@@ -592,41 +589,41 @@ class FingerBoard extends React.Component{
   arrangeFingerElements(i,j) {
     let stringShift
     let noteClass
-    let fletLetter
+    let fretLetter
 
     //ポジションマーク
-    let positionMark = (Def.positionMarkArray[i][j]>0) ? <div className="circle"></div> : ""
-    let fletClass = j===0 ? "square nut" : "square"
+    let positionMark = (Def.positionMarkArray[i][j]>0) ? <div className="circle" /> : ""
+    let fretClass = j===0 ? "square nut" : "square"
 
     //各フレットを音名に変換、スケールと照合
     stringShift=Def.stringNumToShift[i]
 
     //各フレットを音階に変換　C=0
-    let fletSound=(stringShift+j+1) % 12
+    let fretSound=(stringShift+j+1) % 12
 
     //スケール構成音の情報を整理
     let noteInfo=[0,0,0,0]//'ActiveBaseNote','ActiveNote','NextBaseNote','NextNote',
-    if(this.props.nowScale.indexOf(fletSound)===0){noteInfo[0]=1}
-    if(this.props.nowScale.indexOf(fletSound)>0){noteInfo[1]=1}
-    if(this.props.nextScale.indexOf(fletSound)===0){noteInfo[2]=1}
-    if(this.props.nextScale.indexOf(fletSound)>0){noteInfo[3]=1}
+    if(this.props.nowScale.indexOf(fretSound)===0){noteInfo[0]=1}
+    if(this.props.nowScale.indexOf(fretSound)>0){noteInfo[1]=1}
+    if(this.props.nextScale.indexOf(fretSound)===0){noteInfo[2]=1}
+    if(this.props.nextScale.indexOf(fretSound)>0){noteInfo[3]=1}
 
     //スケール構成音に色付け
     if(noteInfo[0]>0){
       //構成音の場合
-      fletLetter="●"
+      fretLetter="●"
       noteClass="note noteBase"
     }else if(noteInfo[1]>0){
       noteClass="note"
-      fletLetter="●"
+      fretLetter="●"
     }else if(noteInfo[2]>0){
       //次のスケールの音の場合、予告
       noteClass="note noteBase noteNext noteTrans"
-      fletLetter="○"
+      fretLetter="○"
     }else if(noteInfo[3]>0){
       //次のスケールの音の場合、予告
       noteClass="note noteNext noteTrans"
-      fletLetter="○"
+      fretLetter="○"
     }else{
       noteClass="note noteTrans"
     }
@@ -661,35 +658,33 @@ class FingerBoard extends React.Component{
     }
 
     //let sqWidth = 46 -1*j //34 +2*12= 58
-    let sqWidth = fletWidthMax-(fletWidthMax - fletWidthMin)/fletNum * j
+    let sqWidth = fretWidthMax-(fretWidthMax - fretWidthMin)/fretNum * j
 
     return(
-      <div key={'p'+i+'and'+j} className={fletClass} style={{'width':sqWidth+'%'}}>
-        <div key={i*100} className={noteClass}>{fletLetter}</div>
+      <div key={'p'+i+'and'+j} className={fretClass} style={{'width':sqWidth+'%'}}>
+        <div key={i*100} className={noteClass}>{fretLetter}</div>
         {positionMark}
       </div>
     )
   }
 
-  addFletNumber(i){
+  addFretNumber(i){
     //let sqWidth = 46 -1*i //34 +2*12= 58
-    let sqWidth = fletWidthMax-(fletWidthMax - fletWidthMin)/fletNum * i
+    let sqWidth = fretWidthMax-(fretWidthMax - fretWidthMin)/fretNum * i
     return(
-      <div key={i} className="squareFletNumber fs-6" style={{'width':sqWidth+'%'}}>{i+1}</div>
+      <div key={i} className="squareFretNumber fs-6" style={{'width':sqWidth+'%'}}>{i+1}</div>
     )
   }
 
   render(){
     let eachStrings=[]
     let fingerElements
-    const fingerFlets=12
-    const strings=6
 
     //各弦のフレットを表示
     for(let i=0;i<strings;i++) {
       let fingerElements=[]
       //１フレット毎、配列にプールしていく
-      for (let j = 0; j < fingerFlets; j++) {
+      for (let j = 0; j < fingerFrets; j++) {
         fingerElements.push(
           this.arrangeFingerElements(i,j)
         )
@@ -699,9 +694,9 @@ class FingerBoard extends React.Component{
 
     //フレット番号表示
     fingerElements=[]
-    for(let n=0;n<fingerFlets;n++){
+    for(let n=0;n<fingerFrets;n++){
       fingerElements.push(
-        this.addFletNumber(n)
+        this.addFretNumber(n)
       )
     }
     eachStrings.push(fingerElements)
