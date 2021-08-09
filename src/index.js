@@ -4,31 +4,207 @@ import './index.css';
 import * as Tone from "tone";
 import * as Def from "./subCord.js"
 import 'bootstrap/dist/css/bootstrap.min.css';
+import MediaQuery from "react-responsive"
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container'
 
 // ----------------------------------------
 const stepNum=96
-const fingerFrets=12
+let fretNum=15
 const strings=6
+const fretWidthMax = 8 //%
+const fretWidthMin = 5 //%
+const fretWidthMaxThin = 10 //%
+const fretWidthMinThin = 6 //%
+
+function RenderEachString(props){
+
+  function arrangeFingerElements(i,j,nowScale,nextScale,step,fretNumArg){
+    let stringShift
+    let noteClass
+    let fretLetter
+
+    //ポジションマーク
+    let positionMark = (Def.positionMarkArray[i][j]>0) ? <div className="circle" /> : ""
+    let fretClass = j===0 ? "square nut" : "square"
+
+    //各フレットを音名に変換、スケールと照合
+    stringShift=Def.stringNumToShift[i]
+
+    //各フレットを音階に変換　C=0
+    let fretSound=(stringShift+j+1) % 12
+
+    //スケール構成音の情報を整理
+    let noteInfo=[0,0,0,0]//'ActiveBaseNote','ActiveNote','NextBaseNote','NextNote',
+    if(nowScale.indexOf(fretSound)===0){noteInfo[0]=1}
+    if(nowScale.indexOf(fretSound)>0){noteInfo[1]=1}
+    if(nextScale.indexOf(fretSound)===0){noteInfo[2]=1}
+    if(nextScale.indexOf(fretSound)>0){noteInfo[3]=1}
+
+    //スケール構成音に色付け
+    if(noteInfo[0]>0){
+      //構成音の場合
+      fretLetter="●"
+      noteClass="note noteBase"
+    }else if(noteInfo[1]>0){
+      noteClass="note"
+      fretLetter="●"
+    }else if(noteInfo[2]>0){
+      //次のスケールの音の場合、予告
+      noteClass="note noteBase noteNext noteTrans"
+      fretLetter="○"
+    }else if(noteInfo[3]>0){
+      //次のスケールの音の場合、予告
+      noteClass="note noteNext noteTrans"
+      fretLetter="○"
+    }else{
+      noteClass="note noteTrans"
+    }
+
+    //次の音に向け、ステップの半分で見た目変化を開始
+    let beat1m=Math.floor(step/(stepNum/16))
+    if(beat1m % 4 >1){
+      if(noteInfo[0]+noteInfo[1]>0){
+        //今Active
+        if(noteInfo[2]>0){
+          ;
+        }else if(noteInfo[3]>0){
+          ;
+        }else{
+          //次invalid
+          if(noteInfo[0]>0){
+            noteClass="note noteBase noteGone"
+          }else if(noteInfo[1]>0){
+            noteClass="note noteGone"
+          }
+        }
+      }else{
+        //今invalid
+        if(noteInfo[2]>0){
+          noteClass="note noteBase noteNext noteSlope"
+        }else if(noteInfo[3]>0){
+          noteClass="note noteNext noteSlope"
+        }else{
+          ;
+        }
+      }
+    }
+
+    return(
+      <RenderPositionMark i={i} j={j} fretClass={fretClass} noteClass={noteClass} fretLetter={fretLetter} positionMark={positionMark} fretNum={fretNumArg}/>
+    )
+  }
+
+  function addFretNumber(i,fretNumArg){
+    let sqWidth
+    if(fretNumArg<13){
+      sqWidth = fretWidthMaxThin - (fretWidthMaxThin - fretWidthMinThin) / fretNumArg * i
+    }else {
+      sqWidth = fretWidthMax - (fretWidthMax - fretWidthMin) / fretNumArg * i
+    }
+    let fretNumClass = 'squareFretNumber fs-6'
+    return(
+      <div key={i} className={fretNumClass} style={{'width':sqWidth+'%'}}>{i+1}</div>
+    )
+  }
+
+  let eachStrings=[]
+  let eachStringsShort=[]
+  let fingerElements
+  let fingerElementsShort
+
+  //各弦のフレットを表示
+  for(let i=0;i<strings;i++) {
+    let fingerElements=[]
+    let fingerElementsShort=[]
+    //１フレット毎、配列にプールしていく
+    for (let j = 0; j < fretNum; j++) {
+      fingerElements.push(
+        arrangeFingerElements(i,j,props.nowScale,props.nextScale,props.step,15)
+      )
+      if(j<12){
+        fingerElementsShort.push(
+          arrangeFingerElements(i,j,props.nowScale,props.nextScale,props.step,12)
+        )
+      }
+    }
+    eachStrings.push(fingerElements)
+    eachStringsShort.push(fingerElementsShort)
+  }
+
+  //フレット番号表示
+  fingerElements=[]
+  fingerElementsShort=[]
+
+  for(let n=0;n<fretNum;n++){
+    fingerElements.push(
+      addFretNumber(n,15)
+    )
+  }
+  for(let n=0;n<12;n++){
+    fingerElementsShort.push(
+      addFretNumber(n,12)
+    )
+  }
+  eachStrings.push(fingerElements)
+  eachStringsShort.push(fingerElementsShort)
+
+  return(
+    <>
+      <MediaQuery query="(max-width:575px)">
+        <div className="next-row">{eachStringsShort[0]}</div>
+        <div className="next-row">{eachStringsShort[1]}</div>
+        <div className="next-row">{eachStringsShort[2]}</div>
+        <div className="next-row">{eachStringsShort[3]}</div>
+        <div className="next-row">{eachStringsShort[4]}</div>
+        <div className="next-row">{eachStringsShort[5]}</div>
+        <div className="next-row">{eachStringsShort[6]}</div>
+      </MediaQuery>
+      <MediaQuery query="(min-width:576px)">
+        <div className="next-row">{eachStrings[0]}</div>
+        <div className="next-row">{eachStrings[1]}</div>
+        <div className="next-row">{eachStrings[2]}</div>
+        <div className="next-row">{eachStrings[3]}</div>
+        <div className="next-row">{eachStrings[4]}</div>
+        <div className="next-row">{eachStrings[5]}</div>
+        <div className="next-row">{eachStrings[6]}</div>
+      </MediaQuery>
+    </>
+  )
+
+}
+
+function RenderPositionMark(props){
+  let sqWidth
+  if(props.fretNum<13){
+    sqWidth = fretWidthMaxThin - (fretWidthMaxThin - fretWidthMinThin) / props.fretNum * props.j
+  }else {
+    sqWidth = fretWidthMax - (fretWidthMax - fretWidthMin) / props.fretNum * props.j
+  }
+
+  return(
+      <div key={'p'+props.i+'and'+props.j} className={props.fretClass} style={{'width':sqWidth+'%'}}>
+        <div key={props.i*100} className={props.noteClass}>{props.fretLetter}</div>
+        {props.positionMark}
+      </div>
+  )
+}
+
+
+//fretNum= Index()
 
 const soundNameList=Def.soundNameList
 const masterChord=Def.masterChord
 const masterScale=Def.masterScale
 const drum = Def.drum
 
-const fretWidthMax = 9.5 //%
-const fretWidthMin = 7 //%
-const fretNum=12
-
-
-let instrument=Def.instList['piano']
+let instrument=Def.instList['organ']
 //let nowRhythm=Def.rhythmList['Rock']
 
-const BD = (en,time) => {if(en>0)drum.triggerAttackRelease(['C3'],'2m',time)}
-const SD = (en,time) => {if(en>0)drum.triggerAttackRelease(['C4'],'2m',time)}
-const HHC = (en,time) => {if(en>0)drum.triggerAttackRelease(['C5'],'2m',time)}
+const BD = (en,time) => {if(en>0)drum.triggerAttackRelease(['C3'],'1m',time)}
+const SD = (en,time) => {if(en>0)drum.triggerAttackRelease(['C4'],'1m',time)}
+const HHC = (en,time) => {if(en>0)drum.triggerAttackRelease(['C5'],'1m',time)}
 
 function playThisChord(chordList,en,time){
   if(en>0) instrument.triggerAttackRelease(chordList, '2m',time)
@@ -69,9 +245,9 @@ class MainClock extends React.Component{
       hhcPlan :Def.rhythmList["Rock"]["HHC"],
       chordPlan:[
         [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
-        [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,],
+        [0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,],
         [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,],
-        [0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,],
+        [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,],
       ],
       color:"chordSelector",
       step:stepNum-1,
@@ -279,10 +455,10 @@ class MainClock extends React.Component{
       <div>
         <Container fluid>
           <Row className="justify-content-center mb-5">
-            <Col  xs={12} className="text-center">
+            <Col  xs={12} md={10} className="text-center">
             Step "Solo Jam session" Sequencer
             </Col>
-            <Col xs="12" sm={10} md={8} lg={6} className="px-0">
+            <Col xs="12" sm={12} md={10} lg={8} xl={6} className="px-0">
               <div className="card my-2">
                 <div className="card-header">
                   Chord Selector
@@ -506,6 +682,7 @@ class ScaleSelector extends React.Component{
       <Row>
         {selectors}
         <FingerBoard
+          fretNum={fretNum}
           step={this.props.step}
           nowScale={scaleProcessor(this.state.selectedScaleNoteList[beat1m],this.state.selectedScaleTypeList[beat1m])}
           nextScale={scaleProcessor(this.state.selectedScaleNoteList[nextBeat1m],this.state.selectedScaleTypeList[nextBeat1m])}
@@ -581,10 +758,12 @@ function BPMChanger(props){
 }
 
 class FingerBoard extends React.Component{
-  //  constructor(props) {
-  //    super(props);
-  //  }
+  constructor(props) {
+    super(props);
+ }
 
+
+  /**/
   //各弦の各フレットを配置
   arrangeFingerElements(i,j) {
     let stringShift
@@ -657,52 +836,64 @@ class FingerBoard extends React.Component{
       }
     }
 
-    //let sqWidth = 46 -1*j //34 +2*12= 58
     let sqWidth = fretWidthMax-(fretWidthMax - fretWidthMin)/fretNum * j
 
     return(
-      <div key={'p'+i+'and'+j} className={fretClass} style={{'width':sqWidth+'%'}}>
-        <div key={i*100} className={noteClass}>{fretLetter}</div>
-        {positionMark}
-      </div>
+      <RenderPositionMark i={i} j={j} fretClass={fretClass} noteClass={noteClass} fretLetter={fretLetter} positionMark={positionMark}/>
     )
+    //<div key={'p'+i+'and'+j} className={fretClass} style={{'width':sqWidth+'%'}}>
+    //</div>
   }
 
   addFretNumber(i){
-    //let sqWidth = 46 -1*i //34 +2*12= 58
     let sqWidth = fretWidthMax-(fretWidthMax - fretWidthMin)/fretNum * i
+    let fretNumClass = 'squareFretNumber fs-6'
     return(
-      <div key={i} className="squareFretNumber fs-6" style={{'width':sqWidth+'%'}}>{i+1}</div>
+      <div key={i} className={fretNumClass} style={{'width':sqWidth+'%'}}>{i+1}</div>
     )
   }
 
-  render(){
-    let eachStrings=[]
+  render() {
+    let eachStrings = []
     let fingerElements
 
     //各弦のフレットを表示
-    for(let i=0;i<strings;i++) {
-      let fingerElements=[]
+    for (let i = 0; i < strings; i++) {
+      let fingerElements = []
       //１フレット毎、配列にプールしていく
-      for (let j = 0; j < fingerFrets; j++) {
+      for (let j = 0; j < fretNum; j++) {
         fingerElements.push(
-          this.arrangeFingerElements(i,j)
+          this.arrangeFingerElements(i, j)
         )
       }
       eachStrings.push(fingerElements)
     }
 
     //フレット番号表示
-    fingerElements=[]
-    for(let n=0;n<fingerFrets;n++){
+    fingerElements = []
+
+    for (let n = 0; n < fretNum; n++) {
       fingerElements.push(
         this.addFretNumber(n)
       )
     }
     eachStrings.push(fingerElements)
+  }
 
+   /**/
+
+  render(){
+    //もう少しComponentで演算してから、RenderEachStringに渡してやる。
     return(
       <div className="pt-4">
+        <RenderEachString
+          n={0}
+          nowScale={this.props.nowScale}
+          nextScale={this.props.nextScale}
+          step={this.props.step}/>
+      </div>
+    )
+    /*
         <div className="next-row">{eachStrings[0]}</div>
         <div className="next-row">{eachStrings[1]}</div>
         <div className="next-row">{eachStrings[2]}</div>
@@ -710,8 +901,7 @@ class FingerBoard extends React.Component{
         <div className="next-row">{eachStrings[4]}</div>
         <div className="next-row">{eachStrings[5]}</div>
         <div className="next-row">{eachStrings[6]}</div>
-      </div>
-    )
+    */
   }
 }
 
