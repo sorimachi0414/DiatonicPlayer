@@ -9,20 +9,26 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container'
 
 // ----------------------------------------
+const stepNum=96
 const soundNameList=Def.soundNameList
 const masterChord=Def.masterChord
 const masterScale=Def.masterScale
 const drum = Def.drum
 
-let instrument=Def.instList['piano']
-let nowRhythm=Def.rhythmList['Rock']
+const fletWidthMax = 9.5 //%
+const fletWidthMin = 7 //%
+const fletNum=12
 
-const BD = (en,time) => {if(en>0)drum.triggerAttackRelease(['C3'],'4n',time)}
-const SD = (en,time) => {if(en>0)drum.triggerAttackRelease(['C4'],'4n',time)}
-const HHC = (en,time) => {if(en>0)drum.triggerAttackRelease(['C5'],'4n',time)}
+
+let instrument=Def.instList['piano']
+//let nowRhythm=Def.rhythmList['Rock']
+
+const BD = (en,time) => {if(en>0)drum.triggerAttackRelease(['C3'],'2m',time)}
+const SD = (en,time) => {if(en>0)drum.triggerAttackRelease(['C4'],'2m',time)}
+const HHC = (en,time) => {if(en>0)drum.triggerAttackRelease(['C5'],'2m',time)}
 
 function playThisChord(chordList,en,time){
-  if(en>0) instrument.triggerAttackRelease(chordList, '4n',time)
+  if(en>0) instrument.triggerAttackRelease(chordList, '2m',time)
 }
 
 function playStopSwitch(bool){
@@ -31,6 +37,19 @@ function playStopSwitch(bool){
   }else{
     Tone.Transport.stop();
   }
+}
+
+function exPlan16to48(argList){
+  let list
+  if(argList.length>16){
+    list=argList
+  }else{
+    list=Array(stepNum).fill(0)
+    for(let i=0;i<argList.length;i++){
+      list[i*6] = argList[i]
+    }
+  }
+  return list
 }
 
 // ----------------------------------------
@@ -52,7 +71,7 @@ class MainClock extends React.Component{
         [0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,],
       ],
       color:"chordSelector",
-      step:15,
+      step:stepNum-1,
       nextStep:0,
       bpm:100,
     };
@@ -62,25 +81,26 @@ class MainClock extends React.Component{
     Tone.Transport.scheduleRepeat((time) => {
       //Call Back
       this.ticktack()
-      playThisChord(this.state.chordList[0],this.state.chordPlan[0][this.state.step],time)
-      playThisChord(this.state.chordList[1],this.state.chordPlan[1][this.state.step],time)
-      playThisChord(this.state.chordList[2],this.state.chordPlan[2][this.state.step],time)
-      playThisChord(this.state.chordList[3],this.state.chordPlan[3][this.state.step],time)
-      BD(this.state.bdPlan[this.state.step],time)
-      SD(this.state.sdPlan[this.state.step],time)
-      HHC(this.state.hhcPlan[this.state.step],time)
+      //let beat1m = Math.floor(this.state.step/3)
+      playThisChord(this.state.chordList[0],exPlan16to48(this.state.chordPlan[0])[this.state.step],time)
+      playThisChord(this.state.chordList[1],exPlan16to48(this.state.chordPlan[1])[this.state.step],time)
+      playThisChord(this.state.chordList[2],exPlan16to48(this.state.chordPlan[2])[this.state.step],time)
+      playThisChord(this.state.chordList[3],exPlan16to48(this.state.chordPlan[3])[this.state.step],time)
+      BD(exPlan16to48(this.state.bdPlan)[this.state.step],time)
+      SD(exPlan16to48(this.state.sdPlan)[this.state.step],time)
+      HHC(exPlan16to48(this.state.hhcPlan)[this.state.step],time)
     }, "8n", "0m");
   }
 
   //------------------------------------------------
   //CallBack
   ticktack() {
-    Tone.Transport.bpm.value = this.state.bpm;
+    Tone.Transport.bpm.value = this.state.bpm*(stepNum/16);
     let step=this.state.step
-    step = (step>=15) ? 0:step+1
-    let nextStep= (step>=15) ? 0 : step+1
+    step = (step>=stepNum-1) ? 0:step+1
+    let nextStep= (step>=stepNum-1) ? 0 : step+1
     //Display Change
-    this.changeColor(step)
+    this.changeColor(Math.floor(step/(stepNum/4)))
     this.setState({
       step:step,
       nextStep:nextStep
@@ -146,7 +166,7 @@ class MainClock extends React.Component{
 
   //アクティブなステップ（コード）を着色
   changeColor(i){
-    i=Math.floor(i/4)
+    //i=Math.floor(i/4)
     let blocksColor=Array(4).fill("btn btn-outline-primary h-100 w-100")
     blocksColor[i]="btn btn-warning h-100 w-100"
     this.setState({blocksColor:blocksColor})
@@ -168,7 +188,7 @@ class MainClock extends React.Component{
     let chordForSelect=[]
     for (let key in masterChord) {
       chordForSelect.push(
-        <option value={key}>{key}</option>
+        <option key={'acs'+key} value={key}>{key}</option>
       )
     }
     let check0=(this.state.chordPlan[i][0+i*4]>0)?'checked':''
@@ -176,7 +196,7 @@ class MainClock extends React.Component{
     let check2=(this.state.chordPlan[i][2+i*4]>0)?'checked':''
     let check3=(this.state.chordPlan[i][3+i*4]>0)?'checked':''
     return (
-     <Col xs={3}>
+     <Col xs={3} key={i}>
        <Row>
          <Col xs={12}>
 
@@ -266,12 +286,14 @@ class MainClock extends React.Component{
             Step "Solo Jam session" Sequencer
             </Col>
             <Col xs="12" sm={10} md={8} lg={6} className="px-0">
-
               <div className="card my-2">
                 <div className="card-header">
                   Chord Selector
                 </div>
                 <Row className="card-body pt-1">
+                  <Col className="col-auto align-self-center">
+                    Sound
+                  </Col>
                   <Col xs={3} className="p-2">
                     <DropDownSelector
                       change={(e)=>this.changeInstP(e)}
@@ -279,6 +301,7 @@ class MainClock extends React.Component{
                       initValue={'eGUitar'}
                     />
                   </Col>
+                  <Col className="col-auto align-self-center">Drum</Col>
                   <Col xs={3} className="p-2">
                     <DropDownSelector
                       change={(e)=>this.changeDrum(e)}
@@ -286,7 +309,8 @@ class MainClock extends React.Component{
                       initValue={'Rock'}
                     />
                   </Col>
-                  <Col className="col-6"></Col>
+                </Row>
+                <Row className='card-body pt-1'>
                   {chordSelectors}
                 </Row>
               </div>
@@ -307,37 +331,39 @@ class MainClock extends React.Component{
         </Container>
 
         <Container>
-          <div className="navbar navbar-light bg-light fixed-bottom justify-content-center p-2">
-          <Row>
-            <Col xs={2} md={2}>
-            <PlayStopButton
-              key="pb"
-              label='Play'
-              class="btn btn-primary fs-2 px-2"
-              onClick={()=>playStopSwitch(true)}
-            />
+          <Row className="navbar navbar-light bg-light fixed-bottom">
+            <Col xs={12} sm={10} md={8} lg={6} className="offset-sm-1 offset-md-2 offset-lg-3">
+              <Row>
+                <Col xs={2} md={2} className="px-1">
+                  <PlayStopButton
+                    key="pb"
+                    label='Play'
+                    class="btn btn-primary fs-2"
+                    onClick={()=>playStopSwitch(true)}
+                  />
+                </Col>
+                <Col xs={2} md={2} className="px-1">
+                  <PlayStopButton
+                    key="sb"
+                    label='Stop'
+                    class="btn btn-outline-primary fs-2"
+                    onClick={()=>playStopSwitch(false)}
+                  />
+                </Col>
+                <Col xs={8} md={8} className='align-self-center px-1'>
+                  <BPMChanger
+                    key="bpmc"
+                    bpm={this.state.bpm}
+                    p10={()=>this.changeBPM(10)}
+                    p1={()=>this.changeBPM(1)}
+                    n1={()=>this.changeBPM(-1)}
+                    n10={()=>this.changeBPM(-10)}
+                  />
+                </Col>
+              </Row>
             </Col>
-            <Col xs={2} md={2}>
-            <PlayStopButton
-              key="sb"
-              label='Stop'
-              class="btn btn-outline-primary fs-2 px-2"
-              onClick={()=>playStopSwitch(false)}
-            />
-          </Col>
-            <Col xs={8} md={8}>
-            <BPMChanger
-              key="bpmc"
-              bpm={this.state.bpm}
-              p10={()=>this.changeBPM(10)}
-              p1={()=>this.changeBPM(1)}
-              n1={()=>this.changeBPM(-1)}
-              n10={()=>this.changeBPM(-10)}
-            />
-          </Col>
-        </Row>
 
-      </div>
+      </Row>
           <div className="d-block d-sm-none">- 576px</div>
           <div className="d-none d-sm-block d-md-none">sm >576px</div>
           <div className="d-none d-md-block d-lg-none">md >768px</div>
@@ -373,7 +399,7 @@ class ListedSelector extends React.Component{
     }
     return(
       //valueがSelectの初期値となる。valueが入っていると、他に変更してもValueに戻る。
-      <select size={3} value={this.state.list[this.props.boxNum]} className="form-select p-1" onClick={(e)=>this.changeChordByName(e)}>
+      <select size={3} defaultValue={this.state.list[this.props.boxNum]} className="form-select p-1" onClick={(e)=>this.changeChordByName(e)}>
         {options}
       </select>
     )
@@ -403,11 +429,11 @@ class DropDownSelector extends React.Component{
     let options=[]
     for(let key in this.props.optionList){
       options.push(
-        <option key="" value={key}>{key}</option>
+        <option key={key} value={key}>{key}</option>
       )
     }
     return(
-      <select value={this.state.selected} className="scaleTypeSelector" onChange={(e)=>this.change(e)}>
+      <select defaultValue={this.state.selected} className="scaleTypeSelector" onChange={(e)=>this.change(e)}>
         {options}
       </select>
     )
@@ -442,8 +468,9 @@ class ScaleSelector extends React.Component{
 
   repeatSelector(i){
     return(
-        <Col xs={3}>
+        <Col key={i} xs={3}>
           <ThreeButtonChanger
+
             class={"scaleNoteSelector"}
             color={'btn btn-outline-primary w-100'}
 
@@ -452,6 +479,7 @@ class ScaleSelector extends React.Component{
             onClickN={() => this.changeScaleTone(i,-1)}
           />
           <ListedSelector
+
             initList={Array(4).fill("minorPentatonic")}
             optionList={masterScale}
             class={"scaleTypeSelector"}
@@ -467,7 +495,8 @@ class ScaleSelector extends React.Component{
 
   render(){
     //definition
-    let beat1m=Math.floor(this.props.step/4)
+    //let beat1m=Math.floor(this.props.step/4)
+    let beat1m=Math.floor(this.props.step/(stepNum/4))
     let nextBeat1m=(beat1m>=3) ? 0 : beat1m+1
     let selectors=[]
     const selectorLength=4
@@ -490,9 +519,9 @@ class ScaleSelector extends React.Component{
 }
 
 class ChordChopperCheckBox extends React.Component{
-  constructor(props) {
-    super(props);
-  }
+  //  constructor(props) {
+  //    super(props);
+  //  }
   render(){
     return(
       <input className="form-check-input p-2 mx-1" type="checkbox" checked={this.props.checked} value={this.props.value} onChange={this.props.onClick}></input>
@@ -501,9 +530,9 @@ class ChordChopperCheckBox extends React.Component{
 }
 
 class ThreeButtonChanger extends  React.Component{
-  constructor(props) {
-    super(props);
-  }
+  //  constructor(props) {
+  //    super(props);
+  //  }
 
   render(){
     return(
@@ -533,21 +562,31 @@ function PlayStopButton(props){
 
 function BPMChanger(props){
   return(
-    <div>
-      <button className="btn btn-outline-success mx-1 px-2" onClick={props.n10}>-10</button>
-      <button className="btn btn-outline-success mx-1  px-2" onClick={props.n1}>-1</button>
-      <span className="fw-bolder fs-3 mx-1">bpm</span>
-      <span className="text-info fw-bolder fs-3">{props.bpm}</span>
-      <button className="btn btn-outline-success mx-1  px-2" onClick={props.p1}>+1</button>
-      <button className="btn btn-outline-success mx-1  px-2" onClick={props.p10}>+10</button>
-    </div>
+    <Row className="mx-0">
+      <Col className="col-2 px-1">
+        <button className="btn btn-outline-success border-1 p-0 w-100 h-100" onClick={props.n10}>-10</button>
+      </Col>
+      <Col className="col-2  px-1">
+      <button className="btn btn-outline-success border-1  p-0 w-100 h-100" onClick={props.n1}>-1</button>
+      </Col>
+      <Col className="col-4 px-1 text-center">
+      <span className="fw-bolder fs-4">bpm</span>
+      <span className="text-info fw-bolder fs-4">{props.bpm}</span>
+      </Col>
+      <Col className="col-2  px-1">
+      <button className="btn btn-outline-success border-1  p-0 w-100 h-100" onClick={props.p1}>+1</button>
+      </Col>
+      <Col className="col-2  px-1">
+      <button className="btn btn-outline-success border-1 p-0 w-100 h-100" onClick={props.p10}>+10</button>
+      </Col>
+    </Row>
   )
 }
 
 class FingerBoard extends React.Component{
-  constructor(props) {
-    super(props);
-  }
+  //  constructor(props) {
+  //    super(props);
+  //  }
 
   //各弦の各フレットを配置
   arrangeFingerElements(i,j) {
@@ -593,7 +632,8 @@ class FingerBoard extends React.Component{
     }
 
     //次の音に向け、ステップの半分で見た目変化を開始
-    if(this.props.step % 4 >1){
+    let beat1m=Math.floor(this.props.step/(stepNum/4))
+    if(beat1m % 4 >1){
       if(noteInfo[0]+noteInfo[1]>0){
         //今Active
         if(noteInfo[2]>0){
@@ -620,20 +660,22 @@ class FingerBoard extends React.Component{
       }
     }
 
-    let sqWidth = 46 -1*j //34 +2*12= 58
+    //let sqWidth = 46 -1*j //34 +2*12= 58
+    let sqWidth = fletWidthMax-(fletWidthMax - fletWidthMin)/fletNum * j
 
     return(
-      <div className={fletClass} style={{'width':sqWidth+'px'}}>
-        <div className={noteClass} >{fletLetter}</div>
+      <div key={'p'+i+'and'+j} className={fletClass} style={{'width':sqWidth+'%'}}>
+        <div key={i*100} className={noteClass}>{fletLetter}</div>
         {positionMark}
       </div>
     )
   }
 
   addFletNumber(i){
-    let sqWidth = 46 -1*i //34 +2*12= 58
+    //let sqWidth = 46 -1*i //34 +2*12= 58
+    let sqWidth = fletWidthMax-(fletWidthMax - fletWidthMin)/fletNum * i
     return(
-      <div className="squareFletNumber" style={{'width':sqWidth+'px'}}>{i+1}</div>
+      <div key={i} className="squareFletNumber fs-6" style={{'width':sqWidth+'%'}}>{i+1}</div>
     )
   }
 
@@ -663,6 +705,7 @@ class FingerBoard extends React.Component{
       )
     }
     eachStrings.push(fingerElements)
+
     return(
       <div className="pt-4">
         <div className="next-row">{eachStrings[0]}</div>

@@ -70,18 +70,25 @@
 
 .circle{
   position:absolute;
-  width: 17px;
-  height: 17px;
-  top:22px;
-  left:9px;
-  border-radius: 50%;
+  width:1.5vmax;
+  max-width:18px;
+  height:auto;
+  top:0.9em;
+  /*left:0.75vmax;*/
+  left:30%;
+  border-radius: 100%;
   background:#ccc;/*背景色*/
-  //margin-left:auto;
-  //margin-right:auto;
+}
+
+.circle::before{
+  content: "";
+  display: block;
+  padding-top: 100%;
 }
 
 .spacer{
   padding-top:50px;
+
 
 }
 
