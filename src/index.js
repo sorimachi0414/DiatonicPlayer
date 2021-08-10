@@ -52,6 +52,9 @@ function exPlan16to48(argList){
 
 // ----------------------------------------
 class MainClock extends React.Component{
+  componentDidMount(){
+    document.title = "Solo Jam session Sequencer"
+  }
   constructor(props) {
     super(props);
     this.state = {
@@ -97,7 +100,7 @@ class MainClock extends React.Component{
     step = (step>=stepNum-1) ? 0:step+1
     let nextStep= (step>=stepNum-1) ? 0 : step+1
     //Display Change
-    this.changeColor(Math.floor(step/(stepNum/4)))
+    this.changeColor(~~(step/(stepNum/4)))
     this.setState({
       step:step,
       nextStep:nextStep
@@ -483,7 +486,7 @@ class ScaleSelector extends React.Component{
   render(){
     //definition
     //let beat1m=Math.floor(this.props.step/4)
-    let beat1m=Math.floor(this.props.step/(stepNum/4))
+    let beat1m=~~(this.props.step/(stepNum/4))
     let nextBeat1m=(beat1m>=3) ? 0 : beat1m+1
     let selectors=[]
     const selectorLength=4
@@ -620,7 +623,7 @@ class FingerBoard extends React.Component{
     }
 
     //次の音に向け、ステップの半分で見た目変化を開始
-    let beat1m=Math.floor(this.props.step/(stepNum/(4*4)))
+    let beat1m=~~(this.props.step/(stepNum/(4*4)))
     if(beat1m % 4 >1){
       if(noteInfo[0]+noteInfo[1]>0){
         //今Active
@@ -647,7 +650,7 @@ class FingerBoard extends React.Component{
         }
       }
     }
-    fretClass = (j>=12) ? fretClass+' over' : fretClass+' wd-'+j
+    fretClass +=' wd-'+j
 
     return(
         <div key={'p'+i+'and'+j} className={fretClass} >
