@@ -129,6 +129,16 @@ export const rhythmList={
   'blue':blueDrum,
 }
 
+//0,1,3,0,5,0,7,0
+export const noteDisplayArray=[
+
+  [],
+  [],
+
+
+
+]
+
 /*
 F-G-Am
 C-Am-F-G

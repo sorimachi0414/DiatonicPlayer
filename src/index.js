@@ -4,197 +4,18 @@ import './index.css';
 import * as Tone from "tone";
 import * as Def from "./subCord.js"
 import 'bootstrap/dist/css/bootstrap.min.css';
-import MediaQuery from "react-responsive"
+//import MediaQuery from "react-responsive"
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container'
+/*
+TODO: Dynamic tone length change system
 
+ */
 // ----------------------------------------
 const stepNum=96
 let fretNum=15
 const strings=6
-const fretWidthMax = 8 //%
-const fretWidthMin = 5 //%
-const fretWidthMaxThin = 10 //%
-const fretWidthMinThin = 6 //%
-
-/*
-function RenderEachString(props){
-
-  function arrangeFingerElements(i,j,nowScale,nextScale,step,fretNumArg){
-    let stringShift
-    let noteClass
-    let fretLetter
-
-    //ポジションマーク
-    let positionMark = (Def.positionMarkArray[i][j]>0) ? <div className="circle" /> : ""
-    let fretClass = j===0 ? "square nut" : "square"
-
-    //各フレットを音名に変換、スケールと照合
-    stringShift=Def.stringNumToShift[i]
-
-    //各フレットを音階に変換　C=0
-    let fretSound=(stringShift+j+1) % 12
-
-    //スケール構成音の情報を整理
-    let noteInfo=[0,0,0,0]//'ActiveBaseNote','ActiveNote','NextBaseNote','NextNote',
-    if(nowScale.indexOf(fretSound)===0){noteInfo[0]=1}
-    if(nowScale.indexOf(fretSound)>0){noteInfo[1]=1}
-    if(nextScale.indexOf(fretSound)===0){noteInfo[2]=1}
-    if(nextScale.indexOf(fretSound)>0){noteInfo[3]=1}
-
-    //スケール構成音に色付け
-    if(noteInfo[0]>0){
-      //構成音の場合
-      fretLetter="●"
-      noteClass="note noteBase"
-    }else if(noteInfo[1]>0){
-      noteClass="note"
-      fretLetter="●"
-    }else if(noteInfo[2]>0){
-      //次のスケールの音の場合、予告
-      noteClass="note noteBase noteNext noteTrans"
-      fretLetter="○"
-    }else if(noteInfo[3]>0){
-      //次のスケールの音の場合、予告
-      noteClass="note noteNext noteTrans"
-      fretLetter="○"
-    }else{
-      noteClass="note noteTrans"
-    }
-
-    //次の音に向け、ステップの半分で見た目変化を開始
-    let beat1m=Math.floor(step/(stepNum/16))
-    if(beat1m % 4 >1){
-      if(noteInfo[0]+noteInfo[1]>0){
-        //今Active
-        if(noteInfo[2]>0){
-          ;
-        }else if(noteInfo[3]>0){
-          ;
-        }else{
-          //次invalid
-          if(noteInfo[0]>0){
-            noteClass="note noteBase noteGone"
-          }else if(noteInfo[1]>0){
-            noteClass="note noteGone"
-          }
-        }
-      }else{
-        //今invalid
-        if(noteInfo[2]>0){
-          noteClass="note noteBase noteNext noteSlope"
-        }else if(noteInfo[3]>0){
-          noteClass="note noteNext noteSlope"
-        }else{
-          ;
-        }
-      }
-    }
-
-    return(
-      <RenderPositionMark i={i} j={j} fretClass={fretClass} noteClass={noteClass} fretLetter={fretLetter} positionMark={positionMark} fretNum={fretNumArg}/>
-    )
-  }
-
-  function addFretNumber(i,fretNumArg){
-    let sqWidth
-    if(fretNumArg<13){
-      sqWidth = fretWidthMaxThin - (fretWidthMaxThin - fretWidthMinThin) / fretNumArg * i
-    }else {
-      sqWidth = fretWidthMax - (fretWidthMax - fretWidthMin) / fretNumArg * i
-    }
-    let fretNumClass = 'squareFretNumber fs-6'
-    return(
-      <div key={i} className={fretNumClass} style={{'width':sqWidth+'%'}}>{i+1}</div>
-    )
-  }
-
-  let eachStrings=[]
-  let eachStringsShort=[]
-  let fingerElements
-  let fingerElementsShort
-
-  //各弦のフレットを表示
-  for(let i=0;i<strings;i++) {
-    let fingerElements=[]
-    let fingerElementsShort=[]
-    //１フレット毎、配列にプールしていく
-    for (let j = 0; j < fretNum; j++) {
-      fingerElements.push(
-        arrangeFingerElements(i,j,props.nowScale,props.nextScale,props.step,15)
-      )
-      if(j<12){
-        fingerElementsShort.push(
-          arrangeFingerElements(i,j,props.nowScale,props.nextScale,props.step,12)
-        )
-      }
-    }
-    eachStrings.push(fingerElements)
-    eachStringsShort.push(fingerElementsShort)
-  }
-
-  //フレット番号表示
-  fingerElements=[]
-  fingerElementsShort=[]
-
-  for(let n=0;n<fretNum;n++){
-    fingerElements.push(
-      addFretNumber(n,15)
-    )
-  }
-  for(let n=0;n<12;n++){
-    fingerElementsShort.push(
-      addFretNumber(n,12)
-    )
-  }
-  eachStrings.push(fingerElements)
-  eachStringsShort.push(fingerElementsShort)
-
-  return(
-    <>
-      <MediaQuery query="(max-width:575px)">
-        <div className="next-row">{eachStringsShort[0]}</div>
-        <div className="next-row">{eachStringsShort[1]}</div>
-        <div className="next-row">{eachStringsShort[2]}</div>
-        <div className="next-row">{eachStringsShort[3]}</div>
-        <div className="next-row">{eachStringsShort[4]}</div>
-        <div className="next-row">{eachStringsShort[5]}</div>
-        <div className="next-row">{eachStringsShort[6]}</div>
-      </MediaQuery>
-      <MediaQuery query="(min-width:576px)">
-        <div className="next-row">{eachStrings[0]}</div>
-        <div className="next-row">{eachStrings[1]}</div>
-        <div className="next-row">{eachStrings[2]}</div>
-        <div className="next-row">{eachStrings[3]}</div>
-        <div className="next-row">{eachStrings[4]}</div>
-        <div className="next-row">{eachStrings[5]}</div>
-        <div className="next-row">{eachStrings[6]}</div>
-      </MediaQuery>
-    </>
-  )
-
-}
-
-function RenderPositionMark(props){
-  let sqWidth
-  if(props.fretNum<13){
-    sqWidth = fretWidthMaxThin - (fretWidthMaxThin - fretWidthMinThin) / props.fretNum * props.j
-  }else {
-    sqWidth = fretWidthMax - (fretWidthMax - fretWidthMin) / props.fretNum * props.j
-  }
-
-  return(
-      <div key={'p'+props.i+'and'+props.j} className={props.fretClass} style={{'width':sqWidth+'%'}}>
-        <div key={props.i*100} className={props.noteClass}>{props.fretLetter}</div>
-        {props.positionMark}
-      </div>
-  )
-}
-
- */
-
-//fretNum= Index()
 
 const soundNameList=Def.soundNameList
 const masterChord=Def.masterChord
@@ -213,11 +34,7 @@ function playThisChord(chordList,en,time){
 }
 
 function playStopSwitch(bool){
-  if (bool){
-    Tone.Transport.start();
-  }else{
-    Tone.Transport.stop();
-  }
+  (bool)?Tone.Transport.start():Tone.Transport.stop();
 }
 
 function exPlan16to48(argList){
@@ -262,7 +79,6 @@ class MainClock extends React.Component{
     Tone.Transport.scheduleRepeat((time) => {
       //Call Back
       this.tickTack()
-      //let beat1m = Math.floor(this.state.step/3)
       playThisChord(this.state.chordList[0],exPlan16to48(this.state.chordPlan[0])[this.state.step],time)
       playThisChord(this.state.chordList[1],exPlan16to48(this.state.chordPlan[1])[this.state.step],time)
       playThisChord(this.state.chordList[2],exPlan16to48(this.state.chordPlan[2])[this.state.step],time)
@@ -302,13 +118,10 @@ class MainClock extends React.Component{
     //convert Number to Alphabet
     let chordToneABC=chordTonesShifted.map(x =>soundNameList[x]+'3')
     chordList[i] = chordToneABC
-    console.log(chordToneABC)
-    console.log(chordList[i])
 
     this.setState({
       chordList:chordList
     })
-
   }
 
   //------------------------------------------------
@@ -537,7 +350,6 @@ class MainClock extends React.Component{
                 </Col>
               </Row>
             </Col>
-
       </Row>
           <div className="d-block d-sm-none">- 576px</div>
           <div className="d-none d-sm-block d-md-none">sm >576px</div>
@@ -763,7 +575,7 @@ class FingerBoard extends React.Component{
   constructor(props) {
     super(props);
  }
-  /**/
+
   //各弦の各フレットを配置
   arrangeFingerElements(i,j) {
     let stringShift
@@ -782,16 +594,16 @@ class FingerBoard extends React.Component{
 
     //スケール構成音の情報を整理
     let noteInfo=[0,0,0,0]//'ActiveBaseNote','ActiveNote','NextBaseNote','NextNote',
-    if(this.props.nowScale.indexOf(fretSound)===0){noteInfo[0]=1}
-    if(this.props.nowScale.indexOf(fretSound)>0){noteInfo[1]=1}
-    if(this.props.nextScale.indexOf(fretSound)===0){noteInfo[2]=1}
-    if(this.props.nextScale.indexOf(fretSound)>0){noteInfo[3]=1}
+    if(this.props.nowScale.indexOf(fretSound)===0)  noteInfo[0]=1
+    if(this.props.nowScale.indexOf(fretSound)>0)    noteInfo[1]=1
+    if(this.props.nextScale.indexOf(fretSound)===0) noteInfo[2]=1
+    if(this.props.nextScale.indexOf(fretSound)>0)   noteInfo[3]=1
 
     //スケール構成音に色付け
     if(noteInfo[0]>0){
       //構成音の場合
-      fretLetter="●"
       noteClass="note noteBase"
+      fretLetter="●"
     }else if(noteInfo[1]>0){
       noteClass="note"
       fretLetter="●"
@@ -813,9 +625,9 @@ class FingerBoard extends React.Component{
       if(noteInfo[0]+noteInfo[1]>0){
         //今Active
         if(noteInfo[2]>0){
-          console.log()
+          ;
         }else if(noteInfo[3]>0){
-          console.log()
+          ;
         }else{
           //次invalid
           if(noteInfo[0]>0){
@@ -831,18 +643,11 @@ class FingerBoard extends React.Component{
         }else if(noteInfo[3]>0){
           noteClass="note noteNext noteSlope"
         }else{
-          console.log()
+          ;
         }
       }
     }
-
-    let sqWidth = fretWidthMax-(fretWidthMax - fretWidthMin)/fretNum * j
-
-    if(j>=12){
-      fretClass+=' over'
-    }
-    fretClass+=' wd-'+j
-
+    fretClass = (j>=12) ? fretClass+' over' : fretClass+' wd-'+j
 
     return(
         <div key={'p'+i+'and'+j} className={fretClass} >
@@ -853,12 +658,10 @@ class FingerBoard extends React.Component{
   }
 
   addFretNumber(i){
-    //let sqWidth = 46 -1*i //34 +2*12= 58
     let tempClass ='squareFretNumber fs-6'
     tempClass +=' wd-'+i
-    let sqWidth = fretWidthMax-(fretWidthMax - fretWidthMin)/fretNum * i
     return(
-    <div key={i} className={tempClass} >{i+1}</div>
+      <div key={i} className={tempClass} >{i+1}</div>
     )
   }
 
@@ -888,21 +691,7 @@ class FingerBoard extends React.Component{
     }
     eachStrings.push(fingerElements)
 
-
-   /**/
-
-    //もう少しComponentで演算してから、RenderEachStringに渡してやる。
     return(
-    /*
-      <div className="pt-4">
-        <RenderEachString
-          n={0}
-          nowScale={this.props.nowScale}
-          nextScale={this.props.nextScale}
-          step={this.props.step}/>
-      </div>
-    )
-    */
     /**/
       <div className="pt-4">
         <div className="next-row">{eachStrings[0]}</div>
