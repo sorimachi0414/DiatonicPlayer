@@ -36,6 +36,8 @@ function playThisChord(chordList,length,time,duration){
 }
 
 function playStopSwitch(bool){
+  instrument.context._context.resume();
+  Tone.Transport.start();
   (bool)?Tone.Transport.start():Tone.Transport.stop();
 }
 
