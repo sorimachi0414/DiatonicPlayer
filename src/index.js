@@ -8,9 +8,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container'
+import {chordChopLength} from "./subCord.js";
 /*
 TODO: Dynamic tone length change system
-
+TODO: display chord degree on note symbols
+TODO: unlock Scale change button
  */
 // ----------------------------------------
 const stepNum=96
@@ -29,8 +31,8 @@ const BD = (en,time) => {if(en>0)drum.triggerAttackRelease(['C3'],'1m',time)}
 const SD = (en,time) => {if(en>0)drum.triggerAttackRelease(['C4'],'1m',time)}
 const HHC = (en,time) => {if(en>0)drum.triggerAttackRelease(['C5'],'1m',time)}
 
-function playThisChord(chordList,en,time){
-  if(en>0) instrument.triggerAttackRelease(chordList, '2m',time)
+function playThisChord(chordList,length,time,duration){
+  if(length!=0) instrument.triggerAttackRelease(chordList, length,time)
 }
 
 function playStopSwitch(bool){
@@ -66,15 +68,15 @@ class MainClock extends React.Component{
       sdPlan  :Def.rhythmList["Rock"]["SD"],
       hhcPlan :Def.rhythmList["Rock"]["HHC"],
       chordPlan:[
-        [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
-        [0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,],
-        [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,],
-        [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,],
+        ['1m',0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,],
+        [0,0,0,0,'1m',0,0,'4n',0,0,0,0,0,0,0,0,],
+        [0,0,0,0,0,0,0,0,'1m',0,0,0,0,0,0,0,],
+        [0,0,0,0,0,0,0,0,0,0,0,0,'1m',0,0,0,],
       ],
       color:"chordSelector",
       step:stepNum-1,
       nextStep:0,
-      bpm:100,
+      bpm:120,
     };
     this.tickTack = this.tickTack.bind(this);
 
@@ -82,20 +84,20 @@ class MainClock extends React.Component{
     Tone.Transport.scheduleRepeat((time) => {
       //Call Back
       this.tickTack()
-      playThisChord(this.state.chordList[0],exPlan16to48(this.state.chordPlan[0])[this.state.step],time)
-      playThisChord(this.state.chordList[1],exPlan16to48(this.state.chordPlan[1])[this.state.step],time)
-      playThisChord(this.state.chordList[2],exPlan16to48(this.state.chordPlan[2])[this.state.step],time)
-      playThisChord(this.state.chordList[3],exPlan16to48(this.state.chordPlan[3])[this.state.step],time)
+      playThisChord(this.state.chordList[0],exPlan16to48(this.state.chordPlan[0])[this.state.step],time,'2m')
+      playThisChord(this.state.chordList[1],exPlan16to48(this.state.chordPlan[1])[this.state.step],time,'2m')
+      playThisChord(this.state.chordList[2],exPlan16to48(this.state.chordPlan[2])[this.state.step],time,'2m')
+      playThisChord(this.state.chordList[3],exPlan16to48(this.state.chordPlan[3])[this.state.step],time,'2m')
       BD(exPlan16to48(this.state.bdPlan)[this.state.step],time)
       SD(exPlan16to48(this.state.sdPlan)[this.state.step],time)
       HHC(exPlan16to48(this.state.hhcPlan)[this.state.step],time)
-    }, "8n", "0m");
+    }, "24n", "0m");
   }
 
   //------------------------------------------------
   //CallBack
   tickTack() {
-    Tone.Transport.bpm.value = this.state.bpm*(stepNum/16);
+    Tone.Transport.bpm.value = this.state.bpm//*(stepNum/16);
     let step=this.state.step
     step = (step>=stepNum-1) ? 0:step+1
     let nextStep= (step>=stepNum-1) ? 0 : step+1
@@ -172,20 +174,36 @@ class MainClock extends React.Component{
   changeChordChopper(note,bar){
     // You may shrink code
     let chordPlan=this.state.chordPlan.slice()
-    let chordPlanOneBar = chordPlan[bar].slice()
-    let status =chordPlanOneBar[note+bar*4]
-    chordPlanOneBar[note+bar*4] = (status>0)?0:1
-    chordPlan[bar] = chordPlanOneBar
+    let oneBar = chordPlan[bar].slice()
 
+
+    //1小節毎に処理
+    let status =oneBar[note+bar*4] //今の値
+    oneBar[note+bar*4]= (status==0)?'4n':0  //クリックした値を更新
+
+    let oneBarThis = oneBar.slice(0+bar*4,4+bar*4)
+
+    function arrayToByte(list){
+      let byte=0
+      for(let i in list){
+        byte = (list[i]!=0) ? byte+2**(3-i):byte
+      }
+      return byte
+    }
+
+    //oneBarを置換
+    oneBar.splice(0+bar*4,4,...Def.chordChopLength[arrayToByte(oneBarThis)])
+
+    chordPlan[bar] = oneBar
     this.setState({chordPlan:chordPlan,})
   }
 
   //コードブロックを配置
   arrangeChordSelector(i){
-    let check0=(this.state.chordPlan[i][i*4]>0)?'checked':''
-    let check1=(this.state.chordPlan[i][1+i*4]>0)?'checked':''
-    let check2=(this.state.chordPlan[i][2+i*4]>0)?'checked':''
-    let check3=(this.state.chordPlan[i][3+i*4]>0)?'checked':''
+    let check0=(this.state.chordPlan[i][i*4]!=0)?'checked':''
+    let check1=(this.state.chordPlan[i][1+i*4]!=0)?'checked':''
+    let check2=(this.state.chordPlan[i][2+i*4]!=0)?'checked':''
+    let check3=(this.state.chordPlan[i][3+i*4]!=0)?'checked':''
     return (
      <Col xs={3} key={i}>
        <Row>
