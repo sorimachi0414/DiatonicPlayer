@@ -29,7 +29,7 @@ export const organ = new Tone.Sampler(
     volume:-20,
   }
 ).toDestination();
-organ.context.resume()
+
 
 export const drum = new Tone.Sampler(
   {
@@ -41,7 +41,7 @@ export const drum = new Tone.Sampler(
     baseUrl:"./",
   }
 ).toDestination();
-drum.context.resume()
+
 
 export const piano = new Tone.Sampler({
   urls: {
@@ -51,7 +51,6 @@ export const piano = new Tone.Sampler({
   baseUrl: "./",
   volume:-12,
 }).toDestination();
-piano.context.resume()
 
 export const eGuitar = new Tone.Sampler({
   urls: {
@@ -61,7 +60,6 @@ export const eGuitar = new Tone.Sampler({
   baseUrl: "./",
   volume:-10,
 }).toDestination();
-eGuitar.context.resume()
 
 export const aGuitar = new Tone.Sampler({
   urls: {
@@ -72,7 +70,6 @@ export const aGuitar = new Tone.Sampler({
   baseUrl: "./",
   volume:-10,
 }).toDestination();
-aGuitar.context.resume()
 
 
 
