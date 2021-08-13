@@ -130,7 +130,6 @@ class MainClock extends React.Component{
     playStopSwitch(isPlay)
   }
 
-
   makeChordString(i) {
     let chordList=this.state.chordList.slice()
     let shift = this.state.chordNotes[i] //0,1,2,...
@@ -229,8 +228,7 @@ class MainClock extends React.Component{
     return (
      <Col xs={3} key={i}>
        <Row>
-         <Col xs={12}>
-
+         <Col xs={12}  className="mx-0 px-0">
           <ChordChopperCheckBox
             key={'CC1c'+i}
             type="checkbox"
@@ -322,8 +320,8 @@ class MainClock extends React.Component{
                   Chord Selector
                 </div>
                 <Row className="card-body pt-1">
-                  <Col  xs={2} sm={2} className="px-0 align-self-center text-center">
-                    Sound
+                  <Col  xs={2} sm={2} className="mx- 0px-0 align-self-center text-center">
+                    Tone
                   </Col>
                   <Col xs={4} sm={3} className="p-2">
                     <DropDownSelector
@@ -332,7 +330,7 @@ class MainClock extends React.Component{
                       initValue={'organ'}
                     />
                   </Col>
-                  <Col xs={0} sm={1}></Col>
+
                   <Col  xs={2} sm={2} className="px-0 align-self-center text-center">
                     Drum
                   </Col>
@@ -553,7 +551,7 @@ class ChordChopperCheckBox extends React.Component{
   //  }
   render(){
     return(
-      <input className="form-check-input p-2 mx-1" type="checkbox" checked={this.props.checked} value={this.props.value} onChange={this.props.onClick} />
+      <input className="form-check-input m-05 p-sm-2 mx-sm-1" type="checkbox" checked={this.props.checked} value={this.props.value} onChange={this.props.onClick} />
     )
   }
 }

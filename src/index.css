@@ -283,6 +283,9 @@ ol, ul {
   color:#bbb;
 }
 */
+.m-05{
+  margin-left:0.25rem;
+}
 .square:focus {
   outline: none;
 }
