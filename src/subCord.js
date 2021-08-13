@@ -3,18 +3,31 @@ import * as Tone from "tone";
 
 export const soundNameList=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B',]
 export const masterChord ={
-  'M':[0,4,7],
-  'm':[0,3,7],
-  '7':[0,4,7,10],
-  '5':[0,4],
-
+  '01_M':[0,4,7],
+  '02_M7':[0,4,7,11],
+  '03_m':[0,3,7],
+  '04_m7':[0,3,7,10],
+  '05_5':[0,4],
+  '06_6':[0,4,7,9],
+  '07_7':[0,4,7,10],
+  '08_sus4':[0,5,7],
+  '09_add9':[0,2,7],
 }
+
 export const masterScale = {
-  'Major':[0,2,4,5,7,9,11],
-  'minor':[0,2,3,5,7,8,10],
-  'minorPentatonic':  [0,3,5,7,10],
-  'MajorPentatonic':  [0,2,4,7,9],
-  'Ryukyu':[0,4,5,7,11],
+  '01_Okinawa':[0,4,5,7,11],
+  '02_Major':[0,2,4,5,7,9,11],
+  '03_minor':[0,2,3,5,7,8,10],
+  '04_minorPentatonic':  [0,3,5,7,10],
+  '05_MajorPentatonic':  [0,2,4,7,9],
+  '06_Blues':[0,2,3,4,7,9],
+  '07_minorBlues':[0,3,5,6,7,10],
+  '08_HarmonicMinor':[0,2,3,5,7,8,11],
+  '09_MelodicMinor':[0,2,3,5,7,9,11],
+  '10_Dorian':[0,2,3,5,7,9,10],
+  '11_Lydian':[0,2,4,6,7,9,11],
+  '12_MixoLydian':[0,2,4,5,7,9,10],
+  '13_Alterd':[0,1,3,4,6,8,10],
 }
 
 // ----------------------------------------
@@ -26,7 +39,7 @@ export const organ = new Tone.Sampler(
       C4: "organC5.mp3",
     },
     baseUrl:"./",
-    volume:-20,
+    volume:-15,
   }
 ).toDestination();
 
@@ -49,7 +62,7 @@ export const piano = new Tone.Sampler({
     C3: "C3single.mp3",
   },
   baseUrl: "./",
-  volume:-12,
+  volume:-15,
 }).toDestination();
 
 export const eGuitar = new Tone.Sampler({
@@ -104,6 +117,13 @@ export const silentDrum={
   "SD"  :[0,0,0,0,  0,0,0,0,  0,0,0,0,  0,0,0,0,],
   "HHC" :[1,0,0,0,  1,0,0,0,  1,0,0,0,  1,0,0,0,],
 }
+
+export const noneDrum={
+  "BD"  :[0,0,0,0,  0,0,0,0,  0,0,0,0,  0,0,0,0,],
+  "SD"  :[0,0,0,0,  0,0,0,0,  0,0,0,0,  0,0,0,0,],
+  "HHC" :[0,0,0,0,  0,0,0,0,  0,0,0,0,  0,0,0,0,],
+}
+
 export const blueDrum={
   "BD"  :[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
   "SD"  :[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
@@ -113,7 +133,6 @@ export const blueDrum={
     1,0,0,0,0,0,0,0, 1,0,0,0,0,0,0,0, 1,0,0,0,0,0,0,0,
     1,0,0,0,0,0,0,0, 1,0,0,0,0,0,0,0, 1,0,0,0,0,0,0,0,
   ],
-
 }
 
 export const instList={
@@ -128,6 +147,7 @@ export const rhythmList={
   'jazz':jazzDrum,
   'silent':silentDrum,
   'blue':blueDrum,
+  'mute':noneDrum,
 }
 
 //0,1,3,0,5,0,7,0

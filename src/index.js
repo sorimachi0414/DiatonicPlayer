@@ -74,7 +74,7 @@ class MainClock extends React.Component{
     this.state = {
       chordList:[['A2','A3','C#3','E3','G3',],['A2','A3','C#3','E3','G3',],['D2','D3','F#3','A3','C3'],['D2','D3','F#3','A3','C3']],
       chordNotes:[9,9,2,2],
-      chordTypes:Array(4).fill('7'),
+      chordTypes:Array(4).fill('07_7'),
       blocksColor:Array(4).fill("btn btn-outline-primary w-100"),
       bdPlan  :Def.rhythmList["Rock"]["BD"],
       sdPlan  :Def.rhythmList["Rock"]["SD"],
@@ -269,7 +269,7 @@ class MainClock extends React.Component{
             />
             <ListedSelector
               key={'cts'+i}
-              initList={Array(4).fill("7")}
+              initList={Array(4).fill("07_7")}
               optionList={masterChord}
               class={"scaleTypeSelector"}
               boxNum={i}
@@ -420,7 +420,7 @@ class ListedSelector extends React.Component{
     let options=[]
     for (let key in this.props.optionList) {
       options.push(
-        <option key={key} value={key}>{key}</option>
+        <option key={key} value={key}>{key.substr(3,key.length)}</option>
       )
     }
     return(
@@ -472,7 +472,7 @@ class ScaleSelector extends React.Component{
     this.changeScaleType=this.changeScaleType.bind(this)
     this.state={
       selectedScaleNoteList:Array(4).fill(9),
-      selectedScaleTypeList:Array(4).fill("minorPentatonic"),
+      selectedScaleTypeList:Array(4).fill("04_minorPentatonic"),
     }
   }
 
@@ -505,8 +505,7 @@ class ScaleSelector extends React.Component{
             onClickN={() => this.changeScaleTone(i,-1)}
           />
           <ListedSelector
-
-            initList={Array(4).fill("minorPentatonic")}
+            initList={Array(4).fill("04_minorPentatonic")}
             optionList={masterScale}
             class={"scaleTypeSelector"}
             boxNum={i}
