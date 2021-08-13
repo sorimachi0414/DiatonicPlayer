@@ -37,11 +37,14 @@ function playThisChord(chordList,length,time,duration){
 }
 
 function playStopSwitch(bool){
+  /*
   Def.organ.context.resume();
   Def.drum.context.resume();
   Def.piano.context.resume();
   Def.eGuitar.context.resume();
   Def.aGuitar.context.resume();
+
+   */
 
     //Tone.Transport.start();
   //Def.drum.context.resume();
