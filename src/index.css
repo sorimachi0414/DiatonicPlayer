@@ -70,18 +70,25 @@
 
 .circle{
   position:absolute;
-  width: 17px;
-  height: 17px;
-  top:22px;
-  left:9px;
-  border-radius: 50%;
+  width:1.5vmax;
+  max-width:18px;
+  height:auto;
+  top:0.9em;
+  /*left:0.75vmax;*/
+  left:30%;
+  border-radius: 100%;
   background:#ccc;/*背景色*/
-  //margin-left:auto;
-  //margin-right:auto;
+}
+
+.circle::before{
+  content: "";
+  display: block;
+  padding-top: 100%;
 }
 
 .spacer{
   padding-top:50px;
+
 
 }
 
@@ -102,11 +109,11 @@
 .noteBase{color: #E71}
 .noteTrans{opacity: 0.0;}
 .noteNext{font-size:15px;}
-.noteSlope{transition:2s;}
+.noteSlope{transition:1s;}
 
 .noteGone{
   transition:1s;
-  opacity:0.8;
+  opacity:0.6;
 }
 
 
@@ -146,7 +153,7 @@
   z-index:-2;
 }
 
-.squareFletNumber {
+.squareFretNumber {
   //border: 1px solid #FFF;
   border-right:3px double #FFF;
   border-bottom:0;
@@ -291,4 +298,41 @@ ol, ul {
 
 .game-info {
   margin-left: 20px;
+}
+
+.wd-0{width:8%}
+.wd-1{width:7.8%}
+.wd-2{width:7.6%}
+.wd-3{width:7.4%}
+.wd-4{width:7.2%}
+.wd-5{width:7.0%}
+.wd-6{width:6.8%}
+.wd-7{width:6.6%}
+.wd-8{width:6.4%}
+.wd-9{width:6.2%}
+.wd-10{width:6.0%}
+.wd-11{width:5.8%}
+.wd-12{width:5.6%}
+.wd-13{width:5.4%}
+.wd-14{width:5.2%}
+
+@media screen and (max-width:575px) {
+  .wd-0{width:10%}
+  .wd-1{width:9.7%}
+  .wd-2{width:9.4%}
+  .wd-3{width:9.1%}
+  .wd-4{width:8.8%}
+  .wd-5{width:8.5%}
+  .wd-6{width:8.2%}
+  .wd-7{width:7.9%}
+  .wd-8{width:7.6%}
+  .wd-9{width:7.3%}
+  .wd-10{width:7.0%}
+  .wd-11{width:6.7%}
+  .wd-12{display: none;}
+  .wd-13{display: none;}
+  .wd-14{display: none;}
+
+  /*　画面サイズが480px以下の場合ここの記述が適用される　*/
+
 }
