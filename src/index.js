@@ -8,7 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container'
-import {aGuitar, chordChopLength, eGuitar, organ, piano} from "./subCord.js";
+//import {aGuitar, chordChopLength, eGuitar, organ, piano} from "./subCord.js";
 /*
 TODO: Dynamic tone length change system
 TODO: display chord degree on note symbols
@@ -37,11 +37,11 @@ function playThisChord(chordList,length,time,duration){
 }
 
 function playStopSwitch(bool){
-  Def.organ.context.resume()
-  drum.context.resume()
-  Def.piano.context.resume()
-  Def.eGuitar.context.resume()
-  Def.aGuitar.context.resume()
+  Def.organ.context.resume();
+  Def.drum.context.resume();
+  Def.piano.context.resume();
+  Def.eGuitar.context.resume();
+  Def.aGuitar.context.resume();
 
     //Tone.Transport.start();
   //Def.drum.context.resume();
