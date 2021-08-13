@@ -22,7 +22,11 @@ const strings=6
 const soundNameList=Def.soundNameList
 const masterChord=Def.masterChord
 const masterScale=Def.masterScale
+
+Def.drum.context._context.resume();
+Def.organ.context._context.resume();
 const drum = Def.drum
+
 
 let instrument=Def.instList['organ']
 //let nowRhythm=Def.rhythmList['Rock']
@@ -36,7 +40,6 @@ function playThisChord(chordList,length,time,duration){
 }
 
 function playStopSwitch(bool){
-  instrument.context._context.resume();
   Tone.Transport.start();
   (bool)?Tone.Transport.start():Tone.Transport.stop();
 }
