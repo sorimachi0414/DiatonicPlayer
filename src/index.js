@@ -23,8 +23,8 @@ const soundNameList=Def.soundNameList
 const masterChord=Def.masterChord
 const masterScale=Def.masterScale
 
-Def.drum.context._context.resume();
-Def.organ.context._context.resume();
+Def.drum.context.resume();
+Def.organ.context.resume();
 const drum = Def.drum
 
 
@@ -40,7 +40,9 @@ function playThisChord(chordList,length,time,duration){
 }
 
 function playStopSwitch(bool){
-  Tone.Transport.start();
+  //Tone.Transport.start();
+  Def.drum.context.resume();
+  Def.organ.context.resume();
   (bool)?Tone.Transport.start():Tone.Transport.stop();
 }
 
