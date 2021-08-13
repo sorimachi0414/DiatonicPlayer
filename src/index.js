@@ -41,8 +41,8 @@ function playThisChord(chordList,length,time,duration){
 
 function playStopSwitch(bool){
   //Tone.Transport.start();
-  Def.drum.context.resume();
-  Def.organ.context.resume();
+  //Def.drum.context.resume();
+  //Def.organ.context.resume();
   (bool)?Tone.Transport.start():Tone.Transport.stop();
 }
 
