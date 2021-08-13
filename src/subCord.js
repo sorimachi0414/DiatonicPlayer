@@ -175,6 +175,19 @@ export const chordChopLength=[
     ['4n','4n','4n','4n'],
 ]
 
+export const noteColorList=[
+  'note1',
+  'note2',
+  'note3',
+  'note4',
+  'note5',
+  'note6',
+  'note7',
+  'note8',
+  'note9',
+  'note10',
+  'note11',
+]
 /*
 F-G-Am
 C-Am-F-G

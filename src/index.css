@@ -31,7 +31,6 @@
   padding: 0;
   text-align: center;
   width: 34px;
-//width: 34px;
 }
 
 .scaleNoteSelector {
@@ -88,8 +87,6 @@
 
 .spacer{
   padding-top:50px;
-
-
 }
 
 .next-row{
@@ -106,7 +103,31 @@
   color: #292;
 }
 
-.noteBase{color: #E71}
+/*.noteBase{color: #E71}*/
+.noteBase{color:#F00}
+.note1{color: #ffaa44
+}
+.note2{color: #ffea00
+}
+.note3{color: #d0ff00
+}
+.note4{color: #48ff00
+}
+.note5{color: #00ff80
+}
+.note6{color: #00ffff
+}
+.note7{color: #00d9ff
+}
+.note8{color: #008cff
+}
+.note9{color: #0033ff
+}
+.note10{color: #6600ff
+}
+.note11{color: #d000ff
+}
+
 .noteTrans{opacity: 0.0;}
 .noteNext{font-size:15px;}
 .noteSlope{transition:1s;}
@@ -115,11 +136,8 @@
   transition:1s;
   opacity:0.6;
 }
-
-
 .nut{
   border-left:5px solid #000;
-
 }
 
 .square {
@@ -140,6 +158,7 @@
   //width:var(--wh);
   position:relative;
   z-index:0;
+  /*background-color: #543321;*/
 }
 
 .square::before{
@@ -221,68 +240,6 @@ ol, ul {
   width: 34px;
 }
 
-/*
-.square2 {
-  background: #f00;
-  border: 1px solid #999;
-  float: left;
-  font-size: 24px;
-  font-weight: bold;
-  line-height: 34px;
-  height: 34px;
-  margin-right: -1px;
-  margin-top: -1px;
-  padding: 0;
-  text-align: center;
-  width: 34px;
-}
-
-.squareOdd {
-  background: #CCC;
-  border: 1px solid #999;
-  float: left;
-  font-size: 24px;
-  font-weight: bold;
-  line-height: 34px;
-  height: 34px;
-  margin-right: -1px;
-  margin-top: -1px;
-  padding: 0;
-  text-align: center;
-  width: 34px;
-}
-
-.squareBlank {
-  background: #fff;
-  float: left;
-  font-size: 24px;
-  font-weight: bold;
-  line-height: 34px;
-  height: 34px;
-  margin-right: -1px;
-  margin-top: -1px;
-  padding: 0;
-  text-align: center;
-  width: 34px;
-}
-
-
-.squareNextScale {
-  background: #fff;
-  border: 1px solid #999;
-  float: left;
-  font-size: 24px;
-  font-weight: bold;
-  line-height: 34px;
-  height: 34px;
-  margin-right: -1px;
-  margin-top: -1px;
-  padding: 0;
-  text-align: center;
-  width: 34px;
-  color:#bbb;
-}
-*/
 .m-05{
   margin-left:0.25rem;
 }

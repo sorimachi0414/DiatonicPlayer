@@ -8,6 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container'
+import {noteColorList} from "./subCord.js";
 //import {aGuitar, chordChopLength, eGuitar, organ, piano} from "./subCord.js";
 /*
 TODO: Dynamic tone length change system
@@ -196,7 +197,6 @@ class MainClock extends React.Component{
     // You may shrink code
     let chordPlan=this.state.chordPlan.slice()
     let oneBar = chordPlan[bar].slice()
-
 
     //1小節毎に処理
     let status =oneBar[note+bar*4] //今の値
@@ -471,9 +471,20 @@ class ScaleSelector extends React.Component{
     super(props);
     this.changeScaleType=this.changeScaleType.bind(this)
     this.state={
+      displayCircle:1,
       selectedScaleNoteList:Array(4).fill(9),
       selectedScaleTypeList:Array(4).fill("04_minorPentatonic"),
     }
+    this.changeCircle = this.changeCircle.bind(this);
+  };
+
+
+  changeCircle(){
+    let displayCircle=this.state.displayCircle
+    displayCircle = (displayCircle>0) ? 0 :1
+    this.setState({
+      displayCircle:displayCircle,
+    })
   }
 
   changeScaleTone(i,val){
@@ -513,6 +524,7 @@ class ScaleSelector extends React.Component{
             value={masterScale[this.state.selectedScaleTypeList[i]]}
             onChange={(e,i) => this.changeScaleType(e,i)}
           />
+
         </Col>
 
     )
@@ -538,7 +550,16 @@ class ScaleSelector extends React.Component{
           step={this.props.step}
           nowScale={scaleProcessor(this.state.selectedScaleNoteList[beat1m],this.state.selectedScaleTypeList[beat1m])}
           nextScale={scaleProcessor(this.state.selectedScaleNoteList[nextBeat1m],this.state.selectedScaleTypeList[nextBeat1m])}
+          displayCircle={this.state.displayCircle}
         />
+        <Col xs={12} sm={6}>
+          <button
+            className="btn btn-outline-success"
+            onClick={this.changeCircle}
+          >
+            change Circle to Number
+          </button>
+        </Col>
       </Row>
     )
   }
@@ -635,7 +656,10 @@ class FingerBoard extends React.Component{
     //スケール構成音の情報を整理
     let noteInfo=[0,0,0,0]//'ActiveBaseNote','ActiveNote','NextBaseNote','NextNote',
     if(this.props.nowScale.indexOf(fretSound)===0)  noteInfo[0]=1
-    if(this.props.nowScale.indexOf(fretSound)>0)    noteInfo[1]=1
+    if(this.props.nowScale.indexOf(fretSound)>0){
+      //noteInfo[1]=Def.noteColorList[fretSound]
+      noteInfo[1]=1
+    }
     if(this.props.nextScale.indexOf(fretSound)===0) noteInfo[2]=1
     if(this.props.nextScale.indexOf(fretSound)>0)   noteInfo[3]=1
 
@@ -644,8 +668,9 @@ class FingerBoard extends React.Component{
       //構成音の場合
       noteClass="note noteBase"
       fretLetter="●"
-    }else if(noteInfo[1]>0){
-      noteClass="note"
+    }else if(noteInfo[1]!=0){
+      noteClass="note "
+      noteClass+=noteInfo[1]
       fretLetter="●"
     }else if(noteInfo[2]>0){
       //次のスケールの音の場合、予告
@@ -662,7 +687,7 @@ class FingerBoard extends React.Component{
     //次の音に向け、ステップの半分で見た目変化を開始
     let beat1m=~~(this.props.step/(stepNum/(4*4)))
     if(beat1m % 4 >1){
-      if(noteInfo[0]+noteInfo[1]>0){
+      if(noteInfo[0]!=0 || noteInfo[1]!=0){
         //今Active
         if(noteInfo[2]>0){
           ;
@@ -672,7 +697,7 @@ class FingerBoard extends React.Component{
           //次invalid
           if(noteInfo[0]>0){
             noteClass="note noteBase noteGone"
-          }else if(noteInfo[1]>0){
+          }else if(noteInfo[1]!=0){
             noteClass="note noteGone"
           }
         }
@@ -689,6 +714,12 @@ class FingerBoard extends React.Component{
     }
     fretClass +=' wd-'+j
 
+    //fretLetterを数字に変更
+    if (this.props.displayCircle!=1){
+      let keyNote=this.props.nowScale[0]
+      let fretNumber=(fretSound-keyNote+12 )%12
+      fretLetter=fretNumber
+    }
     return(
         <div key={'p'+i+'and'+j} className={fretClass} >
           <div key={i*100} className={noteClass}>{fretLetter}</div>
