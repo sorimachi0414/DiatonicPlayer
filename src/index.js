@@ -15,6 +15,8 @@ TODO: display chord degree on note symbols
 TODO: unlock Scale change button
  */
 // ----------------------------------------
+document.addEventListener("dblclick", function(e){ e.preventDefault();}, { passive: false });
+
 const stepNum=96
 let fretNum=15
 const strings=6
@@ -36,7 +38,7 @@ function playThisChord(chordList,length,time,duration){
   if(length!=0) instrument.triggerAttackRelease(chordList, length,time)
 }
 
-function playStopSwitch(bool){
+function playStopSwitch(status){
   Def.organ.context.resume();
   Def.drum.context.resume();
   Def.piano.context.resume();
@@ -46,7 +48,7 @@ function playStopSwitch(bool){
     //Tone.Transport.start();
   //Def.drum.context.resume();
   //Def.organ.context.resume();
-  (bool)?Tone.Transport.start():Tone.Transport.stop();
+  (status==1)?Tone.Transport.start():Tone.Transport.stop();
 }
 
 function exPlan16to48(argList){
@@ -87,8 +89,10 @@ class MainClock extends React.Component{
       step:stepNum-1,
       nextStep:0,
       bpm:120,
+      isPlay:0,
     };
     this.tickTack = this.tickTack.bind(this);
+    this.changePlayStatus = this.changePlayStatus.bind(this);
 
     //発音部
     Tone.Transport.scheduleRepeat((time) => {
@@ -118,6 +122,14 @@ class MainClock extends React.Component{
       nextStep:nextStep
     })
   }
+  changePlayStatus(){
+    let isPlay = (this.state.isPlay === 1) ? 0 : 1
+    this.setState({
+      isPlay:isPlay,
+    })
+    playStopSwitch(isPlay)
+  }
+
 
   makeChordString(i) {
     let chordList=this.state.chordList.slice()
@@ -302,7 +314,7 @@ class MainClock extends React.Component{
         <Container fluid>
           <Row className="justify-content-center mb-5">
             <Col  xs={12} md={10} className="text-center">
-            Step "Solo Jam session" Sequencer
+              "Solo Jam session" Sequencer
             </Col>
             <Col xs="12" sm={12} md={10} lg={8} xl={6} className="px-0">
               <div className="card my-2">
@@ -310,18 +322,21 @@ class MainClock extends React.Component{
                   Chord Selector
                 </div>
                 <Row className="card-body pt-1">
-                  <Col className="col-auto align-self-center">
+                  <Col  xs={2} sm={2} className="px-0 align-self-center text-center">
                     Sound
                   </Col>
-                  <Col xs={3} className="p-2">
+                  <Col xs={4} sm={3} className="p-2">
                     <DropDownSelector
                       change={(e)=>this.changeInstP(e)}
                       optionList={Def.instList}
                       initValue={'organ'}
                     />
                   </Col>
-                  <Col className="col-auto align-self-center">Drum</Col>
-                  <Col xs={3} className="p-2">
+                  <Col xs={0} sm={1}></Col>
+                  <Col  xs={2} sm={2} className="px-0 align-self-center text-center">
+                    Drum
+                  </Col>
+                  <Col xs={4} sm={3} className="p-2">
                     <DropDownSelector
                       change={(e)=>this.changeDrum(e)}
                       optionList={Def.rhythmList}
@@ -344,29 +359,28 @@ class MainClock extends React.Component{
                     nextStep={this.state.nextStep}
                   />
                 </div>
+                <div className="d-block d-sm-none">xs 576px</div>
+                <div className="d-none d-sm-block d-md-none">sm >576px</div>
+                <div className="d-none d-md-block d-lg-none">md >768px</div>
+                <div className="d-none d-lg-block d-xl-none">lg >992px</div>
+                <div className="d-none d-xl-block">xl >1200px</div>
               </div>
             </Col>
+
           </Row>
+
         </Container>
 
         <Container>
           <Row className="navbar navbar-light bg-light fixed-bottom">
             <Col xs={12} sm={10} md={8} lg={6} className="offset-sm-1 offset-md-2 offset-lg-3">
-              <Row>
-                <Col xs={2} md={2} className="px-1">
+              <Row className="px-1 mx-0">
+                <Col xs={3} md={3} className="mx-0 px-0">
                   <PlayStopButton
                     key="pb"
-                    label='Play'
-                    class="btn btn-primary fs-2"
-                    onClick={()=>playStopSwitch(true)}
-                  />
-                </Col>
-                <Col xs={2} md={2} className="px-1">
-                  <PlayStopButton
-                    key="sb"
-                    label='Stop'
-                    class="btn btn-outline-primary fs-2"
-                    onClick={()=>playStopSwitch(false)}
+                    isPlay={this.state.isPlay}
+                    class="btn btn-primary fs-2 w-100 px-0"
+                    onClick={this.changePlayStatus}
                   />
                 </Col>
                 <Col xs={8} md={8} className='align-self-center px-1'>
@@ -381,12 +395,8 @@ class MainClock extends React.Component{
                 </Col>
               </Row>
             </Col>
+
       </Row>
-          <div className="d-block d-sm-none">- 576px</div>
-          <div className="d-none d-sm-block d-md-none">sm >576px</div>
-          <div className="d-none d-md-block d-lg-none">md >768px</div>
-          <div className="d-none d-lg-block d-xl-none">lg >992px</div>
-          <div className="d-none d-xl-block">xl >1200px</div>
         </Container>
       </div>
     )
@@ -451,7 +461,7 @@ class DropDownSelector extends React.Component{
       )
     }
     return(
-      <select defaultValue={this.state.selected} className="scaleTypeSelector" onChange={(e)=>this.change(e)}>
+      <select defaultValue={this.state.selected} className="form-select w-100" onChange={(e)=>this.change(e)}>
         {options}
       </select>
     )
@@ -571,9 +581,11 @@ class ThreeButtonChanger extends  React.Component{
 }
 
 function PlayStopButton(props){
+　let label=(props.isPlay==0)? 'Play':'Stop'
+
   return (
     <button onClick={props.onClick} className={props.class}>
-      {props.label}
+      {label}
     </button>
 
   );
