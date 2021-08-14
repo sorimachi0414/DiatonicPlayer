@@ -34,15 +34,14 @@ export const masterScale = {
 export const organ = new Tone.Sampler(
   {
     urls:{
-      C2: "organC3.mp3",
-      C3: "organC4.mp3",
-      C4: "organC5.mp3",
+      C2: "organNeoVC3.mp3",
+      C3: "organNeoVC4.mp3",
+      C4: "organNeoVC5.mp3",
     },
     baseUrl:"./",
     volume:-15,
   }
 ).toDestination();
-
 
 export const drum = new Tone.Sampler(
   {

@@ -8,16 +8,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container'
-import {noteColorList} from "./subCord.js";
-//import {aGuitar, chordChopLength, eGuitar, organ, piano} from "./subCord.js";
-/*
-TODO: Dynamic tone length change system
-TODO: display chord degree on note symbols
-TODO: unlock Scale change button
- */
 // ----------------------------------------
+//スマートフォンでのダブルタップ抑制
 document.addEventListener("dblclick", function(e){ e.preventDefault();}, { passive: false });
-
+const tickTackInterval='24n'
 const stepNum=96
 let fretNum=15
 const strings=6
@@ -26,16 +20,13 @@ const soundNameList=Def.soundNameList
 const masterChord=Def.masterChord
 const masterScale=Def.masterScale
 const drum = Def.drum
-
-
 let instrument=Def.instList['organ']
-//let nowRhythm=Def.rhythmList['Rock']
 
 const BD = (en,time) => {if(en>0)drum.triggerAttackRelease(['C3'],'1m',time)}
 const SD = (en,time) => {if(en>0)drum.triggerAttackRelease(['C4'],'1m',time)}
 const HHC = (en,time) => {if(en>0)drum.triggerAttackRelease(['C5'],'1m',time)}
 
-function playThisChord(chordList,length,time,duration){
+function playThisChord(chordList,length,time){
   if(length!=0) instrument.triggerAttackRelease(chordList, length,time)
 }
 
@@ -45,10 +36,6 @@ function playStopSwitch(status){
   Def.piano.context.resume();
   Def.eGuitar.context.resume();
   Def.aGuitar.context.resume();
-
-    //Tone.Transport.start();
-  //Def.drum.context.resume();
-  //Def.organ.context.resume();
   (status==1)?Tone.Transport.start():Tone.Transport.stop();
 }
 
@@ -67,9 +54,6 @@ function exPlan16to48(argList){
 
 // ----------------------------------------
 class MainClock extends React.Component{
-  componentDidMount(){
-    document.title = "Solo Jam session Sequencer"
-  }
   constructor(props) {
     super(props);
     this.state = {
@@ -99,17 +83,22 @@ class MainClock extends React.Component{
     Tone.Transport.scheduleRepeat((time) => {
       //Call Back
       this.tickTack()
-      playThisChord(this.state.chordList[0],exPlan16to48(this.state.chordPlan[0])[this.state.step],time,'2m')
-      playThisChord(this.state.chordList[1],exPlan16to48(this.state.chordPlan[1])[this.state.step],time,'2m')
-      playThisChord(this.state.chordList[2],exPlan16to48(this.state.chordPlan[2])[this.state.step],time,'2m')
-      playThisChord(this.state.chordList[3],exPlan16to48(this.state.chordPlan[3])[this.state.step],time,'2m')
+      for(let n=0;n<4;n++){
+        playThisChord(this.state.chordList[n],exPlan16to48(this.state.chordPlan[n])[this.state.step],time)
+      }
       BD(exPlan16to48(this.state.bdPlan)[this.state.step],time)
       SD(exPlan16to48(this.state.sdPlan)[this.state.step],time)
       HHC(exPlan16to48(this.state.hhcPlan)[this.state.step],time)
-    }, "24n", "0m");
+    }, tickTackInterval, "0m");
+  }
+  componentDidMount(){
+    document.title = "Solo Jam session Sequencer"
+    this.localStorageIO(0)
+  }
+  componentDidUpdate(prevProps, prevState, snapshot){
+    this.localStorageIO(1)
   }
 
-  //------------------------------------------------
   //CallBack
   tickTack() {
     Tone.Transport.bpm.value = this.state.bpm//*(stepNum/16);
@@ -123,28 +112,42 @@ class MainClock extends React.Component{
       nextStep:nextStep
     })
   }
+  localStorageIO(bool){
+    let ls=localStorage
+    if(bool){
+      ls.setItem('chordNotes', JSON.stringify(this.state.chordNotes));
+      ls.setItem('chordTypes', JSON.stringify(this.state.chordTypes));
+      ls.setItem('chordPlan', JSON.stringify(this.state.chordPlan));
+      ls.setItem('chordList', JSON.stringify(this.state.chordList));
+      ls.setItem('bpm', JSON.stringify(this.state.bpm));
+    }else{
+      if ("chordNotes" in ls) this.setState({chordNotes:JSON.parse(ls.getItem('chordNotes'))})
+      if ("chordTypes" in ls) this.setState({chordTypes:JSON.parse(ls.getItem('chordTypes'))})
+      if ("chordPlan" in ls)  this.setState({chordPlan:JSON.parse(ls.getItem('chordPlan'))})
+      if ("chordList" in ls)  this.setState({chordList:JSON.parse(ls.getItem('chordList'))})
+      if ("bpm" in ls)  this.setState({bpm:JSON.parse(ls.getItem('bpm'))})
+    }
+  }
+
   changePlayStatus(){
     let isPlay = (this.state.isPlay === 1) ? 0 : 1
-    this.setState({
-      isPlay:isPlay,
-    })
+    this.setState({isPlay:isPlay,})
     playStopSwitch(isPlay)
   }
 
   makeChordString(i) {
     let chordList=this.state.chordList.slice()
     let shift = this.state.chordNotes[i] //0,1,2,...
-    let chordKey = this.state.chordTypes[i] //M,m,m7,...
+    let keyOfSelectedChordType = this.state.chordTypes[i] //M,m,m7,...
 
     //コード種別を変更
-    let chordTones = masterChord[chordKey]
+    let chordTones = masterChord[keyOfSelectedChordType]
 
     //ピッチをシフト
     let chordTonesShifted=chordTones.map(x => (x+shift) %12)
 
     //convert Number to Alphabet
-    let chordToneABC=chordTonesShifted.map(x =>soundNameList[x]+'3')
-    chordList[i] = chordToneABC
+    chordList[i] = chordTonesShifted.map(x =>soundNameList[x]+'3')
 
     this.setState({
       chordList:chordList
@@ -183,6 +186,7 @@ class MainClock extends React.Component{
     this.setState({
       chordList:chordList
     })
+    //this.localStorageIO(1)
   }
 
   //アクティブなステップ（コード）を着色
@@ -190,7 +194,9 @@ class MainClock extends React.Component{
     //i=Math.floor(i/4)
     let blocksColor=Array(4).fill("btn btn-outline-primary h-100 w-100")
     blocksColor[i]="btn btn-warning h-100 w-100"
-    this.setState({blocksColor:blocksColor})
+    this.setState({
+      blocksColor:blocksColor,
+    })
   }
 
   changeChordChopper(note,bar){
@@ -268,8 +274,9 @@ class MainClock extends React.Component{
               onClickN={() => this.changeChord(i,-1)}
             />
             <ListedSelector
+              chordOrScale={'Chord'}
               key={'cts'+i}
-              initList={Array(4).fill("07_7")}
+              initList={this.state.chordTypes}
               optionList={masterChord}
               class={"scaleTypeSelector"}
               boxNum={i}
@@ -353,6 +360,7 @@ class MainClock extends React.Component{
                 <div className="card-body pt-1">
                   <ScaleSelector
                     key="scaleSelector"
+                    blocksColor={this.state.blocksColor}
                     step={this.state.step}
                     nextStep={this.state.nextStep}
                   />
@@ -405,17 +413,48 @@ class ListedSelector extends React.Component{
   constructor(props) {
     super(props);
     this.state={
-      list:this.props.initList  //二重管理になっているが、Selectの初期値をセットしたいため。
+      selectedType:this.localStorageIOListed(0),
+    }
+      //list:this.props.initList  //二重管理になっているが、Selectの初期値をセットしたいため。
+  }
+
+  localStorageIOListed(bool) {
+    let ls = localStorage
+    let key = 'list'+this.props.boxNum+this.props.chordOrScale
+    let result = this.props.initList[this.props.boxNum]
+    if (bool) {
+      //Write to localStorage
+      ls.setItem(key, this.state.selectedType);
+    } else {
+      //Read from localStorage
+      if (key in ls){
+        result =String(ls.getItem(key))
+        this.setState({
+          selectedType:result,
+        })
+      }
+      return result
     }
   }
+
+  componentDidMount() {
+    console.log('DidMount')
+    this.props.onChange(this.props.boxNum,this.localStorageIOListed(0))
+    if(this.props.chordOrScale=='Scale') {this.props.readStorage()}
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot){
+    this.localStorageIOListed(true)
+  }
+
+
   changeChordByName(e){
     this.props.onChange(this.props.boxNum,e.target.value)
-    let list=this.state.list.slice()
-    list[this.props.boxNum] = e.target.value //value変更用
     this.setState({
-      list:list
+      selectedType:String(e.target.value),
     })
   }
+
   render(){
     let options=[]
     for (let key in this.props.optionList) {
@@ -425,7 +464,7 @@ class ListedSelector extends React.Component{
     }
     return(
       //valueがSelectの初期値となる。valueが入っていると、他に変更してもValueに戻る。
-      <select size={3} defaultValue={this.state.list[this.props.boxNum]} className="form-select p-1" onClick={(e)=>this.changeChordByName(e)}>
+      <select size={3} defaultValue={this.state.selectedType} className="form-select p-1" onClick={(e)=>this.changeChordByName(e)}>
         {options}
       </select>
     )
@@ -472,11 +511,31 @@ class ScaleSelector extends React.Component{
     this.changeScaleType=this.changeScaleType.bind(this)
     this.state={
       displayCircle:1,
+      scaleBlocksColor:Array(4).fill("btn btn-outline-primary w-100"),
       selectedScaleNoteList:Array(4).fill(9),
       selectedScaleTypeList:Array(4).fill("04_minorPentatonic"),
     }
     this.changeCircle = this.changeCircle.bind(this);
+    this.changeScaleFromStorage = this.changeScaleFromStorage.bind(this);
   };
+  componentDidMount(){
+    this.localStorageScaleIO(0)
+  }
+  componentDidUpdate(prevProps, prevState, snapshot){
+    this.localStorageScaleIO(1)
+  }
+
+  localStorageScaleIO(bool){
+    let ls = localStorage
+    let key='selectedScaleNoteList'
+    if(bool){
+      //1 Write
+      ls.setItem(key,JSON.stringify(this.state.selectedScaleNoteList))
+    }else{
+      //0 Read
+      if ("selectedScaleNoteList" in ls) this.setState({selectedScaleNoteList:JSON.parse(ls.getItem('selectedScaleNoteList'))})
+    }
+  }
 
 
   changeCircle(){
@@ -494,9 +553,28 @@ class ScaleSelector extends React.Component{
     this.setState({selectedScaleNoteList:list})
   }
 
+  changeScaleFromStorage(){
+    let ls=localStorage
+    if('list0Scale' in ls){
+      let list=[
+        ls.getItem('list0Scale'),
+        ls.getItem('list1Scale'),
+        ls.getItem('list2Scale'),
+        ls.getItem('list3Scale'),
+      ]
+      this.setState({
+          selectedScaleTypeList:list,
+        }
+      )
+    }
+
+
+  }
+
   changeScaleType(num,arg){
     let list = this.state.selectedScaleTypeList.slice()
     list[num]=arg
+    console.dir(list)
     this.setState({
       selectedScaleTypeList:list
       }
@@ -510,19 +588,22 @@ class ScaleSelector extends React.Component{
 
             class={"scaleNoteSelector"}
             color={'btn btn-outline-primary w-100'}
+            color={this.props.blocksColor[i]}
 
             value={soundNameList[this.state.selectedScaleNoteList[i]]}
             onClickP={() => this.changeScaleTone(i,1)}
             onClickN={() => this.changeScaleTone(i,-1)}
           />
           <ListedSelector
+            chordOrScale={'Scale'}
             initList={Array(4).fill("04_minorPentatonic")}
             optionList={masterScale}
             class={"scaleTypeSelector"}
             boxNum={i}
             //value={scaleTypeNameList[this.state.selectedScaleTypeList[i]]}
             value={masterScale[this.state.selectedScaleTypeList[i]]}
-            onChange={(e,i) => this.changeScaleType(e,i)}
+            onChange={(i,e) => this.changeScaleType(i,e)}
+            readStorage={this.changeScaleFromStorage}
           />
 
         </Col>
@@ -560,6 +641,14 @@ class ScaleSelector extends React.Component{
             change Circle to Number
           </button>
         </Col>
+        <Col xs={12} sm={6}>
+          <button
+            className="btn btn-outline-warning"
+            onClick={()=>localStorage.clear()}
+          >
+            Reset save data
+          </button>
+        </Col>
       </Row>
     )
   }
@@ -588,7 +677,7 @@ class ThreeButtonChanger extends  React.Component{
           <button className="btn btn-outline-primary p-0 w-100 h-100" value={this.props.value} onClick={this.props.onClickN}>{"<"}</button>
         </Col>
         <Col sm={6} md={6} className="p-0 m-0 ">
-          <button className={this.props.color} value={this.props.value} onClick={this.props.onClick}><span className="fs-2"> {this.props.value}</span></button>
+          <button className={this.props.color} value={this.props.value} onClick={this.props.onClickP}><span className="fs-2"> {this.props.value}</span></button>
         </Col>
         <Col sm={3} md={3} className="p-0 m-0">
           <button className="btn btn-outline-primary p-0 w-100 h-100" value={this.props.value} onClick={this.props.onClickP}>{">"}</button>
@@ -717,8 +806,7 @@ class FingerBoard extends React.Component{
     //fretLetterを数字に変更
     if (this.props.displayCircle!=1){
       let keyNote=this.props.nowScale[0]
-      let fretNumber=(fretSound-keyNote+12 )%12
-      fretLetter=fretNumber
+      fretLetter=(fretSound-keyNote+12 )%12
     }
     return(
         <div key={'p'+i+'and'+j} className={fretClass} >
