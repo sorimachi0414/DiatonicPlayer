@@ -15,7 +15,7 @@ export const masterChord ={
 }
 
 export const masterScale = {
-  '01_Okinawa':[0,4,5,7,11],
+  '01_Ryukyu':[0,4,5,7,11],
   '02_Major':[0,2,4,5,7,9,11],
   '03_minor':[0,2,3,5,7,8,10],
   '04_minorPentatonic':  [0,3,5,7,10],
