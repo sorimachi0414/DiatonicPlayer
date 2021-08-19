@@ -8,6 +8,112 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container'
+import { combineReducers } from 'redux';
+
+
+////debug
+import { createStore, combideReducers } from 'redux';
+import { Provider } from 'react-redux';
+import './index.css';
+//import App from './App';
+import { connect } from 'react-redux';
+//import Counter_func from './components/Counter_func';
+import {stateManager} from "./reducers/counter";
+
+///debug content
+const reducer = () => combineReducers({
+  stateManager,
+});
+
+const store = createStore(reducer());
+
+const bpmChangeType = (value)=>{
+  return {
+    type:'BPM',
+    value
+  }
+}
+const playStopType = ()=>{
+  return{
+    type:'PLAY_STOP',
+  }
+}
+
+const countUp = (value) => {
+  return {
+    type: 'COUNT_UP',
+    value
+  };
+}
+
+const countDown = (value) => {
+  return {
+    type: 'COUNT_DOWN',
+    value
+  };
+}
+
+const Counter = (props) => {
+  const { currentValue, clickCount } = props;
+
+  const handlePlusButton = () => {
+    props.countUp(1);
+  };
+
+  const handleMinusButton = () => {
+    props.countDown(1);
+  };
+
+  return (
+    <div>
+      <h2>関数コンポーネント</h2>
+      <div>clickCount: {clickCount}</div>
+      <div>
+        <button onClick={(e) => { handleMinusButton(e); }}>-</button>
+        <input type="text" value={currentValue} readOnly />
+        <button onClick={(e) => { handlePlusButton(e); }}>+</button>
+      </div>
+    </div>
+  );
+};
+
+const mapStateToProps = (state) => {
+  return {
+    clickCount: state.stateManager.clickCount,
+    currentValue: state.stateManager.currentValue,
+    isPlay: state.stateManager.base.isPlay,
+    isPlayLabel: state.stateManager.base.isPlayLabel,
+    bpm:state.stateManager.base.bpm,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    bpmChange:function (value){
+      return dispatch(bpmChangeType(value))
+    },
+    countUp: function (value) {
+      return dispatch(countUp(value));
+    },
+    countDown: function (value) {
+      return dispatch(countDown(value));
+    },
+    playStopDispatch: function(){
+      return dispatch(playStopType())
+    }
+  };
+};
+
+let Counter_funcs = connect(mapStateToProps, mapDispatchToProps)(Counter);
+
+ReactDOM.render(
+  <Provider store={store}>
+    <Counter_funcs />
+  </Provider>,
+  document.getElementById('root')
+);
+
+
 // ----------------------------------------
 //スマートフォンでのダブルタップ抑制
 document.addEventListener("dblclick", function(e){ e.preventDefault();}, { passive: false });
@@ -51,6 +157,7 @@ function exPlan16to48(argList){
   }
   return list
 }
+
 
 // ----------------------------------------
 class MainClock extends React.Component{
@@ -130,8 +237,14 @@ class MainClock extends React.Component{
   }
 
   changePlayStatus(){
-    let isPlay = (this.state.isPlay === 1) ? 0 : 1
-    this.setState({isPlay:isPlay,})
+    let isPlay = (this.props.isPlay === 1) ? 0 : 1
+    //this.setState({isPlay:isPlay,})
+    if (isPlay==1) {
+      this.props.dispatch({type: 'Play'});
+    }else{
+      this.props.dispatch({type: 'Stop'});
+
+    }
     playStopSwitch(isPlay)
   }
 
@@ -382,21 +495,23 @@ class MainClock extends React.Component{
             <Col xs={12} sm={10} md={8} lg={6} className="offset-sm-1 offset-md-2 offset-lg-3">
               <Row className="px-1 mx-0">
                 <Col xs={3} md={3} className="mx-0 px-0">
-                  <PlayStopButton
-                    key="pb"
-                    isPlay={this.state.isPlay}
-                    class="btn btn-primary fs-2 w-100 px-0"
-                    onClick={this.changePlayStatus}
+                  <Provider store={store}>
+                  <PlayStopButton_func
+                    //key="pb"
+                    //isPlay={this.props.isPlay}
+                    //class="btn btn-primary fs-2 w-100 px-0"
+                    //onClick={this.changePlayStatus}
                   />
+                  </Provider>
                 </Col>
                 <Col xs={8} md={8} className='align-self-center px-1'>
-                  <BPMChanger
-                    key="bpmC"
-                    bpm={this.state.bpm}
-                    p10={()=>this.changeBPM(10)}
-                    p1={()=>this.changeBPM(1)}
-                    n1={()=>this.changeBPM(-1)}
-                    n10={()=>this.changeBPM(-10)}
+                  <BPMChanger_func
+                    //key="bpmC"
+                    //bpm={this.state.bpm}
+                    //p10={()=>this.changeBPM(10)}
+                    //p1={()=>this.changeBPM(1)}
+                    //n1={()=>this.changeBPM(-1)}
+                    //n10={()=>this.changeBPM(-10)}
                   />
                 </Col>
               </Row>
@@ -408,6 +523,7 @@ class MainClock extends React.Component{
     )
   }
 }
+MainClock = connect()(MainClock);
 
 class ListedSelector extends React.Component{
   constructor(props) {
@@ -687,39 +803,46 @@ class ThreeButtonChanger extends  React.Component{
   }
 }
 
-function PlayStopButton(props){
-　let label=(props.isPlay==0)? 'Play':'Stop'
+const PlayStopButton = (props)=>{
+  const { isPlayLabel} = props;
+  const playStopSwitch=()=>{
+    props.playStopDispatch()
+  }
 
   return (
-    <button onClick={props.onClick} className={props.class}>
-      {label}
+    <button onClick={(e) => { playStopSwitch(); }} className={''}>
+      {isPlayLabel}
     </button>
-
-  );
+  )
 }
+const PlayStopButton_func=　connect(mapStateToProps, mapDispatchToProps)(PlayStopButton);
 
-function BPMChanger(props){
+
+
+const BPMChanger=(props)=>{
   return(
     <Row className="mx-0">
       <Col className="col-2 px-1">
-        <button className="btn btn-outline-success border-1 p-0 w-100 h-100" onClick={props.n10}>-10</button>
+        <button className="btn btn-outline-success border-1 p-0 w-100 h-100" onClick={()=>props.bpmChange(-10)}>-10</button>
       </Col>
       <Col className="col-2  px-1">
-      <button className="btn btn-outline-success border-1  p-0 w-100 h-100" onClick={props.n1}>-1</button>
+      <button className="btn btn-outline-success border-1  p-0 w-100 h-100" onClick={()=>{props.bpmChange(-1)}}>-1</button>
       </Col>
       <Col className="col-4 px-1 text-center">
       <span className="fw-bolder fs-4">bpm</span>
       <span className="text-info fw-bolder fs-4">{props.bpm}</span>
       </Col>
       <Col className="col-2  px-1">
-      <button className="btn btn-outline-success border-1  p-0 w-100 h-100" onClick={props.p1}>+1</button>
+      <button className="btn btn-outline-success border-1  p-0 w-100 h-100" onClick={()=>{props.bpmChange(1)}}>+1</button>
       </Col>
       <Col className="col-2  px-1">
-      <button className="btn btn-outline-success border-1 p-0 w-100 h-100" onClick={props.p10}>+10</button>
+      <button className="btn btn-outline-success border-1 p-0 w-100 h-100" onClick={()=>{props.bpmChange(10)}}>+10</button>
       </Col>
     </Row>
   )
 }
+
+const BPMChanger_func=　connect(mapStateToProps, mapDispatchToProps)(BPMChanger);
 
 class FingerBoard extends React.Component{
   constructor(props) {
@@ -867,7 +990,11 @@ class FingerBoard extends React.Component{
 }
 
 // ----------------------------------------
+
 ReactDOM.render(
-  <MainClock />,
+  <Provider store={store}>
+    <MainClock />
+  </Provider>,
   document.getElementById('root')
 );
+//<MainClock />,
