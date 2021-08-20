@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import {stateManager} from "../reducers/counter";
+import {mainReducer} from "../reducers/reducer";
 /*
 export const countUp = (value) => {
   return {

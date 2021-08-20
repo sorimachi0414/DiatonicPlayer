@@ -4,119 +4,50 @@ import './index.css';
 import * as Tone from "tone";
 import * as Def from "./subCord.js"
 import 'bootstrap/dist/css/bootstrap.min.css';
-//import MediaQuery from "react-responsive"
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container'
 import { combineReducers } from 'redux';
 
-
 ////debug
 import { createStore, combideReducers } from 'redux';
 import { Provider } from 'react-redux';
-import './index.css';
-//import App from './App';
 import { connect } from 'react-redux';
-//import Counter_func from './components/Counter_func';
-import {stateManager} from "./reducers/counter";
+import {
+  bpmChangeType,
+  changeDrum,
+  changeInstP,
+  countDown,
+  countUp, initialState,
+  mainReducer,
+  playStopType, setRepeat
+} from "./reducers/reducer";
 
 ///debug content
 const reducer = () => combineReducers({
-  stateManager,
+  stateManager: mainReducer,
 });
 
-const store = createStore(reducer());
-
-const bpmChangeType = (value)=>{
-  return {
-    type:'BPM',
-    value
-  }
-}
-const playStopType = ()=>{
-  return{
-    type:'PLAY_STOP',
-  }
-}
-
-const countUp = (value) => {
-  return {
-    type: 'COUNT_UP',
-    value
-  };
-}
-
-const countDown = (value) => {
-  return {
-    type: 'COUNT_DOWN',
-    value
-  };
-}
-
-const Counter = (props) => {
-  const { currentValue, clickCount } = props;
-
-  const handlePlusButton = () => {
-    props.countUp(1);
-  };
-
-  const handleMinusButton = () => {
-    props.countDown(1);
-  };
-
-  return (
-    <div>
-      <h2>関数コンポーネント</h2>
-      <div>clickCount: {clickCount}</div>
-      <div>
-        <button onClick={(e) => { handleMinusButton(e); }}>-</button>
-        <input type="text" value={currentValue} readOnly />
-        <button onClick={(e) => { handlePlusButton(e); }}>+</button>
-      </div>
-    </div>
-  );
-};
-
-const mapStateToProps = (state) => {
-  return {
-    clickCount: state.stateManager.clickCount,
-    currentValue: state.stateManager.currentValue,
-    isPlay: state.stateManager.base.isPlay,
-    isPlayLabel: state.stateManager.base.isPlayLabel,
-    bpm:state.stateManager.base.bpm,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    bpmChange:function (value){
-      return dispatch(bpmChangeType(value))
-    },
-    countUp: function (value) {
-      return dispatch(countUp(value));
-    },
-    countDown: function (value) {
-      return dispatch(countDown(value));
-    },
-    playStopDispatch: function(){
-      return dispatch(playStopType())
-    }
-  };
-};
-
-let Counter_funcs = connect(mapStateToProps, mapDispatchToProps)(Counter);
-
-ReactDOM.render(
-  <Provider store={store}>
-    <Counter_funcs />
-  </Provider>,
-  document.getElementById('root')
+const store = createStore(
+  reducer(),
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 );
 
+//Subscribe
+store.subscribe(()=>{
+  let state = store.getState().stateManager
+  playStopSwitch(state.base.isPlay)
+  Tone.Transport.bpm.value = state.base.bpm
+  instrument=Def.instList[state.base.inst]
+});
+
+let mapStateToProps
+let mapDispatchToProps
 
 // ----------------------------------------
 //スマートフォンでのダブルタップ抑制
 document.addEventListener("dblclick", function(e){ e.preventDefault();}, { passive: false });
+
 const tickTackInterval='24n'
 const stepNum=96
 let fretNum=15
@@ -158,6 +89,21 @@ function exPlan16to48(argList){
   return list
 }
 
+//Redux Schedule Repeat
+
+  Tone.Transport.scheduleRepeat((time) => {
+    let state = store.getState().stateManager.base
+    //Call Back
+    //this.tickTack()
+    //mainReducer(initialState,{type:'STEP'})
+    store.dispatch({type:'STEP'})
+    for(let n=0;n<4;n++){
+      playThisChord(state.chordList[n],exPlan16to48(state.chordPlan[n])[state.step],time)
+    }
+    BD(exPlan16to48(state.bdPlan)[state.step],time)
+    SD(exPlan16to48(state.sdPlan)[state.step],time)
+    HHC(exPlan16to48(state.hhcPlan)[state.step],time)
+  }, tickTackInterval, "0m");
 
 // ----------------------------------------
 class MainClock extends React.Component{
@@ -180,13 +126,13 @@ class MainClock extends React.Component{
       color:"chordSelector",
       step:stepNum-1,
       nextStep:0,
-      bpm:120,
-      isPlay:0,
+      //isPlay:0,
     };
     this.tickTack = this.tickTack.bind(this);
-    this.changePlayStatus = this.changePlayStatus.bind(this);
+//    this.changePlayStatus = this.changePlayStatus.bind(this);
 
     //発音部
+    /*
     Tone.Transport.scheduleRepeat((time) => {
       //Call Back
       this.tickTack()
@@ -197,6 +143,8 @@ class MainClock extends React.Component{
       SD(exPlan16to48(this.state.sdPlan)[this.state.step],time)
       HHC(exPlan16to48(this.state.hhcPlan)[this.state.step],time)
     }, tickTackInterval, "0m");
+
+     */
   }
   componentDidMount(){
     document.title = "Solo Jam session Sequencer"
@@ -208,10 +156,11 @@ class MainClock extends React.Component{
 
   //CallBack
   tickTack() {
-    Tone.Transport.bpm.value = this.state.bpm//*(stepNum/16);
+    //Tone.Transport.bpm.value = this.state.bpm//*(stepNum/16);
     let step=this.state.step
     step = (step>=stepNum-1) ? 0:step+1
     let nextStep= (step>=stepNum-1) ? 0 : step+1
+
     //Display Change
     this.changeColor(~~(step/(stepNum/4)))
     this.setState({
@@ -219,6 +168,7 @@ class MainClock extends React.Component{
       nextStep:nextStep
     })
   }
+
   localStorageIO(bool){
     let ls=localStorage
     if(bool){
@@ -226,26 +176,14 @@ class MainClock extends React.Component{
       ls.setItem('chordTypes', JSON.stringify(this.state.chordTypes));
       ls.setItem('chordPlan', JSON.stringify(this.state.chordPlan));
       ls.setItem('chordList', JSON.stringify(this.state.chordList));
-      ls.setItem('bpm', JSON.stringify(this.state.bpm));
+      //ls.setItem('bpm', JSON.stringify(this.state.bpm));
     }else{
       if ("chordNotes" in ls) this.setState({chordNotes:JSON.parse(ls.getItem('chordNotes'))})
       if ("chordTypes" in ls) this.setState({chordTypes:JSON.parse(ls.getItem('chordTypes'))})
       if ("chordPlan" in ls)  this.setState({chordPlan:JSON.parse(ls.getItem('chordPlan'))})
       if ("chordList" in ls)  this.setState({chordList:JSON.parse(ls.getItem('chordList'))})
-      if ("bpm" in ls)  this.setState({bpm:JSON.parse(ls.getItem('bpm'))})
+      //if ("bpm" in ls)  this.setState({bpm:JSON.parse(ls.getItem('bpm'))})
     }
-  }
-
-  changePlayStatus(){
-    let isPlay = (this.props.isPlay === 1) ? 0 : 1
-    //this.setState({isPlay:isPlay,})
-    if (isPlay==1) {
-      this.props.dispatch({type: 'Play'});
-    }else{
-      this.props.dispatch({type: 'Stop'});
-
-    }
-    playStopSwitch(isPlay)
   }
 
   makeChordString(i) {
@@ -402,14 +340,6 @@ class MainClock extends React.Component{
     );
   }
 
-  changeBPM(diff){
-    this.setState({bpm:this.state.bpm +diff,})
-  }
-
-  changeInstP(e){
-    instrument=Def.instList[e]
-  }
-
   changeDrum(e){
     this.setState({
       bdPlan  :Def.rhythmList[e]["BD"],
@@ -439,33 +369,17 @@ class MainClock extends React.Component{
                 <div className="card-header">
                   Chord Selector
                 </div>
-                <Row className="card-body pt-1">
-                  <Col  xs={2} sm={2} className="mx- 0px-0 align-self-center text-center">
-                    Tone
-                  </Col>
-                  <Col xs={4} sm={3} className="p-2">
-                    <DropDownSelector
-                      change={(e)=>this.changeInstP(e)}
-                      optionList={Def.instList}
-                      initValue={'organ'}
-                    />
-                  </Col>
+                <MusicSelector_func />
 
-                  <Col  xs={2} sm={2} className="px-0 align-self-center text-center">
-                    Drum
-                  </Col>
-                  <Col xs={4} sm={3} className="p-2">
-                    <DropDownSelector
-                      change={(e)=>this.changeDrum(e)}
-                      optionList={Def.rhythmList}
-                      initValue={'Rock'}
-                    />
-                  </Col>
-                </Row>
+
                 <Row className='card-body pt-1'>
                   {chordSelectors}
                 </Row>
+
+
+
               </div>
+
               <div className="card my-2">
                 <div className="card-header">
                   Scale Selector
@@ -495,23 +409,11 @@ class MainClock extends React.Component{
             <Col xs={12} sm={10} md={8} lg={6} className="offset-sm-1 offset-md-2 offset-lg-3">
               <Row className="px-1 mx-0">
                 <Col xs={3} md={3} className="mx-0 px-0">
-                  <Provider store={store}>
                   <PlayStopButton_func
-                    //key="pb"
-                    //isPlay={this.props.isPlay}
-                    //class="btn btn-primary fs-2 w-100 px-0"
-                    //onClick={this.changePlayStatus}
                   />
-                  </Provider>
                 </Col>
                 <Col xs={8} md={8} className='align-self-center px-1'>
                   <BPMChanger_func
-                    //key="bpmC"
-                    //bpm={this.state.bpm}
-                    //p10={()=>this.changeBPM(10)}
-                    //p1={()=>this.changeBPM(1)}
-                    //n1={()=>this.changeBPM(-1)}
-                    //n10={()=>this.changeBPM(-10)}
                   />
                 </Col>
               </Row>
@@ -587,39 +489,69 @@ class ListedSelector extends React.Component{
   }
 }
 
-
 function scaleProcessor(key,type){
   return masterScale[type].map(x => (x+key) % 12)
 }
 
-class DropDownSelector extends React.Component{
-  constructor(props) {
-    super(props);
-    this.state={
-      selected:this.props.initValue
-    }
-  }
-  change(e){
-    this.props.change(e.target.value)
-    this.setState({
-      selected:e.target.value
-    })
-  }
-
-  render(){
+const DropDownSelector =(props)=> {
     let options=[]
-    for(let key in this.props.optionList){
+    for(let key in props.optionList){
       options.push(
         <option key={key} value={key}>{key}</option>
       )
     }
     return(
-      <select defaultValue={this.state.selected} className="form-select w-100" onChange={(e)=>this.change(e)}>
+      <select defaultValue={props.initValue} className="form-select w-100" onChange={(e)=>props.change(e.target.value)}>
         {options}
       </select>
     )
+}
+
+const MusicSelector = (props)=> {
+  return(
+    <Row className="card-body pt-1">
+      <Col  xs={2} sm={2} className="mx- 0px-0 align-self-center text-center">
+        Tone
+      </Col>
+      <Col xs={4} sm={3} className="p-2">
+        <DropDownSelector
+          change={(e)=>props.changeInstP(e)}
+          optionList={Def.instList}
+          initValue={props.base.inst}
+        />
+      </Col>
+      <Col  xs={2} sm={2} className="px-0 align-self-center text-center">
+        Drum
+      </Col>
+      <Col xs={4} sm={3} className="p-2">
+        <DropDownSelector
+          change={(e)=>props.changeDrum(e)}
+          optionList={Def.rhythmList}
+          initValue={props.base.drum}
+        />
+      </Col>
+    </Row>
+  )
+}
+
+mapStateToProps = (state) => {
+  return {base: state.stateManager.base,}
+}
+mapDispatchToProps=(dispatch)=>{
+  return{
+    changeInstP: function(value){
+      return dispatch(changeInstP(value))
+    },
+    changeDrum:function(value){
+      return dispatch(changeDrum(value))
+    }
   }
 }
+
+const MusicSelector_func =　connect(mapStateToProps, mapDispatchToProps)(MusicSelector);
+
+
+
 
 class ScaleSelector extends React.Component{
   constructor(props) {
@@ -771,9 +703,6 @@ class ScaleSelector extends React.Component{
 }
 
 class ChordChopperCheckBox extends React.Component{
-  //  constructor(props) {
-  //    super(props);
-  //  }
   render(){
     return(
       <input className="form-check-input m-05 p-sm-2 mx-sm-1" type="checkbox" checked={this.props.checked} value={this.props.value} onChange={this.props.onClick} />
@@ -803,18 +732,132 @@ class ThreeButtonChanger extends  React.Component{
   }
 }
 
+
+const ChordSelectorRedux =(props)=>{
+  function arrangeChordSelector(i){
+    let check0=(this.state.chordPlan[i][i*4]!=0)?'checked':''
+    let check1=(this.state.chordPlan[i][1+i*4]!=0)?'checked':''
+    let check2=(this.state.chordPlan[i][2+i*4]!=0)?'checked':''
+    let check3=(this.state.chordPlan[i][3+i*4]!=0)?'checked':''
+    return (
+      <Col xs={3} key={i}>
+        <Row>
+          <Col xs={12}  className="mx-0 px-0">
+            <ChordChopperCheckBox
+              key={'CC1c'+i}
+              type="checkbox"
+              checked={check0}
+              onClick={()=>this.changeChordChopper(0,i)}
+              value={this.state.chordPlan[i][i*4]}
+            />
+            <ChordChopperCheckBox
+              key={'CC2c'+i}
+              type="checkbox"
+              checked={check1}
+              onClick={()=>this.changeChordChopper(1,i)}
+              value={this.state.chordPlan[i][1+i*4]}
+            />
+            <ChordChopperCheckBox
+              key={'CC3c'+i}
+              type="checkbox"
+              checked={check2}
+              onClick={()=>this.changeChordChopper(2,i)}
+              value={this.state.chordPlan[i][2+i*4]}
+            />
+            <ChordChopperCheckBox
+              key={'CC4c'+i}
+              type="checkbox"
+              checked={check3}
+              onClick={()=>this.changeChordChopper(3,i)}
+              value={this.state.chordPlan[i][3+i*4]}
+            />
+          </Col>
+          <Col xs={12} sm={12}>
+            <ThreeButtonChanger
+              key={'cns'+i}
+              color={this.state.blocksColor[i]}
+              value={soundNameList[this.state.chordNotes[i]]}
+              onClick={() => this.changeChord(i,1)}
+              onClickP={() => this.changeChord(i,1)}
+              onClickN={() => this.changeChord(i,-1)}
+            />
+            <ListedSelector
+              chordOrScale={'Chord'}
+              key={'cts'+i}
+              initList={this.state.chordTypes}
+              optionList={masterChord}
+              class={"scaleTypeSelector"}
+              boxNum={i}
+              value={masterChord[this.state.chordTypes[i]]}
+              onChange={(i,e) => this.changeChord(i,String(e))}
+            />
+          </Col>
+        </Row>
+      </Col>
+    );
+  }
+
+  let chordSelectors=[]
+  const blockLength=4
+  for(let i=0;i<blockLength;i++){
+    chordSelectors.push(
+      arrangeChordSelector(i)
+    )
+  }
+
+  return(
+    <Row className='card-body pt-1'>
+      {chordSelectors}
+    </Row>
+  )
+
+}
+
+
+mapStateToProps = (state) => {
+  return {
+    isPlay: state.stateManager.base.isPlay,
+    isPlayLabel: state.stateManager.base.isPlayLabel,
+  };
+};
+mapDispatchToProps = (dispatch) => {
+  return {
+    playStopDispatch: function(){
+      return dispatch(playStopType())
+    },
+  };
+};
+const ChordSelectorRedux_func=　connect(mapStateToProps, mapDispatchToProps)(ChordSelectorRedux);
+
+
+
+
+
 const PlayStopButton = (props)=>{
-  const { isPlayLabel} = props;
+  const { isPlayLabel,isPlay} = props;
+
   const playStopSwitch=()=>{
     props.playStopDispatch()
   }
-
   return (
     <button onClick={(e) => { playStopSwitch(); }} className={''}>
       {isPlayLabel}
     </button>
   )
 }
+mapStateToProps = (state) => {
+  return {
+    isPlay: state.stateManager.base.isPlay,
+    isPlayLabel: state.stateManager.base.isPlayLabel,
+  };
+};
+mapDispatchToProps = (dispatch) => {
+  return {
+    playStopDispatch: function(){
+      return dispatch(playStopType())
+    },
+  };
+};
 const PlayStopButton_func=　connect(mapStateToProps, mapDispatchToProps)(PlayStopButton);
 
 
@@ -841,6 +884,19 @@ const BPMChanger=(props)=>{
     </Row>
   )
 }
+
+mapStateToProps = (state) => {
+  return {
+    bpm:state.stateManager.base.bpm,
+  };
+};
+mapDispatchToProps = (dispatch) => {
+  return {
+    bpmChange:function (value){
+      return dispatch(bpmChangeType(value))
+    },
+  };
+};
 
 const BPMChanger_func=　connect(mapStateToProps, mapDispatchToProps)(BPMChanger);
 
