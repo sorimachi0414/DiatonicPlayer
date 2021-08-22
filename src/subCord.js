@@ -1,6 +1,11 @@
 //General Setting
 import * as Tone from "tone";
 
+export const tickTackInterval='24n'
+export const stepNum=96
+export const fretNum=15
+export const strings=6
+
 export const soundNameList=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B',]
 export const masterChord ={
   '01_M':[0,4,7],
