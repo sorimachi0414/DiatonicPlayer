@@ -104,7 +104,6 @@ const MainClock =(props)=>{
       let base=JSON.parse(localStorage.getItem('base'))
       store.dispatch(
         {type:'LOAD_LOCALSTORAGE',base:base}
-
       )
     }
   }, []);

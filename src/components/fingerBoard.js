@@ -85,7 +85,7 @@ const FingerBoard_iso =(props)=>{
     fretClass +=' wd-'+j
 
     //fretLetterを数字に変更
-    if (props.base.displayCircle!=1){
+    if (props.base.displayCircle==false){
       let keyNote=props.base.rawScaleNoteList[props.base.step][0]
       fretLetter=(fretSound-keyNote+12 )%12
     }

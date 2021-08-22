@@ -4,8 +4,9 @@ import Row from "react-bootstrap/Row";
 import {connect} from "react-redux";
 import React from "react";
 import {ThreeButtonChanger,ListedSelector} from "./common";
-import {soundNameList,masterScale,fretNum} from "../subCord"
+import {soundNameList, masterScale, fretNum, defaultState} from "../subCord"
 import {FingerBoard} from './fingerBoard.js'
+import {store} from "../index";
 
 const ScaleSelectorRedux =(props) => {
 
@@ -42,9 +43,7 @@ const ScaleSelectorRedux =(props) => {
   let selectors=[]
   const selectorLength=4
   for(let i=0;i<selectorLength;i++){
-    selectors.push(
-      repeatSelector(i)
-    )
+    selectors.push( repeatSelector(i) )
   }
 
   return(
@@ -62,7 +61,14 @@ const ScaleSelectorRedux =(props) => {
       <Col xs={12} sm={6}>
         <button
           className="btn btn-outline-warning"
-          onClick={'()=>localStorage.clear()'}
+          onClick={() => {
+            //localStorage.clear()}
+            let base = defaultState
+            store.dispatch(
+              {type: 'LOAD_LOCALSTORAGE', base: base}
+            )
+          }
+          }
         >
           Reset save data
         </button>

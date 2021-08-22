@@ -39,43 +39,6 @@ export const DropDownSelector =(props)=> {
 }
 
 export class ListedSelector extends React.Component{
-  constructor(props) {
-    super(props);
-    this.state={
-      //selectedType:this.localStorageIOListed(0),
-    }
-    //list:this.props.initList  //二重管理になっているが、Selectの初期値をセットしたいため。
-  }
-  /*
-  localStorageIOListed(bool) {
-    let ls = localStorage
-    let key = 'list'+this.props.boxNum+this.props.chordOrScale
-    let result = this.props.initList[this.props.boxNum]
-    if (bool) {
-      //Write to localStorage
-      ls.setItem(key, this.state.selectedType);
-    } else {
-      //Read from localStorage
-      if (key in ls){
-        result =String(ls.getItem(key))
-        this.setState({
-          selectedType:result,
-        })
-      }
-      return result
-    }
-  }*/
-
-  componentDidMount() {
-    //this.props.onChange(this.props.boxNum,this.localStorageIOListed(0))
-    //if(this.props.chordOrScale=='Scale') {this.props.readStorage()}
-  }
-
-  componentDidUpdate(prevProps, prevState, snapshot){
-    //this.localStorageIOListed(true)
-  }
-
-
   render(){
     let options=[]
     for (let key in this.props.optionList) {
