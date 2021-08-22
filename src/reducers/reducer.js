@@ -45,6 +45,7 @@ export const shiftScaleNote=(i,value)=>{
   let state=store.getState().stateManager
   let list = state.base.rootNoteOfScale.slice()
   list[i] = (list[i]+value+12)%12
+
   let rawScaleNoteList=state.base.rawScaleNoteList.slice()
   rawScaleNoteList[i]=masterScale[state.base.typeOfScale[i]].map(x => (x+state.base.rootNoteOfScale[i]+value) % 12)
   return{
@@ -86,7 +87,9 @@ export const setScaleType=(i,value)=> {
   let state = store.getState().stateManager
   let list = state.base.typeOfScale.slice()
   list[i]=value
-  return {type: 'SET_SCALE_TYPE', payload:list,i:i}
+  let rawScaleNoteList=state.base.rawScaleNoteList.slice()
+  rawScaleNoteList[i]=masterScale[value].map(x => (x+state.base.rootNoteOfScale[i]) % 12)
+  return {type: 'SET_SCALE_TYPE', payload:list,meta:rawScaleNoteList,i:i}
 }
 
 //This is Reudcer
@@ -95,10 +98,7 @@ export const mainReducer= (state = initialState, action) => {
     case 'LOAD_LOCALSTORAGE':
       return{base:action.base}
     case 'SET_SCALE_TYPE':
-      //rawScaleNoteList
-      let rawScaleNoteList=state.base.rawScaleNoteList.slice()
-      rawScaleNoteList[action.i]=masterScale[state.base.typeOfScale[action.i]].map(x => (x+state.base.rootNoteOfScale[action.i]) % 12)
-      return{base:{...state.base,typeOfScale:action.payload,rawScaleNoteList:rawScaleNoteList}}
+      return{base:{...state.base,typeOfScale:action.payload,rawScaleNoteList:action.meta}}
     case 'SHIFT_SCALE_NOTE':
       return{base:{...state.base,rootNoteOfScale:action.payload,rawScaleNoteList: action.meta}}
     case 'FLIP_SYMBOL':
@@ -134,11 +134,10 @@ export const mainReducer= (state = initialState, action) => {
       return{
         base:{...state.base,  drum:action.value,bdplan:bdPlan,sdPlan:sdPlan,hhcPlan: hhcPlan}
       }
-    case 'SHIFT_SCALE_NOTE':
-
-      return{
-        base:{...state.base,  rootNoteOfScale:action.value,rawScaleNoteList:rawScaleNoteList}
-      }
+//    case 'SHIFT_SCALE_NOTE':
+//      return{
+//        base:{...state.base,  rootNoteOfScale:action.value,rawScaleNoteList:action.meta}
+//      }
     case 'BPM':
       return{
         base:{...state.base,  bpm:state.base.bpm+action.value}

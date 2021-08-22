@@ -6,7 +6,15 @@ export const stepNum=96
 export const fretNum=15
 export const strings=6
 
-export const defaultState={"isPlay":false,"isPlayLabel":"Play","bpm":130,"inst":"organ","drum":"Rock","step":0,"nextStep":1,"beat1m":0,"nextBeat1m":1,"bdPlan":[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],"sdPlan":[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],"hhcPlan":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"chordList":[["A3","C#3","E3","G3","A2"],["A3","C#3","E3","G3","A2"],["D3","F#3","A3","C3","D2"],["D3","F#3","A3","C3","D2"]],"chordPlan":[["1m",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,"1m",0,0,"4n",0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,"1m",0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,"1m",0,0,0]],"blocksColor":["btn btn-warning h-100 w-100","btn btn-outline-primary h-100 w-100","btn btn-outline-primary h-100 w-100","btn btn-outline-primary h-100 w-100"],"typesOfChords":["07_7","07_7","07_7","07_7"],"rootNoteOfChords":[9,9,2,2],"displayCircle":true,"scaleBlocksColor":["btn btn-outline-primary w-100","btn btn-outline-primary w-100","btn btn-outline-primary w-100","btn btn-outline-primary w-100"],"rootNoteOfScale":[9,9,9,9],"typeOfScale":["04_minorPentatonic","04_minorPentatonic","04_minorPentatonic","04_minorPentatonic"],"rawScaleNoteList":[[9,11,1,2,4,6,8],[9,11,1,2,4,6,8],[9,0,2,4,7],[9,0,2,4,7]]}
+export const defaultState={
+  "isPlay":false,"isPlayLabel":"Play","bpm":130,"inst":"organ","drum":"Rock","step":0,"nextStep":1,"beat1m":0,"nextBeat1m":1,
+  "bdPlan":[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+  "sdPlan":[0,0,1,0,0,0,1,0,0,0,1,0,0,0,1,0],
+  "hhcPlan":[1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+  "chordList":[["A3","C#3","E3","G3","A2"],["A3","C#3","E3","G3","A2"],["D3","F#3","A3","C3","D2"],["D3","F#3","A3","C3","D2"]],
+  "chordPlan":[["1m",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,"1m",0,0,"4n",0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,"1m",0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,"1m",0,0,0]],
+  "blocksColor":["btn btn-warning h-100 w-100","btn btn-outline-primary h-100 w-100","btn btn-outline-primary h-100 w-100","btn btn-outline-primary h-100 w-100"],"typesOfChords":["07_7","07_7","07_7","07_7"],"rootNoteOfChords":[9,9,2,2],"displayCircle":true,"scaleBlocksColor":["btn btn-outline-primary w-100","btn btn-outline-primary w-100","btn btn-outline-primary w-100","btn btn-outline-primary w-100"],"rootNoteOfScale":[9,9,9,9],"typeOfScale":["04_minorPentatonic","04_minorPentatonic","04_minorPentatonic","04_minorPentatonic"],
+  "rawScaleNoteList":[[9,0,2,4,7],[9,0,2,4,7],[9,0,2,4,7],[9,0,2,4,7]]}
 
 export const soundNameList=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B',]
 export const masterChord ={

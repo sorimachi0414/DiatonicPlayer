@@ -52,7 +52,7 @@ export class ListedSelector extends React.Component{
         size={3}
         defaultValue={this.props.initList}
         className="form-select p-1"
-        value={this.props.value}
+        //value={this.props.value}
         onClick={(e)=>this.props.onChange(this.props.boxNum,e.target.value)}>
         {options}
       </select>
