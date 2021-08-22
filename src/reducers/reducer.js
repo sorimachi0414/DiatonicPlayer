@@ -18,7 +18,6 @@ export const initialState = {
     drum:'Rock',
     step:0,
     nextStep:1,
-    beat:3,
     beat1m:0,
     nextBeat1m:1,
     bdPlan  :Def.rhythmList["Rock"]["BD"],
@@ -36,20 +35,22 @@ export const initialState = {
     rootNoteOfChords:[9,9,2,2],
     displayCircle:true,
     scaleBlocksColor:Array(4).fill("btn btn-outline-primary w-100"),
-    selectedScaleNoteList:Array(4).fill(9),
-    selectedScaleTypeList:Array(4).fill("04_minorPentatonic"),
-    rawScaleNoteList:Array(4).fill(masterScale['04_minorPentatonic'])
+    rootNoteOfScale:Array(4).fill(9),
+    typeOfScale:Array(4).fill("04_minorPentatonic"),
+    rawScaleNoteList:Array(4).fill(masterScale['04_minorPentatonic'].map(x=>(x+9)%12))
   },
 }
 
-export const shiftScaleNote=(i,val)=>{
+export const shiftScaleNote=(i,value)=>{
   let state=store.getState().stateManager
-  let list = state.base.selectedScaleNoteList.slice()
-  list[i] = (list[i]+val>=12) ? 0 : (list[i]+val<0) ? 11 : list[i]+val
-
+  let list = state.base.rootNoteOfScale.slice()
+  list[i] = (list[i]+value+12)%12
+  let rawScaleNoteList=state.base.rawScaleNoteList.slice()
+  rawScaleNoteList[i]=masterScale[state.base.typeOfScale[i]].map(x => (x+state.base.rootNoteOfScale[i]+value) % 12)
   return{
     type:'SHIFT_SCALE_NOTE',
-    value:list,
+    payload:list,
+    meta:rawScaleNoteList
   }
 }
 
@@ -83,18 +84,23 @@ export const countDown = (value) => {
 
 export const setScaleType=(i,value)=> {
   let state = store.getState().stateManager
-  let list = state.base.selectedScaleTypeList.slice()
+  let list = state.base.typeOfScale.slice()
   list[i]=value
-  return {type: 'SET_SCALE_TYPE', list}
+  return {type: 'SET_SCALE_TYPE', payload:list,i:i}
 }
 
 //This is Reudcer
 export const mainReducer= (state = initialState, action) => {
   switch (action.type) {
+    case 'LOAD_LOCALSTORAGE':
+      return{base:action.base}
     case 'SET_SCALE_TYPE':
-      return{base:{...state.base,selectedScaleTypeList:action.value}}
+      //rawScaleNoteList
+      let rawScaleNoteList=state.base.rawScaleNoteList.slice()
+      rawScaleNoteList[action.i]=masterScale[state.base.typeOfScale[action.i]].map(x => (x+state.base.rootNoteOfScale[action.i]) % 12)
+      return{base:{...state.base,typeOfScale:action.payload,rawScaleNoteList:rawScaleNoteList}}
     case 'SHIFT_SCALE_NOTE':
-      return{base:{...state.base,shiftScaleNote:action.value}}
+      return{base:{...state.base,rootNoteOfScale:action.payload,rawScaleNoteList: action.meta}}
     case 'FLIP_SYMBOL':
       return{base:{...state.base,displayCircle:!state.base.displayCircle}}
     case 'SET_CHORD_PLAN':
@@ -108,10 +114,8 @@ export const mainReducer= (state = initialState, action) => {
         base:{...state.base,rootNoteOfChords:action.value,chordList:action.chordList}
       }
     case 'STEP':
-      let step = state.base.step
-      step = step>=stepNum-1 ? 0 :step+1
-      let nextStep = state.base.step
-      nextStep = nextStep>=stepNum-1 ? 0 :nextStep+1
+      let step = (state.base.step+1) %stepNum
+      let nextStep = (step+1) %stepNum
       let beat1m=~~(step/(stepNum/4))
       let nextBeat1m=(beat1m+1 )%4
       let blocksColor=Array(4).fill("btn btn-outline-primary h-100 w-100")
@@ -131,9 +135,9 @@ export const mainReducer= (state = initialState, action) => {
         base:{...state.base,  drum:action.value,bdplan:bdPlan,sdPlan:sdPlan,hhcPlan: hhcPlan}
       }
     case 'SHIFT_SCALE_NOTE':
-      let selectedScaleNoteList
+
       return{
-        base:{...state.base,  selectedScaleNoteList:selectedScaleNoteList}
+        base:{...state.base,  rootNoteOfScale:action.value,rawScaleNoteList:rawScaleNoteList}
       }
     case 'BPM':
       return{

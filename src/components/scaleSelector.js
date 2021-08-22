@@ -20,27 +20,24 @@ const ScaleSelectorRedux =(props) => {
           class={"scaleNoteSelector"}
           color={'btn btn-outline-primary w-100'}
           color={props.base.blocksColor[i]}
-          value={soundNameList[props.base.selectedScaleNoteList[i]]}
-          onClickP={() => shiftScaleNote(i,1)}
-          onClickN={() => shiftScaleNote(i,-1)}
+          value={soundNameList[props.base.rootNoteOfScale[i]]}
+          onClickP={() => props.shiftScaleNote(i,1)}
+          onClickN={() => props.shiftScaleNote(i,-1)}
         />
         <ListedSelector
           chordOrScale={'Scale'}
-          initList={Array(4).fill("04_minorPentatonic")}
+          initList={props.base.typeOfScale[i]}
           optionList={masterScale}
           class={"scaleTypeSelector"}
           boxNum={i}
-          //value={scaleTypeNameList[this.state.selectedScaleTypeList[i]]}
-          value={masterScale[props.base.selectedScaleTypeList[i]]}
-          onChange={(i,e) => setScaleType(i,e)}
+          value={props.base.typeOfScale[i]}
+          //value={masterScale[props.base.typeOfScale[i]]}
+          onChange={(i,value) => props.setScaleType(i,value)}
           //readStorage={this.changeScaleFromStorage}
         />
       </Col>
     )
   }
-
-  let beat1m=props.base.beat1m
-  let nextBeat1m=(beat1m>=3) ? 0 : beat1m+1
 
   let selectors=[]
   const selectorLength=4
@@ -53,13 +50,7 @@ const ScaleSelectorRedux =(props) => {
   return(
     <Row>
       {selectors}
-      <FingerBoard
-        //fretNum={fretNum}
-        //step={props.base.step}
-        //nowScale={scaleProcessor(props.base.selectedScaleNoteList[beat1m],props.base.selectedScaleTypeList[beat1m])}
-        //nextScale={scaleProcessor(props.base.selectedScaleNoteList[nextBeat1m],props.base.selectedScaleTypeList[nextBeat1m])}
-        //displayCircle={props.base.displayCircle}
-      />
+      <FingerBoard  />
       <Col xs={12} sm={6}>
         <button
           className="btn btn-outline-success"

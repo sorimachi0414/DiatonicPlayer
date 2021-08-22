@@ -75,12 +75,6 @@ export class ListedSelector extends React.Component{
     //this.localStorageIOListed(true)
   }
 
-  changeChordByName(e){
-    this.props.onChange(this.props.boxNum,e.target.value)
-    this.setState({
-      selectedType:String(e.target.value),
-    })
-  }
 
   render(){
     let options=[]
@@ -91,7 +85,12 @@ export class ListedSelector extends React.Component{
     }
     return(
       //valueがSelectの初期値となる。valueが入っていると、他に変更してもValueに戻る。
-      <select size={3} defaultValue={this.props.initList} className="form-select p-1" onClick={(e)=>this.changeChordByName(e)}>
+      <select
+        size={3}
+        defaultValue={this.props.initList}
+        className="form-select p-1"
+        value={this.props.value}
+        onClick={(e)=>this.props.onChange(this.props.boxNum,e.target.value)}>
         {options}
       </select>
     )

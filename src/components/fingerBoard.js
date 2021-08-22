@@ -55,8 +55,8 @@ const FingerBoard_iso =(props)=>{
     }
 
     //次の音に向け、ステップの半分で見た目変化を開始
-    let beat1m=props.base.beat1m
-    if(beat1m % 4 >1){
+    let beat4n=~~(props.base.step/(stepNum/16))
+    if(beat4n % 4 >1){
       if(noteInfo[0]!=0 || noteInfo[1]!=0){
         //今Active
         if(noteInfo[2]>0){
@@ -131,11 +131,9 @@ const FingerBoard_iso =(props)=>{
   }
 
   return(
-    /**/
     <div className="pt-4">
       {allStrings}
     </div>
-    /**/
   )
 
 }

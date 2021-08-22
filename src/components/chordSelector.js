@@ -10,7 +10,6 @@ import {ChordChopperCheckBox,ThreeButtonChanger} from "./common.js";
 
 const soundNameList=Def.soundNameList
 const masterChord=Def.masterChord
-const masterScale=Def.masterScale
 
 const ChordSelectorRedux =(props)=>{
 
@@ -120,7 +119,8 @@ const ChordSelectorRedux =(props)=>{
               optionList={masterChord}
               class={"scaleTypeSelector"}
               boxNum={i}
-              value={masterChord[props.base.typesOfChords[i]]}
+              //value={masterChord[props.base.typesOfChords[i]]}
+              value={props.base.typesOfChords[i]}
               onChange={(i,e) => changeChord(i,String(e))}
             />
           </Col>
@@ -145,9 +145,7 @@ const ChordSelectorRedux =(props)=>{
 }
 
 let mapStateToProps = (state) => {
-  return {
-    base: state.stateManager.base
-  };
+  return {  base: state.stateManager.base }
 };
 
 let mapDispatchToProps = (dispatch) => {
