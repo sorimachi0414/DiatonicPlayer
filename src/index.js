@@ -9,6 +9,7 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container'
 
+
 //Redux
 import { createStore, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
@@ -19,6 +20,7 @@ import {ScaleSelectorRedux_func} from './components/scaleSelector'
 import {PlayStopButton_func} from './components/playStopButton.js'
 import {MusicSelector_func} from './components/musicSelector.js'
 import {mainReducer} from "./reducers/reducer";
+import {DiatonicDisplay_func} from "./components/diatonicDisplay";
 
 ///debug content
 const reducer = () => combineReducers({
@@ -86,6 +88,12 @@ Tone.Transport.scheduleRepeat((time) => {
   SD(exPlan16to48(state.sdPlan)[state.step],time)
   HHC(exPlan16to48(state.hhcPlan)[state.step],time)
 
+  //make chordlist
+  if(state.step>=95){
+    store.dispatch({type:'RENEW_CHORD_LIST'})
+  }
+
+
   //tickTack
   store.dispatch({type:'STEP'})
 
@@ -104,6 +112,7 @@ const MainClock =(props)=>{
         {type:'LOAD_LOCALSTORAGE',base:{...base,isPlay:false,isPlayLabel:'Play'}}
       )
     }
+
   }, []);
 
 
@@ -117,11 +126,10 @@ const MainClock =(props)=>{
           <Col xs="12" sm={12} md={10} lg={8} xl={6} className="px-0">
             <div className="card my-2">
               <div className="card-header">
-                Chord Selector
+                Diatonic Chord
               </div>
-              <MusicSelector_func />
               <Row className='card-body pt-1'>
-                <ChordSelectorRedux_func />
+                <DiatonicDisplay_func />
               </Row>
             </div>
             <div className="card my-2">
@@ -136,6 +144,17 @@ const MainClock =(props)=>{
               <div className="d-none d-md-block d-lg-none">md >768px</div>
               <div className="d-none d-lg-block d-xl-none">lg >992px</div>
               <div className="d-none d-xl-block">xl >1200px</div>
+            </div>
+
+            <div className="card my-2">
+              <div className="card-header">
+                Chord Player
+              </div>
+
+              <MusicSelector_func />
+              <Row className='card-body pt-1'>
+                <ChordSelectorRedux_func />
+              </Row>
             </div>
           </Col>
         </Row>

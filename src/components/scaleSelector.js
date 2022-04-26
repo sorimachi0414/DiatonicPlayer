@@ -1,10 +1,10 @@
 import Col from "react-bootstrap/Col";
-import {setScaleType, shiftScaleNote} from "../reducers/reducer";
+import {setScaleType,setBaseScale, shiftScaleNote} from "../reducers/reducer";
 import Row from "react-bootstrap/Row";
 import {connect} from "react-redux";
 import React from "react";
 import {ThreeButtonChanger,ListedSelector} from "./common";
-import {soundNameList, masterScale, fretNum, defaultState} from "../subCord"
+import {soundNameList, masterScale,baseScale, fretNum, defaultState} from "../subCord"
 import {FingerBoard} from './fingerBoard.js'
 import {store} from "../index";
 
@@ -16,32 +16,52 @@ const ScaleSelectorRedux =(props) => {
 
   const repeatSelector=(i)=>{
     return(
-      <Col key={i} xs={3}>
-        <ThreeButtonChanger
-          class={"scaleNoteSelector"}
-          color={'btn btn-outline-primary w-100'}
-          color={props.base.blocksColor[i]}
-          value={soundNameList[props.base.rootNoteOfScale[i]]}
-          onClickP={() => props.shiftScaleNote(i,1)}
-          onClickN={() => props.shiftScaleNote(i,-1)}
-        />
-        <ListedSelector
-          chordOrScale={'Scale'}
-          initList={props.base.typeOfScale[i]}
-          optionList={masterScale}
-          class={"scaleTypeSelector"}
-          boxNum={i}
-          value={props.base.typeOfScale[i]}
-          //value={masterScale[props.base.typeOfScale[i]]}
-          onChange={(i,value) => props.setScaleType(i,value)}
-          //readStorage={this.changeScaleFromStorage}
-        />
+      <Col key={i} xs={12}>
+        <Row>
+        <Col xs={2}>
+          <ThreeButtonChanger
+            class={"scaleNoteSelector"}
+            color={'btn btn-outline-primary w-100'}
+            color={props.base.blocksColor[i]}
+            value={soundNameList[props.base.rootNoteOfScale[i]]}
+            onClickP={() => props.shiftScaleNote(i,1)}
+            onClickN={() => props.shiftScaleNote(i,-1)}
+          />
+        </Col>
+        <Col xs={5}>
+          Base Scale
+          <ListedSelector
+            chordOrScale={'Scale'}
+            initList={props.base.typeOfScale[i]}
+            optionList={baseScale}
+            class={"scaleTypeSelector"}
+            boxNum={i}
+            value={props.base.typeOfScale[i]}
+            //value={masterScale[props.base.typeOfScale[i]]}
+            onChange={(i,value) => props.setBaseScale(i,value)}
+          />
+        </Col>
+        <Col xs={5}>
+          Display Scale
+          <ListedSelector
+            chordOrScale={'Scale'}
+            initList={props.base.typeOfScale[i]}
+            optionList={props.base.availableScales}
+            class={"scaleTypeSelector"}
+            boxNum={i}
+            value={props.base.typeOfScale[i]}
+            //value={masterScale[props.base.typeOfScale[i]]}
+            onChange={(i,value) => props.setScaleType(i,value)}
+            //readStorage={this.changeScaleFromStorage}
+          />
+        </Col>
+        </Row>
       </Col>
     )
   }
 
   let selectors=[]
-  const selectorLength=4
+  const selectorLength=1
   for(let i=0;i<selectorLength;i++){
     selectors.push( repeatSelector(i) )
   }
@@ -85,6 +105,9 @@ const mapDispatchToProps=(dispatch)=>{
   return{
     shiftScaleNote:function (i,value){
       return dispatch(shiftScaleNote(i,value))
+    },
+    setBaseScale: function (i,value){
+      return dispatch(setBaseScale(i,value))
     },
     setScaleType: function (i,value){
       return dispatch(setScaleType(i,value))

@@ -13,6 +13,7 @@ const masterChord=Def.masterChord
 
 const ChordSelectorRedux =(props)=>{
 
+
   function changeChord(i,val) {
     let rootShift,chordNotes,actionType,list,chordList
     if (typeof val == 'number') {
