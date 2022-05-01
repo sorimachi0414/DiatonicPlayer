@@ -413,3 +413,174 @@ C-Am-F-G
 Dm-G-C-A7
 A7-D7
  */
+
+export const drawTab=(chordName,flgHighChord)=>{
+  //settings
+  let tabWidth = 100
+  let tabHeight =110
+
+  // A---------B
+  // | a------b
+  // | |
+  // | c-----d
+  // C---------D
+
+  let aX = 20
+  let aY = 25
+  let xNum = 5
+  let xInt = 15
+  let yInt = 12
+  let bX = aX+xNum*xInt
+  let cY = aY+5*yInt
+
+
+  let bgColor = '#eee'
+  let natWidth = 2
+  let natColor = "#000"
+  let lineWidth = 1
+  let pointSize = 4
+  let openCircleSize = 5
+  let barreWidth = 10
+
+
+  let fretNumFont = "12px sans-serif"
+  let ChordNameLabelFont ="14px sans-serif"
+  let muteStringMarkFont = "14px sans-serif"
+
+
+  //Initial
+
+  let barreFret=0
+  let barreLength=0
+  let chordTabs=chordTabList
+  if (flgHighChord) chordTabs = chordTabListH
+
+  //Analysis
+  let pictFirstFret = 0
+
+
+  if(chordName in chordTabs){
+    let tabWithoutN=[]
+    for(let arg in chordTabs[chordName]){
+      if(chordTabs[chordName][arg] >= 0) tabWithoutN.push(chordTabs[chordName][arg])
+    }
+
+    let minFret = Math.min(...tabWithoutN)
+    let maxFret=Math.max(...chordTabs[chordName])
+
+    if (minFret>0) {
+      pictFirstFret = minFret-1
+    }
+
+    //Barre chord
+    let firstStFret=chordTabs[chordName][0]
+    let fifthStFret=chordTabs[chordName][4]
+    let sixthStFret=chordTabs[chordName][5]
+
+    barreFret=0
+    if(firstStFret>0){
+      if(firstStFret == sixthStFret ){
+        barreFret=firstStFret
+        barreLength=6
+      }else if(firstStFret == fifthStFret){
+        barreFret=firstStFret
+        barreLength=5
+      }
+    }
+
+  }
+
+  //design layout
+  //View
+
+  const canvasElem = document.createElement('canvas')
+  canvasElem.width = tabWidth
+  canvasElem.height = tabHeight
+  const ctx = canvasElem.getContext('2d')
+
+  // draw
+  ctx.clearRect(0, 0, tabWidth, tabHeight)
+  ctx.fillStyle = bgColor
+  ctx.fillRect(0, 0, tabWidth, tabHeight)
+
+  //horizontal
+  ctx.beginPath () ;
+  ctx.strokeStyle = natColor
+  ctx.moveTo( aX, aY )
+  ctx.lineTo( aX, cY )
+  ctx.lineWidth = natWidth ;
+  ctx.stroke() ;
+
+  let yPoints = [aY,aY+yInt*1,aY+yInt*2,aY+yInt*3,aY+yInt*4,aY+yInt*5,]
+  for(let arg of yPoints){
+    ctx.beginPath () ;
+    ctx.moveTo( aX, arg )
+    ctx.lineTo( bX, arg )
+    ctx.lineWidth = lineWidth ;
+    ctx.stroke() ;
+  }
+
+  //Vertical
+  for(let i =0;i<=xNum;i++){
+    ctx.beginPath () ;
+    ctx.moveTo( aX+xInt*i, aY )
+    ctx.lineTo( aX+xInt*i, cY )
+    ctx.lineWidth = lineWidth ;
+    ctx.stroke() ;
+  }
+
+  //Position Mark
+  let index=0
+  let pictTab=[]
+  if(chordName in chordTabs){
+    if(pictFirstFret>0){
+      pictTab = chordTabs[chordName].map(x=>x-pictFirstFret+1)
+    }else{
+      pictTab = chordTabs[chordName]
+    }
+    for(let val of pictTab){
+      ctx.beginPath () ;
+      ctx.fillStyle = "rgba(0,0,0,1)" ;
+      if(val<0){
+        //Open String
+        ctx.font = muteStringMarkFont
+        ctx.fillText("x", aX-xInt/1.3, index*yInt+aY+4);
+      }else　if(val==0) {
+        //push Fret String
+        ctx.arc( aX+val*xInt - xInt/2, index*yInt+aY, pointSize, 0, 2 * Math.PI, false ) ;
+        ctx.stroke()
+      }else{
+        //Mute String
+        ctx.arc( aX+val*xInt - xInt/2, index*yInt+aY, openCircleSize, 0, 2 * Math.PI, false ) ;
+        ctx.fill()
+      }
+      index+=1
+    }
+
+    //depict barre
+    if(barreFret>0){
+      barreFret = barreFret - pictFirstFret+1
+      ctx.beginPath () ;
+      ctx.moveTo( aX+xInt*barreFret-xInt/2, aY+yInt*0 )
+      ctx.lineTo( aX+xInt*barreFret-xInt/2, aY+yInt*barreLength-yInt )
+      ctx.lineWidth = barreWidth
+      ctx.stroke() ;
+    }
+
+  }
+
+  //Fet Number
+  if(pictFirstFret>0){
+    for(let i =0;i<xNum;i++){
+      ctx.font = fretNumFont
+      ctx.fillText(i+pictFirstFret, 20+i*xInt+5, cY+yInt+5)
+    }
+  }
+
+  //ChordLabel
+  ctx.font = ChordNameLabelFont
+  ctx.fillText(chordName, 5, 15);
+
+  let testPng = canvasElem.toDataURL()
+  return testPng
+}

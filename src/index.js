@@ -121,7 +121,7 @@ const MainClock =(props)=>{
       <Container fluid>
         <Row className="justify-content-center mb-5">
           <Col  xs={12} md={10} className="text-center">
-            "Solo Jam session" Sequencer
+            Diatonic Chord Player
           </Col>
           <Col xs="12" sm={12} md={10} lg={8} xl={6} className="px-0">
             <div className="card my-2">
