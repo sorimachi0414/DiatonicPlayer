@@ -1,10 +1,28 @@
 //General Setting
 import * as Tone from "tone";
+import Col from "react-bootstrap/Col";
 
 export const tickTackInterval='24n'
 export const stepNum=96
 export const fretNum=15
 export const strings=6
+
+export const soundNameList=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B',]
+export const soundNumList={
+  'C':0,
+  'C#':1,
+  'D':2,
+  'D#':3,
+  'E':4,
+  'F':5,
+  'F#':6,
+  'G':7,
+  'G#':8,
+  'A':9,
+  'A#':10,
+  'B':11,
+}
+
 export const chordTabList={
   "CM7":[0,0,0,2,3,-1],
   "Dm7":[1,1,2,0,-1,-1],
@@ -110,21 +128,7 @@ export const chordTabListH={
 
 //"CM7":[0,0,0,2,3,-1],
 
-export const soundNameList=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B',]
-export const soundNumList={
-  'C':0,
-  'C#':1,
-  'D':2,
-  'D#':3,
-  'E':4,
-  'F':5,
-  'F#':6,
-  'G':7,
-  'G#':8,
-  'A':9,
-  'A#':10,
-  'B':11,
-}
+
 
 export const convertSoundNameNum = (arg)=>{
   let argArray = JSON.parse(JSON.stringify(arg))
@@ -414,7 +418,7 @@ Dm-G-C-A7
 A7-D7
  */
 
-export const drawTab=(chordName,flgHighChord)=>{
+export const drawTab=(chordName,flgHighChord,comment="comm")=>{
   //settings
   let tabWidth = 100
   let tabHeight =110
@@ -579,8 +583,48 @@ export const drawTab=(chordName,flgHighChord)=>{
 
   //ChordLabel
   ctx.font = ChordNameLabelFont
-  ctx.fillText(chordName, 5, 15);
+  ctx.fillText(chordName+ " " + comment, 5, 15);
 
   let testPng = canvasElem.toDataURL()
   return testPng
+}
+
+
+export const drawSubDominant=(scaleNotes,flgHighChord)=>{
+  let subDominants=[] //[[0,7],[2,9],...]
+  let subDominantsNames=[] //[[C,G],]
+  if(Array.isArray(scaleNotes)){
+    let subDominantNotes = scaleNotes.map(x=>{
+      let y
+      y = (x+12 - 5) % 12
+      if (scaleNotes.indexOf(y)>=0){
+        subDominants.push([x,y])
+        subDominantsNames.push([soundNameList[x],soundNameList[y]+"7"])
+        console.log(x,y)
+        return y
+      }else{
+        console.log("notListed",x,y)
+        return
+      }
+    }).filter(e=>e)
+
+    //debug
+    console.log(subDominants)
+    console.log(subDominantsNames)
+
+    //generate html
+    let resultArray =[]
+    for(let arg in subDominantsNames){
+      resultArray.push(
+        <Col xs={3} className={"py-2"}>
+          <img alt="icon" src={drawTab(subDominantsNames[arg][1],1,"=>"+subDominantsNames[arg][0])} />
+        </Col>
+      )
+    }
+
+    return resultArray
+  }
+
+  return 0
+
 }

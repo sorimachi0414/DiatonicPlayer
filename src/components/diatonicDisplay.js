@@ -5,7 +5,7 @@ import {changeDrum, changeInstP, flipHighChord} from "../reducers/reducer";
 import {connect} from "react-redux";
 import React from "react";
 import {DropDownSelector} from './common.js'
-import {chordTabList, chordTabListH,drawTab} from "../subCord";
+import {chordTabList, chordTabListH,drawTab,drawSubDominant} from "../subCord";
 
 
 const DiatonicDisplay = (props)=> {
@@ -48,8 +48,7 @@ const DiatonicDisplay = (props)=> {
       </Row>
       <Row className={"my-2"}>
         <Col xs={12} className={"bg-success text-white"}>Secondary Dominant(non-Diatonic Chords)</Col>
-        <Col xs={3} className={"py-2"}>V <img alt="icon" src={drawTab(props.base.diatonicNames[4],props.base.flgHighChord)} /></Col>
-        <Col xs={3} className={"py-2"}>VII <img alt="icon" src={drawTab(props.base.diatonicNames[6],props.base.flgHighChord)} /></Col>
+          {drawSubDominant(props.base.baseScaleNoteList,props.base.flgHighChord)}
       </Row>
       <Row className={"my-2"}>
         <Col xs={12} className={"bg-success text-white"}>Sub Dominant Minor(non-Diatonic Chords)</Col>
