@@ -1,4 +1,4 @@
-import {
+﻿import {
   baseScale,
   checkChordName,
   convertSoundNameNum,
@@ -50,11 +50,12 @@ export const initialState = {
     displayCircle:true,
     scaleBlocksColor:Array(4).fill("btn btn-outline-primary w-100"),
     rootNoteOfScale:Array(4).fill(9),
-    typeOfScale:Array(4).fill("04_minorPentatonic"),
-    rawScaleNoteList:Array(4).fill(masterScale['04_minorPentatonic'].map(x=>(x+9)%12)),
+    typeOfScale:Array(4).fill("02_Major"),
+    rawScaleNoteList:Array(4).fill(masterScale['02_Major'].map(x=>(x+9)%12)),
     diatonicChords: Array(7).fill(9),
     diatonicNames:"NaN",
     flgHighChord:0,
+    activeScale:"02_Major",
   },
 }
 
@@ -159,7 +160,7 @@ export const setBaseScale=(i,value)=> {
   chordList[2]=diatonicChords[4]
   chordList[3]=diatonicChords[0]
 
-  return {type: 'SET_BASE_SCALE', payload:scaleNoteList,meta:availableScales,i:i,chordList:chordList,diatonicChords:diatonicChords,diatonicNames:diatonicChordNames}
+  return {type: 'SET_BASE_SCALE', activeScale:value,payload:scaleNoteList,meta:availableScales,i:i,chordList:chordList,diatonicChords:diatonicChords,diatonicNames:diatonicChordNames}
 }
 
 export const setScaleType=(i,value)=> {
@@ -183,7 +184,7 @@ export const mainReducer= (state = initialState, action) => {
       return{...state,base:action.base}
 
     case 'SET_BASE_SCALE':
-      return{base:{...state.base,baseScaleNoteList:action.payload,availableScales:action.meta,chordList:action.chordList,diatonicChords:action.diatonicChords,diatonicNames:action.diatonicNames}}
+      return{base:{...state.base,activeScale:action.activeScale,baseScaleNoteList:action.payload,availableScales:action.meta,chordList:action.chordList,diatonicChords:action.diatonicChords,diatonicNames:action.diatonicNames}}
 
     case 'SET_SCALE_TYPE':
       return{base:{...state.base,typeOfScale:action.payload,rawScaleNoteList:action.meta}}

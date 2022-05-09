@@ -229,9 +229,9 @@ export const masterChord ={
 export const baseScale = {
   '01_Major':[0,2,4,5,7,9,11],
   '02_minor':[0,2,3,5,7,8,10],
-  '03_Harmonic Minor':[0,2,3,5,7,8,11],
-  '04_Melodic Minor':[0,2,3,5,7,9,11],
-  '04_minorPentatonic':  [0,3,5,7,10],
+  '03_Harmonic minor':[0,2,3,5,7,8,11],
+  '04_Melodic minor':[0,2,3,5,7,9,11],
+  //'04_minorPentatonic':  [0,3,5,7,10],
 }
 
 export const masterScale = {
@@ -418,7 +418,7 @@ Dm-G-C-A7
 A7-D7
  */
 
-export const drawTab=(chordName,flgHighChord,comment="comm")=>{
+export const drawTab=(chordName,flgHighChord,comment="")=>{
   //settings
   let tabWidth = 100
   let tabHeight =110
@@ -590,36 +590,36 @@ export const drawTab=(chordName,flgHighChord,comment="comm")=>{
 }
 
 
-export const drawSubDominant=(scaleNotes,flgHighChord)=>{
+export const drawSecDominant=(scaleNotes,flgHighChord)=>{
   let subDominants=[] //[[0,7],[2,9],...]
   let subDominantsNames=[] //[[C,G],]
+  let displayOrder = [3,6,2,4,5,7].map(x=>x-1)
+  let subDominantNotes=[]
+  //calc secoundary dominant
   if(Array.isArray(scaleNotes)){
-    let subDominantNotes = scaleNotes.map(x=>{
-      let y
-      y = (x+12 - 5) % 12
-      if (scaleNotes.indexOf(y)>=0){
-        subDominants.push([x,y])
-        subDominantsNames.push([soundNameList[x],soundNameList[y]+"7"])
-        console.log(x,y)
-        return y
-      }else{
-        console.log("notListed",x,y)
-        return
+    for(let val of displayOrder){
+      let root = scaleNotes[val]
+      let secRoot = (root+12 - 5) %12
+      //rid non-scale note or Key like C
+      if (scaleNotes.indexOf(secRoot)>=0 ){
+        subDominants.push([root,secRoot])
+        subDominantsNames.push([soundNameList[root],soundNameList[secRoot]+"7"])
+        subDominantNotes.push(secRoot)
       }
-    }).filter(e=>e)
 
-    //debug
-    console.log(subDominants)
-    console.log(subDominantsNames)
+    }
 
     //generate html
     let resultArray =[]
-    for(let arg in subDominantsNames){
+    for(let [index,val] of subDominantsNames.entries()){
       resultArray.push(
         <Col xs={3} className={"py-2"}>
-          <img alt="icon" src={drawTab(subDominantsNames[arg][1],1,"=>"+subDominantsNames[arg][0])} />
+          <img alt="icon" src={drawTab(val[1],1,"( => "+val[0]+")")} />
         </Col>
       )
+      if(index%2 ==1){
+        resultArray.push(<Col xs={6}></Col>)
+      }
     }
 
     return resultArray
