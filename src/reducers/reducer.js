@@ -2,7 +2,7 @@
   baseScale,
   checkChordName,
   convertSoundNameNum,
-  makeDiatonicChords,
+  scaleToDiatonicChords,
   masterChord,
   soundNameList
 } from '../subCord.js'
@@ -52,12 +52,18 @@ export const initialState = {
     rootNoteOfScale:Array(4).fill(9),
     typeOfScale:Array(4).fill("02_Major"),
     rawScaleNoteList:Array(4).fill(masterScale['02_Major'].map(x=>(x+9)%12)),
-    diatonicChords: Array(7).fill(9),
-    diatonicNames:"NaN",
-    flgHighChord:0,
-    activeScale:"02_Major",
+    diatonics:{
+      key:"",
+      scale:"01_Major",
+      scaleNotes:[0,2,4,5,7,9,11],
+      flgHighChord:"1",
+      chordNames:["AM7", "Bm7", "C#m7", "DM7", "E7", "F#m7", "G#m7b5" ],
+      chordsNotes:Array(7).fill(9),
+    },
   },
 }
+//diatonicNames:["AM7", "Bm7", "C#m7", "DM7", "E7", "F#m7", "G#m7b5" ],z
+//diatonicChords: Array(7).fill(9),
 
 export const shiftScaleNote=(i,value)=>{
   let state=store.getState().stateManager
@@ -69,24 +75,26 @@ export const shiftScaleNote=(i,value)=>{
 
   //Add for diatonic app
   let rootNow = list[0]
-  let scaleNoteList =state.base.baseScaleNoteList.map(x=>(x+rootNow+12)%12)
+  let scaleNoteList =state.base.diatonics.scaleNotes.map(x=>(x+rootNow+12)%12)
 
   //make diatonicChords from a scale
-    let diatonicChords=makeDiatonicChords(scaleNoteList)
+  let diatonicChords=scaleToDiatonicChords(scaleNoteList)
 
   //add base sound
-    diatonicChords.map((val,index)=>{
-      diatonicChords[index].push(soundNameList[scaleNoteList[index]]+'2')
-    })
+  diatonicChords.map((val,index)=>{
+    diatonicChords[index].push(soundNameList[scaleNoteList[index]]+'2')
+  })
 
     //make Chord Name like CM7,Dm7,...
-    let diatonicChordsNum = convertSoundNameNum(diatonicChords)
-    let diatonicChordNames = diatonicChordsNum.map(x=>checkChordName(x))
+  let diatonicChordsNum = convertSoundNameNum(diatonicChords)
+  let diatonicChordNames = diatonicChordsNum.map(x=>checkChordName(x))
 
   return{
     type:'SHIFT_SCALE_NOTE',
     payload:list,
-    meta:rawScaleNoteList,diatonicNames:diatonicChordNames
+    meta:rawScaleNoteList,
+    diatonicChords:diatonicChords,
+    diatonicNames:diatonicChordNames
   }
 }
 
@@ -144,7 +152,7 @@ export const setBaseScale=(i,value)=> {
   }
 
   //make diatonicChords from a scale
-  let diatonicChords=makeDiatonicChords(scaleNoteList)
+  let diatonicChords=scaleToDiatonicChords(scaleNoteList)
   //add base sound
   diatonicChords.map((val,index)=>{
     diatonicChords[index].push(soundNameList[scaleNoteList[index]]+'2')
@@ -160,7 +168,16 @@ export const setBaseScale=(i,value)=> {
   chordList[2]=diatonicChords[4]
   chordList[3]=diatonicChords[0]
 
-  return {type: 'SET_BASE_SCALE', activeScale:value,payload:scaleNoteList,meta:availableScales,i:i,chordList:chordList,diatonicChords:diatonicChords,diatonicNames:diatonicChordNames}
+  return {
+    type: 'SET_BASE_SCALE',
+    scale:value,
+    payload:scaleNoteList,
+    meta:availableScales,
+    i:i,
+    chordList:chordList,
+    diatonicChords:diatonicChords,
+    diatonicNames:diatonicChordNames
+  }
 }
 
 export const setScaleType=(i,value)=> {
@@ -184,13 +201,19 @@ export const mainReducer= (state = initialState, action) => {
       return{...state,base:action.base}
 
     case 'SET_BASE_SCALE':
-      return{base:{...state.base,activeScale:action.activeScale,baseScaleNoteList:action.payload,availableScales:action.meta,chordList:action.chordList,diatonicChords:action.diatonicChords,diatonicNames:action.diatonicNames}}
+      return{
+        base:{...state.base,availableScales:action.meta,chordList:action.chordList,
+          diatonics:{...state.base.diatonics,scale:action.scale,scaleNotes:action.payload,chordNames:action.diatonicNames,chordsNotes: action.diatonicChords},
+        }}
 
     case 'SET_SCALE_TYPE':
       return{base:{...state.base,typeOfScale:action.payload,rawScaleNoteList:action.meta}}
 
     case 'SHIFT_SCALE_NOTE':
-      return{base:{...state.base,rootNoteOfScale:action.payload,rawScaleNoteList: action.meta,diatonicNames:action.diatonicNames}}
+      return{
+        base:{...state.base,rootNoteOfScale:action.payload,rawScaleNoteList: action.meta,
+          diatonics:{...state.base.diatonics,chordNames:action.diatonicNames}
+      }}
     case 'FLIP_SYMBOL':
       return{base:{...state.base,displayCircle:!state.base.displayCircle}}
     case 'SET_CHORD_PLAN':
@@ -249,21 +272,22 @@ export const mainReducer= (state = initialState, action) => {
 
 
       let chordList=[]
-      chordList[0]=state.base.diatonicChords[chord1]
-      chordList[1]=state.base.diatonicChords[chord2]
-      chordList[2]=state.base.diatonicChords[chord3]
-      chordList[3]=state.base.diatonicChords[chord4]
+      chordList[0]=state.base.diatonics.chordsNotes[chord1]
+      chordList[1]=state.base.diatonics.chordsNotes[chord2]
+      chordList[2]=state.base.diatonics.chordsNotes[chord3]
+      chordList[3]=state.base.diatonics.chordsNotes[chord4]
 
-      let staticTonics = state.base.diatonicChords[0]+state.base.diatonicChords[2]+state.base.diatonicChords[5]
-      let staticSubDominants = state.base.diatonicChords[1]+state.base.diatonicChords[3]
-      let staticDominants = state.base.diatonicChords[4]+state.base.diatonicChords[6]
+      let staticTonics = state.base.diatonics.chordsNotes[0]+state.base.diatonics.chordsNotes[2]+state.base.diatonics.chordsNotes[5]
+      let staticSubDominants = state.base.diatonics.chordsNotes[1]+state.base.diatonics.chordsNotes[3]
+      let staticDominants = state.base.diatonics.chordsNotes[4]+state.base.diatonics.chordsNotes[6]
 
       //let diatonicNames = numToDiatonicPurpose[chord1] +" -> "+numToDiatonicPurpose[chord2] + " -> " +numToDiatonicPurpose[chord3] +" -> "+numToDiatonicPurpose[chord4]
       let diatonicNames = staticTonics +" -> "+staticSubDominants + " -> " +staticDominants
       //let diatonicNames = []
 
       return{
-        base:{...state.base,chordList:chordList,diatonicNames:diatonicNames}
+        base:{...state.base,chordList:chordList,
+          diatonics:{...state.base.diatonics,chordNames:action.diatonicNames}}
       }
     case 'CHANGE_INST':
       return{
@@ -290,14 +314,14 @@ export const mainReducer= (state = initialState, action) => {
         base:{...state.base,isPlay:!state.base.isPlay,isPlayLabel:label}
       }
     case 'FLIP_HIGH_CHORD':
-      let flgHighChord = state.base.flgHighChord
+      let flgHighChord = state.base.diatonics.flgHighChord
       if(flgHighChord>0){
         flgHighChord=0
       }else{
         flgHighChord=1
       }
       return{
-        base:{...state.base,flgHighChord:flgHighChord}
+        base:{...state.base,diatonics:{...state.base.diatonics,flgHighChord:flgHighChord}}
       }
     default:
       return state;

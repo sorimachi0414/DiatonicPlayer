@@ -190,7 +190,7 @@ export const checkChordName =(arg)=>{
   return out
 }
 
-export const makeDiatonicChords=(arg)=>{
+export const scaleToDiatonicChords=(arg)=>{
   let diatonicChords=[
     [arg[0],arg[2],arg[4],arg[6]].map(x =>soundNameList[x]+'3'),
     [arg[1],arg[3],arg[5],arg[0]].map(x =>soundNameList[x]+'3'),
@@ -212,7 +212,9 @@ export const defaultState={
   "chordList":[["A3","C#3","E3","G3","A2"],["A3","C#3","E3","G3","A2"],["D3","F#3","A3","C3","D2"],["D3","F#3","A3","C3","D2"]],
   "chordPlan":[["1m",0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],[0,0,0,0,"1m",0,0,"4n",0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,"1m",0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0,0,0,"1m",0,0,0]],
   "blocksColor":["btn btn-warning h-100 w-100","btn btn-outline-primary h-100 w-100","btn btn-outline-primary h-100 w-100","btn btn-outline-primary h-100 w-100"],"typesOfChords":["07_7","07_7","07_7","07_7"],"rootNoteOfChords":[9,9,2,2],"displayCircle":true,"scaleBlocksColor":["btn btn-outline-primary w-100","btn btn-outline-primary w-100","btn btn-outline-primary w-100","btn btn-outline-primary w-100"],"rootNoteOfScale":[9,9,9,9],"typeOfScale":["04_minorPentatonic","04_minorPentatonic","04_minorPentatonic","04_minorPentatonic"],
-  "rawScaleNoteList":[[9,0,2,4,7],[9,0,2,4,7],[9,0,2,4,7],[9,0,2,4,7]]}
+  "rawScaleNoteList":[[9,0,2,4,7],[9,0,2,4,7],[9,0,2,4,7],[9,0,2,4,7]],
+  "activeScale":"01_Major",
+}
 
 export const masterChord ={
   '01_M':[0,4,7],
@@ -496,7 +498,6 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
 
   //design layout
   //View
-
   const canvasElem = document.createElement('canvas')
   canvasElem.width = tabWidth
   canvasElem.height = tabHeight

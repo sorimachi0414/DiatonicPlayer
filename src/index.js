@@ -38,7 +38,8 @@ store.subscribe(()=>{
   playStopSwitch(state.base.isPlay)
   Tone.Transport.bpm.value = state.base.bpm
   instrument=Def.instList[state.base.inst]
-  localStorage.setItem('base', JSON.stringify(state.base));
+  //Debug unset commentout for release Todo:
+  //localStorage.setItem('base', JSON.stringify(state.base));
 });
 
 // ----------------------------------------
@@ -108,6 +109,7 @@ const MainClock =(props)=>{
     document.title = 'Solo Jam Session Trainer';
     if ("base" in localStorage) {
       let base=JSON.parse(localStorage.getItem('base'))
+      console.log('disppp')
       store.dispatch(
         {type:'LOAD_LOCALSTORAGE',base:{...base,isPlay:false,isPlayLabel:'Play'}}
       )
