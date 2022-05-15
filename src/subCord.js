@@ -421,6 +421,7 @@ A7-D7
  */
 
 export const drawTab=(chordName,flgHighChord,comment="")=>{
+  //chordName likes "CM7",etc
   //settings
   let tabWidth = 100
   let tabHeight =110

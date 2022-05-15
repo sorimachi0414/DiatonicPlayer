@@ -126,14 +126,7 @@ const MainClock =(props)=>{
             Diatonic Chord Player
           </Col>
           <Col xs="12" sm={12} md={10} lg={8} xl={6} className="px-0">
-            <div className="card my-2">
-              <div className="card-header">
-                Diatonic Chord
-              </div>
-              <Row className='card-body pt-1'>
-                <DiatonicDisplay_func />
-              </Row>
-            </div>
+
             <div className="card my-2">
               <div className="card-header">
                 Scale Selector
@@ -141,11 +134,15 @@ const MainClock =(props)=>{
               <div className="card-body pt-1">
                 <ScaleSelectorRedux_func />
               </div>
-              <div className="d-block d-sm-none">xs 576px</div>
-              <div className="d-none d-sm-block d-md-none">sm >576px</div>
-              <div className="d-none d-md-block d-lg-none">md >768px</div>
-              <div className="d-none d-lg-block d-xl-none">lg >992px</div>
-              <div className="d-none d-xl-block">xl >1200px</div>
+            </div>
+
+            <div className="card my-2">
+              <div className="card-header">
+                Diatonic Chord
+              </div>
+              <Row className='card-body pt-1'>
+                <DiatonicDisplay_func />
+              </Row>
             </div>
 
             <div className="card my-2">
@@ -160,6 +157,11 @@ const MainClock =(props)=>{
             </div>
           </Col>
         </Row>
+        <div className="d-block d-sm-none">xs 576px</div>
+        <div className="d-none d-sm-block d-md-none">sm >576px</div>
+        <div className="d-none d-md-block d-lg-none">md >768px</div>
+        <div className="d-none d-lg-block d-xl-none">lg >992px</div>
+        <div className="d-none d-xl-block">xl >1200px</div>
       </Container>
 
       <Container>

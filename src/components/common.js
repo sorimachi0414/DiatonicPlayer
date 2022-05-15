@@ -49,7 +49,7 @@ export class ListedSelector extends React.Component{
     return(
       //valueがSelectの初期値となる。valueが入っていると、他に変更してもValueに戻る。
       <select
-        size={8}
+        size={5}
         defaultValue={this.props.initList}
         className="form-select p-1"
         //value={this.props.value}

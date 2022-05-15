@@ -5,7 +5,7 @@ import {changeDrum, changeInstP, flipHighChord} from "../reducers/reducer";
 import {connect} from "react-redux";
 import React from "react";
 import {DropDownSelector} from './common.js'
-import {chordTabList, chordTabListH,drawTab,drawSecDominant} from "../subCord";
+import {chordTabList, chordTabListH, drawTab, drawSecDominant, soundNameList} from "../subCord";
 
 
 const DiatonicDisplay = (props)=> {
@@ -27,33 +27,54 @@ const DiatonicDisplay = (props)=> {
               value={"High Chord"} onClick={()=>props.flipHighChord()}>{"Display Inversion Chord"}</button>
     </Col>
 
-  if(props.base.diatonics.scale.indexOf("Major")>=0){
-  diatonicUI.push(
+  //view template
+  let templDiatonic =(args)=>{
+    //args = ["Tonic",[["I",0],["III",2],["VI",5]]],...
+    let templBlock =(args) =>{
+      //args = [I,0],[III,2],...
+      let res = []
+      for(let arg of args){
+        //arg[1] likes 0,etc
+        res.push(
+          <Col xs={3} className={"py-2"}>{arg[0]} <img alt="icon" src={drawTab(props.diatonics.chordNames[arg[1]],props.diatonics.flgHighChord)} /></Col>
+        )
+      }
+      return res
+    }
+    let code=[]
 
-    <Col className={"mx- 0px-0 align-self-center"}>
-      <Row className={"my-2"}>{props.base.diatonics.chordNames[0]}
-        <Col xs={12} className={"bg-info text-white"}>Tonic</Col>
-        <Col xs={3} className={"py-2"}>I <img alt="icon" src={drawTab(props.base.diatonics.chordNames[0],props.base.diatonics.flgHighChord)} /></Col>
-        <Col xs={3} className={"py-2"}>III <img alt="icon" src={drawTab(props.base.diatonics.chordNames[2],props.base.diatonics.flgHighChord)} /></Col>
-        <Col xs={3} className={"py-2"}>VI <img alt="icon" src={drawTab(props.base.diatonics.chordNames[5],props.base.diatonics.flgHighChord)} /></Col>
+    let subDominantMinorRoot = soundNameList[(props.diatonics.keyNum+5)%12]
+    let subDominantMinorName = subDominantMinorRoot+"m7"
+    let subDominantMinorCode =""
+    if(props.diatonics.scale.indexOf("Major")>=0){
+      subDominantMinorCode = <Row className={"my-2"}>
+        <Col xs={12} className={"bg-success text-white"}>Sub Dominant Minor(non-Diatonic Chords)</Col>
+        <Col xs={3} className={"py-2"}>
+          <img alt="icon" src={drawTab(subDominantMinorName,props.diatonics.flgHighChord)} />
+        </Col>
+
+      </Row>
+    }
+
+    code.push(
+      <Col className={"mx- 0px-0 align-self-center"}>
+      <Row className={"my-2"}>
+        <Col xs={12} className={"bg-info text-white"}>{args[0][0]}</Col>
+        {templBlock(args[0][1])}
       </Row>
       <Row className={"my-2"}>
-        <Col xs={12} className={"bg-warning text-white"}>SubDominant</Col>
-        <Col xs={3} className={"py-2"}>II <img alt="icon" src={drawTab(props.base.diatonics.chordNames[1],props.base.diatonics.flgHighChord)} /></Col>
-        <Col xs={3} className={"py-2"}>IV <img alt="icon" src={drawTab(props.base.diatonics.chordNames[3],props.base.diatonics.flgHighChord)} /></Col>
+        <Col xs={12} className={"bg-warning text-white"}>{args[1][0]}</Col>
+        {templBlock(args[1][1])}
       </Row>
       <Row className={"my-2"}>
-        <Col xs={12} className={"bg-danger text-white"}>Dominant</Col>
-        <Col xs={3} className={"py-2"}>V <img alt="icon" src={drawTab(props.base.diatonics.chordNames[4],props.base.diatonics.flgHighChord)} /></Col>
-        <Col xs={3} className={"py-2"}>VII <img alt="icon" src={drawTab(props.base.diatonics.chordNames[6],props.base.diatonics.flgHighChord)} /></Col>
+        <Col xs={12} className={"bg-danger text-white"}>{args[2][0]}</Col>
+        {templBlock(args[2][1])}
       </Row>
       <Row className={"my-2"}>
         <Col xs={12} className={"bg-success text-white"}>Secondary Dominant(non-Diatonic Chords)</Col>
-          {drawSecDominant(props.base.diatonics.scaleNotes,props.base.diatonics.flgHighChord)}
+        {/* drawSecDominant(props.diatonics.scaleNotes,props.diatonics.flgHighChord)*/}
       </Row>
-      <Row className={"my-2"}>
-        <Col xs={12} className={"bg-success text-white"}>Sub Dominant Minor(non-Diatonic Chords)</Col>
-      </Row>
+        {subDominantMinorCode}
       <Row className={"my-2"}>
         <Col xs={12} className={"bg-success text-white"}>Passing Diminish Chord(non-Diatonic Chords)</Col>
       </Row>
@@ -61,87 +82,39 @@ const DiatonicDisplay = (props)=> {
         <Col xs={12} className={"bg-success text-white"}>Substitute Dominant Chord</Col>
       </Row>
     </Col>
-  )}  else if (props.base.diatonics.scale.indexOf("Melodic")>=0){
-    diatonicUI.push(
-      <Col className={"mx- 0px-0 align-self-center"}>
-        <Row className={"my-2"}>
-          <Col xs={12} className={"bg-info text-white"}>Tonic Minor</Col>
-          <Col xs={3} className={"py-2"}>I <img alt="icon" src={drawTab(props.base.diatonics.chordNames[0],props.base.diatonics.flgHighChord)} /></Col>
-          <Col xs={3} className={"py-2"}>III <img alt="icon" src={drawTab(props.base.diatonics.chordNames[2],props.base.diatonics.flgHighChord)} /></Col>
-          <Col xs={3} className={"py-2"}>VI <img alt="icon" src={drawTab(props.base.diatonics.chordNames[5],props.base.diatonics.flgHighChord)} /></Col>
-
-        </Row>
-        <Row className={"my-2"}>
-          <Col xs={12} className={"bg-warning text-white"}>SubDominant Minor</Col>
-          <Col xs={3} className={"py-2"}>II <img alt="icon" src={drawTab(props.base.diatonics.chordNames[1],props.base.diatonics.flgHighChord)} /></Col>
-
-
-        </Row>
-        <Row className={"my-2"}>
-          <Col xs={12} className={"bg-danger text-white"}>Dominant Minor</Col>
-          <Col xs={3} className={"py-2"}>IV <img alt="icon" src={drawTab(props.base.diatonics.chordNames[3],props.base.diatonics.flgHighChord)} /></Col>
-          <Col xs={3} className={"py-2"}>V <img alt="icon" src={drawTab(props.base.diatonics.chordNames[4],props.base.diatonics.flgHighChord)} /></Col>
-          <Col xs={3} className={"py-2"}>VII <img alt="icon" src={drawTab(props.base.diatonics.chordNames[6],props.base.diatonics.flgHighChord)} /></Col>
-
-        </Row>
-        <Row className={"my-2"}>
-          <Col xs={12} className={"bg-success text-white"}>Secondary Dominant(non-Diatonic Chords)</Col>
-          {drawSecDominant(props.base.diatonics.scaleNotes,props.base.diatonics.flgHighChord)}
-        </Row>
-        <Row className={"my-2"}>
-          <Col xs={12} className={"bg-success text-white"}>Sub Dominant Minor(non-Diatonic Chords)</Col>
-        </Row>
-        <Row className={"my-2"}>
-          <Col xs={12} className={"bg-success text-white"}>Passing Diminish Chord(non-Diatonic Chords)</Col>
-        </Row>
-        <Row className={"my-2"}>
-          <Col xs={12} className={"bg-success text-white"}>Substitute Dominant Chord</Col>
-        </Row>
-      </Col>
     )
-  } else if (props.base.diatonics.scale.indexOf("minor")>=0){
-    diatonicUI.push(
-      <Col className={"mx- 0px-0 align-self-center"}>
-        <Row className={"my-2"}>
-          <Col xs={12} className={"bg-info text-white"}>Tonic Minor</Col>
-          <Col xs={3} className={"py-2"}>I <img alt="icon" src={drawTab(props.base.diatonics.chordNames[0],props.base.diatonics.flgHighChord)} /></Col>
-          <Col xs={3} className={"py-2"}>III <img alt="icon" src={drawTab(props.base.diatonics.chordNames[2],props.base.diatonics.flgHighChord)} /></Col>
 
-        </Row>
-        <Row className={"my-2"}>
-          <Col xs={12} className={"bg-warning text-white"}>SubDominant Minor</Col>
-          <Col xs={3} className={"py-2"}>II <img alt="icon" src={drawTab(props.base.diatonics.chordNames[1],props.base.diatonics.flgHighChord)} /></Col>
-          <Col xs={3} className={"py-2"}>IV <img alt="icon" src={drawTab(props.base.diatonics.chordNames[3],props.base.diatonics.flgHighChord)} /></Col>
-          <Col xs={3} className={"py-2"}>VI <img alt="icon" src={drawTab(props.base.diatonics.chordNames[5],props.base.diatonics.flgHighChord)} /></Col>
-        </Row>
-        <Row className={"my-2"}>
-          <Col xs={12} className={"bg-danger text-white"}>Dominant Minor</Col>
-          <Col xs={3} className={"py-2"}>V <img alt="icon" src={drawTab(props.base.diatonics.chordNames[4],props.base.diatonics.flgHighChord)} /></Col>
-          <Col xs={3} className={"py-2"}>VII <img alt="icon" src={drawTab(props.base.diatonics.chordNames[6],props.base.diatonics.flgHighChord)} /></Col>
-        </Row>
-        <Row className={"my-2"}>
-          <Col xs={12} className={"bg-success text-white"}>Secondary Dominant(non-Diatonic Chords)</Col>
-          {drawSecDominant(props.base.diatonics.scaleNotes,props.base.diatonics.flgHighChord)}
-        </Row>
-        <Row className={"my-2"}>
-          <Col xs={12} className={"bg-success text-white"}>Sub Dominant Minor(non-Diatonic Chords)</Col>
-        </Row>
-        <Row className={"my-2"}>
-          <Col xs={12} className={"bg-success text-white"}>Passing Diminish Chord(non-Diatonic Chords)</Col>
-        </Row>
-        <Row className={"my-2"}>
-          <Col xs={12} className={"bg-success text-white"}>Substitute Dominant Chord</Col>
-        </Row>
-      </Col>
-    )
+    return code
   }
+
+  let diatonicStructures
+  if(props.diatonics.scale.indexOf("Major")>=0){
+    diatonicStructures = [
+      ["Tonic",[["I",0],["III",2],["VI",5]]],
+      ["SubDominant",[["II",1],["IV",3],]],
+      ["Dominant",[["V",4],["VII",6],]],
+    ]
+  }  else if (props.diatonics.scale.indexOf("Melodic")>=0){
+    diatonicStructures = [
+      ["Tonic Minor",[["I",0],["III",2],["VI",5]]],
+      ["SubDominant Minor",[["II",1],]],
+      ["Dominant Minor",[["IV",3],["V",4],["VII",6],]],
+    ]
+  } else if (props.diatonics.scale.indexOf("minor")>=0){
+    diatonicStructures = [
+      ["Tonic Minor",[["I",0],["III",2],]],
+      ["SubDominant Minor",[["II",1],["IV",3],["VI",5]]],
+      ["Dominant Minor",[["V",4],["VII",6],]],
+    ]
+  }
+
+  diatonicUI.push(templDiatonic(diatonicStructures))
 
   return(
     <Row className="card-body pt-1">
       <Col>
         <Row>
           {diatonicUI}
-          {props.base.diatonics.chordNames[0]}
         </Row>
         <Row>
           {highChordButton}
@@ -155,16 +128,12 @@ const DiatonicDisplay = (props)=> {
 }
 
 let mapStateToProps = (state) => {
-  return {base: state.stateManager.base,}
+  return {
+    diatonics:state.stateManager.diatonics,
+  }
 }
 let mapDispatchToProps=(dispatch)=>{
   return{
-    // changeInstP: function(value){
-    //   return dispatch(changeInstP(value))
-    // },
-    // changeDrum:function(value){
-    //   return dispatch(changeDrum(value))
-    // },
     flipHighChord:function(){
       return dispatch(flipHighChord())
     }

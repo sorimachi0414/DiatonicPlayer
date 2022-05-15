@@ -29,7 +29,7 @@ const ScaleSelectorRedux =(props) => {
           />
         </Col>
         <Col xs={5}>
-          Base Scale
+          {/*Base Scale*/}
           <ListedSelector
             chordOrScale={'Scale'}
             initList={props.base.typeOfScale[i]}
@@ -41,6 +41,7 @@ const ScaleSelectorRedux =(props) => {
             onChange={(i,value) => props.setBaseScale(i,value)}
           />
         </Col>
+          {/*
         <Col xs={5}>
           Display Scale
           <ListedSelector
@@ -55,6 +56,7 @@ const ScaleSelectorRedux =(props) => {
             //readStorage={this.changeScaleFromStorage}
           />
         </Col>
+        */}
         </Row>
       </Col>
     )
@@ -69,34 +71,28 @@ const ScaleSelectorRedux =(props) => {
   return(
     <Row>
       {selectors}
-      <FingerBoard  />
-      <Col xs={12} sm={6}>
-        <button
-          className="btn btn-outline-success"
-          onClick={()=>props.flipSymbol()}
-        >
-          change Circle to Number
+      {/*
+        <FingerBoard/>
+        <Col xs={12} sm={6}>
+        <button className="btn btn-outline-success" onClick={()=>props.flipSymbol()} >
+        change Circle to Number
         </button>
-      </Col>
-      <Col xs={12} sm={6}>
-        <button
-          className="btn btn-outline-warning"
-          onClick={() => {
-            //localStorage.clear()}
-            let base = defaultState
-            store.dispatch(
-              {type: 'LOAD_LOCALSTORAGE', base: base}
-            )
-          }
-          }
-        >
-          Reset save data
-        </button>
-      </Col>
+        </Col>
+        <Col xs={12} sm={6}>
+        <button className="btn btn-outline-warning" onClick={() => {
+        //localStorage.clear()}
+        let base = defaultState
+        store.dispatch({type: 'LOAD_LOCALSTORAGE', base: base})
+      }
+      }>  Reset save data</button>
+        </Col>
+      */}
     </Row>
   )
 
 }
+
+
 
 const mapStateToProps = (state) => {
   return {base: state.stateManager.base,}
