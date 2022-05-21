@@ -1,6 +1,8 @@
 //General Setting
 import * as Tone from "tone";
 import Col from "react-bootstrap/Col";
+import Row from "react-bootstrap/Row";
+
 
 export const tickTackInterval='24n'
 export const stepNum=96
@@ -131,6 +133,7 @@ export const chordTabListH={
 
 
 export const convertSoundNameNum = (arg)=>{
+  //arg =
   let argArray = JSON.parse(JSON.stringify(arg))
   argArray.forEach((each,i)=>{
     if(Array.isArray(each)){
@@ -161,10 +164,10 @@ export const convertSoundNameNum = (arg)=>{
   return argArray
 }
 
-export const checkChordName =(arg)=>{
-  //arg = [0,4,7,10]
+export const checkChordName =(noteArray)=>{
+  //noteArray = [0,4,7,10]
   let out
-  let arr = arg.slice(0,4)
+  let arr = noteArray.slice(0,4)
   let root = arr[0]
   let arrNorm = arr.map(x=>(x-root+12)%12)
   let quadChordList = {
@@ -175,7 +178,6 @@ export const checkChordName =(arg)=>{
     "mM7":[0,3,7,11],
     "M7(#5)":[0,4,8,11],
     "dim7":[0,3,6,9],
-
   }
 
   for(let key in quadChordList){
@@ -190,7 +192,24 @@ export const checkChordName =(arg)=>{
   return out
 }
 
+export const calcDiatonicChords=(scale)=>{
+  let chords=[]
+  for(let i=0;i<scale.length;i++){
+    let val = scale[i]
+    chords.push([i+val+0,i+val+2,i+val+4,i+val+6].map(x=>x%12))
+  }
+  return chords
+}
+
+export const calcSecDominantChords=(scale)=>{
+  let chords=[]
+
+  return chords
+
+}
+
 export const scaleToDiatonicChords=(arg)=>{
+  //arg = note of array = [0,2,4,5,...]
   let diatonicChords=[
     [arg[0],arg[2],arg[4],arg[6]].map(x =>soundNameList[x]+'3'),
     [arg[1],arg[3],arg[5],arg[0]].map(x =>soundNameList[x]+'3'),
@@ -201,7 +220,7 @@ export const scaleToDiatonicChords=(arg)=>{
     [arg[6],arg[1],arg[3],arg[5]].map(x =>soundNameList[x]+'3'),
   ]
 
-  return diatonicChords
+  return diatonicChords // [[C3,E3,G3],[],[],]
 }
 
 export const defaultState={
@@ -597,6 +616,8 @@ export const drawSecDominant=(scaleNotes,flgHighChord)=>{
   let subDominantsNames=[] //[[C,G],]
   let displayOrder = [3,6,2,4,5,7].map(x=>x-1)
   let subDominantNotes=[]
+  let diminish = []
+
   //calc secoundary dominant
   if(Array.isArray(scaleNotes)){
     for(let val of displayOrder){
@@ -607,6 +628,20 @@ export const drawSecDominant=(scaleNotes,flgHighChord)=>{
         subDominants.push([root,secRoot])
         subDominantsNames.push([soundNameList[root],soundNameList[secRoot]+"7"])
         subDominantNotes.push(secRoot)
+
+        //Diminish CHords
+        let dim0 = soundNameList[(secRoot+1)%12] +"dim7"
+        let dim1 = soundNameList[(secRoot+4)%12] +"dim7"
+        let dim2 = soundNameList[(secRoot+7)%12] +"dim7"
+        let dim3 = soundNameList[(secRoot+10)%12] +"dim7"
+        diminish.push(
+          <>
+            <Col xs={2}>{<img alt="icon" src={drawTab(dim0,1,)} />}</Col>
+            <Col xs={2}>{<img alt="icon" src={drawTab(dim1,1,)} />}</Col>
+            <Col xs={2}>{<img alt="icon" src={drawTab(dim2,1,)} />}</Col>
+            <Col xs={2}>{<img alt="icon" src={drawTab(dim3,1,)} />}</Col>
+          </>
+        )
       }
 
     }
@@ -615,12 +650,15 @@ export const drawSecDominant=(scaleNotes,flgHighChord)=>{
     let resultArray =[]
     for(let [index,val] of subDominantsNames.entries()){
       resultArray.push(
-        <Col xs={3} className={"py-2"}>
-          <img alt="icon" src={drawTab(val[1],1,"( => "+val[0]+")")} />
-        </Col>
+        <Row>
+          <Col xs={4} className={"py-2"}>
+            <img alt="icon" src={drawTab(val[1],1,"( => "+val[0]+")")} />
+          </Col>
+        {diminish[index]}
+        </Row>
       )
       if(index%2 ==1){
-        resultArray.push(<Col xs={6}></Col>)
+        //resultArray.push(<Col xs={6}></Col>)
       }
     }
 

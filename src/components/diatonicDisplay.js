@@ -56,6 +56,8 @@ const DiatonicDisplay = (props)=> {
       </Row>
     }
 
+    let parallelKeyChords = 0//TM,DM,SDM
+
     code.push(
       <Col className={"mx- 0px-0 align-self-center"}>
       <Row className={"my-2"}>
@@ -71,12 +73,24 @@ const DiatonicDisplay = (props)=> {
         {templBlock(args[2][1])}
       </Row>
       <Row className={"my-2"}>
-        <Col xs={12} className={"bg-success text-white"}>Secondary Dominant(non-Diatonic Chords)</Col>
-        {/* drawSecDominant(props.diatonics.scaleNotes,props.diatonics.flgHighChord)*/}
+        <Col xs={12} className={"bg-success text-white"}>
+          Secondary Dominant(non-Diatonic Chords)
+        </Col>
+        <Col>
+          <Row>
+            <Col xs={4} className={"bg-info text-white"}>Secondary dominants</Col>
+            <Col xs={8} className={"bg-warning text-white"}>Diminsh Chords</Col>
+          </Row>
+          { drawSecDominant(props.diatonics.scaleNotes,props.diatonics.flgHighChord)}
+        </Col>
       </Row>
         {subDominantMinorCode}
       <Row className={"my-2"}>
-        <Col xs={12} className={"bg-success text-white"}>Passing Diminish Chord(non-Diatonic Chords)</Col>
+        <Col xs={12} className={"bg-success text-white"}>Pallarel key chords(non-Diatonic Chords)</Col>
+        <Col xs={3} className={"py-2"}>{0} <img alt="icon" src={drawTab("D#7",props.diatonics.flgHighChord)} /></Col>
+        <Col xs={3} className={"py-2"}>{0} <img alt="icon" src={drawTab("G#7",props.diatonics.flgHighChord)} /></Col>
+        <Col xs={3} className={"py-2"}>{0} <img alt="icon" src={drawTab("A#7",props.diatonics.flgHighChord)} /></Col>
+
       </Row>
       <Row className={"my-2"}>
         <Col xs={12} className={"bg-success text-white"}>Substitute Dominant Chord</Col>

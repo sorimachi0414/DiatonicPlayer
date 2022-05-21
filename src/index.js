@@ -106,7 +106,7 @@ const MainClock =(props)=>{
 
   React.useEffect(() => {
     //called once
-    document.title = 'Solo Jam Session Trainer';
+    document.title = 'Diatonic Chords Generator';
     if ("base" in localStorage) {
       let base=JSON.parse(localStorage.getItem('base'))
       console.log('disppp')

@@ -4,7 +4,7 @@
   convertSoundNameNum,
   scaleToDiatonicChords,
   masterChord,
-  soundNameList
+  soundNameList, calcDiatonicChords
 } from '../subCord.js'
 import {store} from '../index.js'
 import {masterScale} from "../subCord.js";
@@ -31,6 +31,23 @@ export const initialState = {
     flgHighChord:"1",
     chordNames:["AM7", "Bm7", "C#m7", "DM7", "E7", "F#m7", "G#m7b5" ],
     chordsNotes:Array(7).fill(9),
+    diatonicChords:[
+      [0,3,5,7],
+      [0,3,5,7],
+      [0,3,5,7],
+      [0,3,5,7],
+      [0,3,5,7],
+      [0,3,5,7],
+    ],
+    nonDiatonicChords:{
+      "SecDominant":[],
+      "SubDominantMinor":[],
+      "parallelKeyChords":[],
+      "substituteDominantChords":[],
+    }
+    //裏コード：CにおけるC#7
+
+
   },
   base: {
     isPlay: false,
@@ -91,6 +108,31 @@ export const shiftScaleNote=(i,value)=>{
     //make Chord Name like CM7,Dm7,...
   let diatonicChordsNum = convertSoundNameNum(diatonicChords)
   let diatonicChordNames = diatonicChordsNum.map(x=>checkChordName(x))
+
+  //all scaleNames
+  let majorDiatonicBaseName4 = ["M7","m7","m7","M7","7","m7","m7b5"]
+  let minorDiatonicBaseName4 = ["m7","m7b5","M7","m7","m7","M7","7"]
+  let harmonicMinorDiatonicBaseName4 = ["mM7","m7b5","M7(#5)","m7","7","M7","dim7"]
+  let melodicMinorDiatonicBaseName4 = ["mM7","m7","M7(#5)","7","7","m7b5","m7b5"]
+
+  let majorDiatonicChords=[]
+  let minorDiatonicChords=[]
+  let harmonicMinorDiatonicChords=[]
+  let melodicMinorDiatonicChords=[]
+
+  for(let [index,val] of majorDiatonicBaseName4.entries()){
+    majorDiatonicChords.push  (soundNameList[(masterScale["02_Major"][index]+keyNum)%12]+majorDiatonicBaseName4[index])
+    minorDiatonicChords.push(soundNameList[(masterScale["03_minor"][index]+keyNum)%12]+minorDiatonicBaseName4[index])
+    harmonicMinorDiatonicChords.push(soundNameList[(masterScale["08_HarmonicMinor"][index]+keyNum)%12]+harmonicMinorDiatonicBaseName4[index])
+    melodicMinorDiatonicChords.push(soundNameList[(masterScale["09_MelodicMinor"][index]+keyNum)%12]+melodicMinorDiatonicBaseName4[index])
+  }
+
+  //TODO:
+  console.log(majorDiatonicChords)
+  console.log(harmonicMinorDiatonicChords)
+  //TODO Double Dominant = II7
+
+  console.log(calcDiatonicChords([0,2,4,5,6]))
 
   return{
     type:'SHIFT_SCALE_NOTE',
