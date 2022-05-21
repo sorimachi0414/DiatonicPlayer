@@ -4,7 +4,7 @@
   convertSoundNameNum,
   scaleToDiatonicChords,
   masterChord,
-  soundNameList, calcDiatonicChords
+  soundNameList, calcDiatonicChords, diatonicOfScaleChords
 } from '../subCord.js'
 import {store} from '../index.js'
 import {masterScale} from "../subCord.js";
@@ -25,11 +25,12 @@ export const initialState = {
   clickCount: 0,
   currentValue: 0,
   diatonics:{
-    keyNum:9,
+    keyNum:0,
     scale:"01_Major",
     scaleNotes:[0,2,4,5,7,9,11],
     flgHighChord:"1",
-    chordNames:["AM7", "Bm7", "C#m7", "DM7", "E7", "F#m7", "G#m7b5" ],
+    chordNames:[
+      "CM7","Dm7","Em7","Fm7","G7","Am7","Bm7b5"],
     chordsNotes:Array(7).fill(9),
     diatonicChords:[
       [0,3,5,7],
@@ -44,7 +45,8 @@ export const initialState = {
       "SubDominantMinor":[],
       "parallelKeyChords":[],
       "substituteDominantChords":[],
-    }
+    },
+    testDiatonic:diatonicOfScaleChords([0,2,4,5,7,9,11])
     //裏コード：CにおけるC#7
 
 
@@ -85,8 +87,21 @@ export const initialState = {
 export const shiftScaleNote=(i,value)=>{
   let state=store.getState().stateManager
   let keyNum =state.diatonics.keyNum
-  keyNum = (keyNum +value)%12
+  keyNum = (keyNum +value+12)%12
 
+  //refactoring
+  /////
+  //現状は、scaleを[[C3,E3,G3,A#3,[],...]に変換し、[[0,4,7,10],[],...]に変換し、
+  //最後に[CM7,E7,A7,Dm7,...]を得ている。
+  //　shiftScaleでは、masterとなるScaleを更新し、scale基準のdiatonicChordsが更新されるような作りにしたい
+  //let diatonicChordNames = diatonicChordsNum.map(x=>checkChordName(x))
+  let scaleNotes = state.diatonics.scaleNotes.map(x=>(x+12+value)%12)
+  let diatonicChords = diatonicOfScaleChords(scaleNotes)
+  let diatonicChordNames = diatonicChords.map(x=>checkChordName(x))
+  /////
+  //refactoring
+
+  //For loop sound player
   let list = state.base.rootNoteOfScale.slice()
   list[i] = (list[i]+value+12)%12
   //raw scale = backing track??
@@ -94,20 +109,20 @@ export const shiftScaleNote=(i,value)=>{
   rawScaleNoteList[i]=masterScale[state.base.typeOfScale[i]].map(x => (x+state.base.rootNoteOfScale[i]+value) % 12)
 
   //Add for diatonic app
-  let rootNow = list[0]
-  let scaleNoteList =state.diatonics.scaleNotes.map(x=>(x+rootNow+12)%12)
+  // let rootNow = list[0]
+  // let scaleNoteList =state.diatonics.scaleNotes.map(x=>(x+rootNow+12)%12)
 
-  //make diatonicChords from a scale
-  let diatonicChords=scaleToDiatonicChords(scaleNoteList)
-
-  //add base sound
-  diatonicChords.map((val,index)=>{
-    diatonicChords[index].push(soundNameList[scaleNoteList[index]]+'2')
-  })
-
-    //make Chord Name like CM7,Dm7,...
-  let diatonicChordsNum = convertSoundNameNum(diatonicChords)
-  let diatonicChordNames = diatonicChordsNum.map(x=>checkChordName(x))
+  // //make diatonicChords from a scale
+  // let diatonicChords=scaleToDiatonicChords(scaleNoteList)
+  //
+  // //add base sound
+  // diatonicChords.map((val,index)=>{
+  //   diatonicChords[index].push(soundNameList[scaleNoteList[index]]+'2')
+  // })
+  //
+  //   //make Chord Name like CM7,Dm7,...
+  // let diatonicChordsNum = convertSoundNameNum(diatonicChords)
+  // let diatonicChordNames = diatonicChordsNum.map(x=>checkChordName(x))
 
   //all scaleNames
   let majorDiatonicBaseName4 = ["M7","m7","m7","M7","7","m7","m7b5"]
@@ -130,16 +145,16 @@ export const shiftScaleNote=(i,value)=>{
   //TODO:
   console.log(majorDiatonicChords)
   console.log(harmonicMinorDiatonicChords)
-  //TODO Double Dominant = II7
-
   console.log(calcDiatonicChords([0,2,4,5,6]))
+  //TODO Double Dominant = II7
 
   return{
     type:'SHIFT_SCALE_NOTE',
     payload:list,
     meta:rawScaleNoteList,
-    diatonicChords:diatonicChords, //[CM7,Am7,...]
-    diatonicNames:diatonicChordNames, //[[C3,E3,G3],[D3,F3,...]...]
+    scaleNotes:scaleNotes,
+    diatonicChords:diatonicChords, //[[C3,E3,G3],[D3,F3,...]...]
+    diatonicNames:diatonicChordNames, //[CM7,Am7,...]　これがdrawtabに渡される
     keyNum:keyNum,//0 or 2 or etc
   }
 }
@@ -178,6 +193,10 @@ export const countDown = (value) => {
 
 export const setBaseScale=(i,value)=> {
   let state = store.getState().stateManager
+  //For diatonic
+  let scaleNotes = baseScale[value].map(x=>(x+state.diatonics.keyNum)%12)
+
+
   let scaleNoteList = baseScale[value].map(x => (x+state.base.rootNoteOfScale[i]) % 12)
 
   //extract valid scalestrue
@@ -197,22 +216,25 @@ export const setBaseScale=(i,value)=> {
     }
   }
 
-  //make diatonicChords from a scale
-  let diatonicChords=scaleToDiatonicChords(scaleNoteList)
-  //add base sound
-  diatonicChords.map((val,index)=>{
-    diatonicChords[index].push(soundNameList[scaleNoteList[index]]+'2')
-  })
+  // //make diatonicChords from a scale
+  // let diatonicChords=scaleToDiatonicChords(scaleNoteList)
+  // //add base sound
+  // diatonicChords.map((val,index)=>{
+  //   diatonicChords[index].push(soundNameList[scaleNoteList[index]]+'2')
+  // })
+  //
+  // //make Chord Name like CM7,Dm7,...
+  // let diatonicChordsNum = convertSoundNameNum(diatonicChords)
+  // let diatonicChordNames = diatonicChordsNum.map(x=>checkChordName(x))
+  //
+  // let chordList=[]
+  // chordList[0]=diatonicChords[0]
+  // chordList[1]=diatonicChords[3]
+  // chordList[2]=diatonicChords[4]
+  // chordList[3]=diatonicChords[0]
 
-  //make Chord Name like CM7,Dm7,...
-  let diatonicChordsNum = convertSoundNameNum(diatonicChords)
-  let diatonicChordNames = diatonicChordsNum.map(x=>checkChordName(x))
-
-  let chordList=[]
-  chordList[0]=diatonicChords[0]
-  chordList[1]=diatonicChords[3]
-  chordList[2]=diatonicChords[4]
-  chordList[3]=diatonicChords[0]
+  let diatonicChords = diatonicOfScaleChords(scaleNotes)
+  let diatonicChordNames = diatonicChords.map(x=>checkChordName(x))
 
   return {
     type: 'SET_BASE_SCALE',
@@ -220,9 +242,10 @@ export const setBaseScale=(i,value)=> {
     payload:scaleNoteList,
     meta:availableScales,
     i:i,
-    chordList:chordList,
+    //chordList:chordList,
     diatonicChords:diatonicChords,
-    diatonicNames:diatonicChordNames
+    diatonicNames:diatonicChordNames, //toward drawTab
+    scaleNotes:scaleNotes
   }
 }
 
@@ -239,6 +262,8 @@ export const setScaleType=(i,value)=> {
   return {type: 'SET_SCALE_TYPE', payload:list,meta:rawScaleNoteList,i:i}
 }
 
+
+
 //This is Reudcer
 export const mainReducer= (state = initialState, action) => {
   switch (action.type) {
@@ -249,7 +274,7 @@ export const mainReducer= (state = initialState, action) => {
     case 'SET_BASE_SCALE':
       return{
         ...state,
-        diatonics:{...state.diatonics,scale:action.scale,chordNames:action.diatonicNames,chordsNotes:action.diatonicChords,},
+        diatonics:{...state.diatonics,scale:action.scale,chordNames:action.diatonicNames,chordsNotes:action.diatonicChords,scaleNotes:action.scaleNotes},
         base:{...state.base,availableScales:action.meta,chordList:action.chordList,}
       }
 
@@ -259,7 +284,7 @@ export const mainReducer= (state = initialState, action) => {
 
     case 'SHIFT_SCALE_NOTE':
       return{...state,
-        diatonics:{...state.diatonics,chordNames:action.diatonicNames,chordsNotes:action.diatonicChords,keyNum:action.keyNum},
+        diatonics:{...state.diatonics,chordNames:action.diatonicNames,keyNum:action.keyNum,scaleNotes:action.scaleNotes,diatonicChords:action.diatonicChords,},
         base:{...state.base,rootNoteOfScale:action.payload,rawScaleNoteList: action.meta,}}
     case 'FLIP_SYMBOL':
       return{...state,

@@ -3,6 +3,16 @@ import * as Tone from "tone";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 
+//variables description
+//
+// 0 : note or noteNum
+// [0,4,7] : notes or chord
+// C,G7 : noteName
+// [[0,4,7],[2,6,9]] : chords
+// [0,2,4,5,7,9,11] : scale
+// [scale,scale,scale] : scales
+
+// definision about diatonic chords
 
 export const tickTackInterval='24n'
 export const stepNum=96
@@ -10,20 +20,87 @@ export const fretNum=15
 export const strings=6
 
 export const soundNameList=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B',]
-export const soundNumList={
-  'C':0,
-  'C#':1,
-  'D':2,
-  'D#':3,
-  'E':4,
-  'F':5,
-  'F#':6,
-  'G':7,
-  'G#':8,
-  'A':9,
-  'A#':10,
-  'B':11,
+export const soundNumList={'C':0, 'C#':1, 'D':2, 'D#':3, 'E':4, 'F':5, 'F#':6, 'G':7, 'G#':8, 'A':9, 'A#':10, 'B':11,}
+
+export const diatonicOfScaleChords = (scale,key=0)=>{
+  //[0,2,4,5,7,9,11]
+  console.log("scale",scale)
+  return scale.map((val,i)=>[scale[(0+i)%7],scale[(2+i)%7],scale[(4+i)%7],scale[(6+i)%7]].map(x=>(x+key)%12))
 }
+
+export const secDominantMajorChords =(key)=>{
+  return [
+    [0,4,7,10].map(x=>x+11+key),  //B7 to E
+    [0,4,7,10].map(x=>x+4+key),   //E7 to A
+    [0,4,7,10].map(x=>x+9+key),   //A7 to D
+    [0,4,7,10].map(x=>x+0+key),   //C7 to F
+    [0,4,7,10].map(x=>x+2+key),   //D7 to G
+                              //G7 to C
+                              //F# to B
+  ].map(x=>x%12)
+}
+
+export const secDominantMinorChords =(key)=>{
+  //Natural Minor = 0,2,3,5,7,8,10 :C D D# F G G# A#
+  return [
+    //[0,4,7,10].map(x=>x+9+key),   //A7 to D
+    [0,4,7,10].map(x=>x+10+key),  //A# to D#
+    [0,4,7,10].map(x=>x+0+key),   //C7 to F
+    [0,4,7,10].map(x=>x+2+key),   //D7 to G
+    [0,4,7,10].map(x=>x+3+key),   //D#7 to G#
+    [0,4,7,10].map(x=>x+5+key),   //F7 to A#
+  ].map(x=>x%12)
+}
+
+export const secDominantHarmonicMinorChords =(key)=>{
+  //Harmonic Minor 0,2,3,5,7,8,11 :C  	  D  	  Eb  	  F  	  G  	  Ab  	  B
+  return [
+    //[0,4,7,10].map(x=>x+9+key),   //G7 to C
+    //[0,4,7,10].map(x=>x+9+key),   //A7 to D
+    [0,4,7,10].map(x=>x+10+key),  //A# to D#
+    [0,4,7,10].map(x=>x+0+key),   //C7 to F
+    [0,4,7,10].map(x=>x+2+key),   //D7 to G
+    [0,4,7,10].map(x=>x+3+key),   //D#7 to G#
+    [0,4,7,10].map(x=>x+5+key),   //F7 to B
+  ].map(x=>x%12)
+}
+
+export const secDominantMelodicMinorChords =(key)=>{
+  //Melodic  Minor 0,2,3,5,7,9,11 :  C  	  D  	  Eb  	  F  	  G  	  A  	  B
+  return [
+    //[0,4,7,10].map(x=>x+9+key),   //G7 to C
+    [0,4,7,10].map(x=>x+9+key),   //A7 to D
+    [0,4,7,10].map(x=>x+10+key),  //A# to D#
+    [0,4,7,10].map(x=>x+0+key),   //C7 to F
+    [0,4,7,10].map(x=>x+2+key),   //D7 to G
+    //[0,4,7,10].map(x=>x+3+key),   //E7 to A
+    [0,4,7,10].map(x=>x+5+key),   //F7 to B
+  ].map(x=>x%12)
+}
+export const subDominantMinorChord=(key)=>{
+  //Enable in Major key
+  return [5,8,0,3].map(x=>(x+key)%12)
+}
+
+export const parallelKeyOfMajorChords=(key)=>{
+  //D#7 G#7 A#7 in Major key
+  return [
+    [0,3,7,10].map(x=>x+3+key),  //D#7
+    [0,3,7,10].map(x=>x+8+key),  //G#7
+    [0,3,7,10].map(x=>x+10+key),  //A#7
+  ]
+}
+
+export const parallelKeyOfMinorChords=(key)=>{
+  //D#m7 G#m7 A#m7 in Natural Minor key
+  return [
+    [0,4,7,10].map(x=>x+3+key),  //D#7
+    [0,4,7,10].map(x=>x+8+key),  //G#7
+    [0,4,7,10].map(x=>x+10+key),  //A#7
+  ]
+}
+
+//   "substituteDominantChords":[],
 
 export const chordTabList={
   "CM7":[0,0,0,2,3,-1],
@@ -127,10 +204,6 @@ export const chordTabListH={
   "A#m7b5"   :[8-2,7-2,8-2,8-2,-1,-1],
   "Bm7b5"   :[8-1,7-1,8-1,8-1,-1,-1],
 }
-
-//"CM7":[0,0,0,2,3,-1],
-
-
 
 export const convertSoundNameNum = (arg)=>{
   //arg =

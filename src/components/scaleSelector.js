@@ -23,7 +23,7 @@ const ScaleSelectorRedux =(props) => {
             class={"scaleNoteSelector"}
             color={'btn btn-outline-primary w-100'}
             color={props.base.blocksColor[i]}
-            value={soundNameList[props.base.rootNoteOfScale[i]]}
+            value={soundNameList[props.diatonics.keyNum]}
             onClickP={() => props.shiftScaleNote(i,1)}
             onClickN={() => props.shiftScaleNote(i,-1)}
           />
@@ -95,7 +95,7 @@ const ScaleSelectorRedux =(props) => {
 
 
 const mapStateToProps = (state) => {
-  return {base: state.stateManager.base,}
+  return {base: state.stateManager.base,diatonics: state.stateManager.diatonics,}
 }
 const mapDispatchToProps=(dispatch)=>{
   return{
