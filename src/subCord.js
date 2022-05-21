@@ -77,6 +77,19 @@ export const secDominantMelodicMinorChords =(key)=>{
     [0,4,7,10].map(x=>x+5+key),   //F7 to B
   ].map(x=>x%12)
 }
+
+export const parallelScaleChords=(scale)=>{
+  //0,2,3,5,7,9,11
+  let parallelElem = [2,5,6] //[3,7,9]
+  return parallelElem.map((val,i)=>[
+    scale[(0+val)%7],
+    scale[(2+val)%7],
+    scale[(4+val)%7],
+    scale[(6+val)%7]
+  ])
+}
+
+
 export const subDominantMinorChord=(key)=>{
   //Enable in Major key
   return [5,8,0,3].map(x=>(x+key)%12)
@@ -513,6 +526,11 @@ A7-D7
  */
 
 export const drawTab=(chordName,flgHighChord,comment="")=>{
+
+  if(Array.isArray(chordName)){
+    chordName = checkChordName(chordName)
+  }
+
   //chordName likes "CM7",etc
   //settings
   let tabWidth = 100

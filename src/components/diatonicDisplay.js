@@ -86,10 +86,10 @@ const DiatonicDisplay = (props)=> {
       </Row>
         {subDominantMinorCode}
       <Row className={"my-2"}>
-        <Col xs={12} className={"bg-success text-white"}>Pallarel key chords(non-Diatonic Chords)</Col>
-        <Col xs={3} className={"py-2"}>{0} <img alt="icon" src={drawTab("D#7",props.diatonics.flgHighChord)} /></Col>
-        <Col xs={3} className={"py-2"}>{0} <img alt="icon" src={drawTab("G#7",props.diatonics.flgHighChord)} /></Col>
-        <Col xs={3} className={"py-2"}>{0} <img alt="icon" src={drawTab("A#7",props.diatonics.flgHighChord)} /></Col>
+        <Col xs={12} className={"bg-success text-white"}>Parallel key chords(non-Diatonic Chords)</Col>
+        <Col xs={3} className={"py-2"}>{} <img alt="icon" src={drawTab(props.diatonics.paraScaleChords[0],props.diatonics.flgHighChord)} /></Col>
+        <Col xs={3} className={"py-2"}>{} <img alt="icon" src={drawTab(props.diatonics.paraScaleChords[1],props.diatonics.flgHighChord)} /></Col>
+        <Col xs={3} className={"py-2"}>{} <img alt="icon" src={drawTab(props.diatonics.paraScaleChords[2],props.diatonics.flgHighChord)} /></Col>
 
       </Row>
       <Row className={"my-2"}>
