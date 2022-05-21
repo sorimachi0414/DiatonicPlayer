@@ -28,28 +28,49 @@ export const diatonicOfScaleChords = (scale,key=0)=>{
   return scale.map((val,i)=>[scale[(0+i)%7],scale[(2+i)%7],scale[(4+i)%7],scale[(6+i)%7]].map(x=>(x+key)%12))
 }
 
+export const passingDimToSecDominantChords = (chords)=>{
+
+  let diminishChords=[]
+  for(let notes of chords){
+    //notes = like [0,3,5,7]
+    let secondRoot = notes[0] //B(11) in Major
+    //let secondRoot = (root+12 - 5) %12
+
+    let sameRootChords=[]
+    for(let x of [1,4,7,10]){
+      sameRootChords.push(
+        [0+secondRoot+x,3+secondRoot+x,6+secondRoot+x,9+secondRoot+x].map(y=>y%12)
+      )
+    }
+    diminishChords.push(sameRootChords)
+  }
+
+  return diminishChords
+}
+
 export const secDominantMajorChords =(key)=>{
+
   return [
-    [0,4,7,10].map(x=>x+11+key),  //B7 to E
-    [0,4,7,10].map(x=>x+4+key),   //E7 to A
-    [0,4,7,10].map(x=>x+9+key),   //A7 to D
-    [0,4,7,10].map(x=>x+0+key),   //C7 to F
-    [0,4,7,10].map(x=>x+2+key),   //D7 to G
-                              //G7 to C
-                              //F# to B
-  ].map(x=>x%12)
+    [0,4,7,10].map(x=>x+11+key).map(x=>x%12),  //B7 to E
+    [0,4,7,10].map(x=>x+4+key).map(x=>x%12),   //E7 to A
+    [0,4,7,10].map(x=>x+9+key).map(x=>x%12),   //A7 to D
+    [0,4,7,10].map(x=>x+0+key).map(x=>x%12),   //C7 to F
+    [0,4,7,10].map(x=>x+2+key).map(x=>x%12),   //D7 to G
+    //G7 to C
+    //F# to B
+  ]
 }
 
 export const secDominantMinorChords =(key)=>{
   //Natural Minor = 0,2,3,5,7,8,10 :C D D# F G G# A#
   return [
     //[0,4,7,10].map(x=>x+9+key),   //A7 to D
-    [0,4,7,10].map(x=>x+10+key),  //A# to D#
-    [0,4,7,10].map(x=>x+0+key),   //C7 to F
-    [0,4,7,10].map(x=>x+2+key),   //D7 to G
-    [0,4,7,10].map(x=>x+3+key),   //D#7 to G#
-    [0,4,7,10].map(x=>x+5+key),   //F7 to A#
-  ].map(x=>x%12)
+    [0,4,7,10].map(x=>x+10+key).map(x=>x%12),  //A# to D#
+    [0,4,7,10].map(x=>x+0+key).map(x=>x%12),   //C7 to F
+    [0,4,7,10].map(x=>x+2+key).map(x=>x%12),   //D7 to G
+    [0,4,7,10].map(x=>x+3+key).map(x=>x%12),   //D#7 to G#
+    [0,4,7,10].map(x=>x+5+key).map(x=>x%12),   //F7 to A#
+  ]
 }
 
 export const secDominantHarmonicMinorChords =(key)=>{
@@ -57,25 +78,25 @@ export const secDominantHarmonicMinorChords =(key)=>{
   return [
     //[0,4,7,10].map(x=>x+9+key),   //G7 to C
     //[0,4,7,10].map(x=>x+9+key),   //A7 to D
-    [0,4,7,10].map(x=>x+10+key),  //A# to D#
-    [0,4,7,10].map(x=>x+0+key),   //C7 to F
-    [0,4,7,10].map(x=>x+2+key),   //D7 to G
-    [0,4,7,10].map(x=>x+3+key),   //D#7 to G#
-    [0,4,7,10].map(x=>x+5+key),   //F7 to B
-  ].map(x=>x%12)
+    //[0,4,7,10].map(x=>x+10+key),  //A# to D#
+    [0,4,7,10].map(x=>x+0+key).map(x=>x%12),   //C7 to F
+    [0,4,7,10].map(x=>x+2+key).map(x=>x%12),   //D7 to G
+    [0,4,7,10].map(x=>x+3+key).map(x=>x%12),   //D#7 to G#
+    //[0,4,7,10].map(x=>x+5+key),   //F#7 to B
+  ]
 }
 
 export const secDominantMelodicMinorChords =(key)=>{
   //Melodic  Minor 0,2,3,5,7,9,11 :  C  	  D  	  Eb  	  F  	  G  	  A  	  B
   return [
     //[0,4,7,10].map(x=>x+9+key),   //G7 to C
-    [0,4,7,10].map(x=>x+9+key),   //A7 to D
-    [0,4,7,10].map(x=>x+10+key),  //A# to D#
-    [0,4,7,10].map(x=>x+0+key),   //C7 to F
-    [0,4,7,10].map(x=>x+2+key),   //D7 to G
+    [0,4,7,10].map(x=>x+9+key).map(x=>x%12),   //A7 to D
+    //[0,4,7,10].map(x=>x+10+key),  //A# to D#
+    [0,4,7,10].map(x=>x+0+key).map(x=>x%12),   //C7 to F
+    [0,4,7,10].map(x=>x+2+key).map(x=>x%12),   //D7 to G
     //[0,4,7,10].map(x=>x+3+key),   //E7 to A
-    [0,4,7,10].map(x=>x+5+key),   //F7 to B
-  ].map(x=>x%12)
+    //[0,4,7,10].map(x=>x+5+key),   //F#7 to B
+  ]
 }
 
 export const parallelScaleChords=(scale)=>{
@@ -705,26 +726,27 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
 export const drawSecDominant=(scaleNotes,flgHighChord)=>{
   let subDominants=[] //[[0,7],[2,9],...]
   let subDominantsNames=[] //[[C,G],]
-  let displayOrder = [3,6,2,4,5,7].map(x=>x-1)
+  let displayOrder = [3,6,2,4,5,7].map(x=>x-1) //2,5,1,3,4,6
   let subDominantNotes=[]
   let diminish = []
 
   //calc secoundary dominant
   if(Array.isArray(scaleNotes)){
-    for(let val of displayOrder){
-      let root = scaleNotes[val]
-      let secRoot = (root+12 - 5) %12
+    for(let index of displayOrder){
+      let root = scaleNotes[index] //scaleNote[2] = E(4) in Major
+      let secondRoot = (root+12 - 5) %12 // E -5 = 16 -5 = 11 => B
       //rid non-scale note or Key like C
-      if (scaleNotes.indexOf(secRoot)>=0 ){
-        subDominants.push([root,secRoot])
-        subDominantsNames.push([soundNameList[root],soundNameList[secRoot]+"7"])
-        subDominantNotes.push(secRoot)
+      console.log("secRoot",secondRoot,scaleNotes)
+      if (scaleNotes.indexOf(secondRoot)>=0 ){
+        subDominants.push([root,secondRoot])
+        subDominantsNames.push([soundNameList[root],soundNameList[secondRoot]+"7"])
+        subDominantNotes.push(secondRoot)
 
-        //Diminish CHords
-        let dim0 = soundNameList[(secRoot+1)%12] +"dim7"
-        let dim1 = soundNameList[(secRoot+4)%12] +"dim7"
-        let dim2 = soundNameList[(secRoot+7)%12] +"dim7"
-        let dim3 = soundNameList[(secRoot+10)%12] +"dim7"
+        //Diminish Chords
+        let dim0 = soundNameList[(secondRoot+1)%12] +"dim7"
+        let dim1 = soundNameList[(secondRoot+4)%12] +"dim7"
+        let dim2 = soundNameList[(secondRoot+7)%12] +"dim7"
+        let dim3 = soundNameList[(secondRoot+10)%12] +"dim7"
         diminish.push(
           <>
             <Col xs={2}>{<img alt="icon" src={drawTab(dim0,1,)} />}</Col>

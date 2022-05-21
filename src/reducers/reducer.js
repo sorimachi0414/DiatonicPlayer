@@ -213,8 +213,6 @@ export const setBaseScale=(i,value)=> {
     paraScaleNotes=baseScale["01_Major"].map(x=>(x+state.diatonics.keyNum)%12)
   }
   let paraScaleChords = parallelScaleChords(paraScaleNotes)
-  console.log("paraScaleChords",paraScaleChords)
-
 
   let scaleNoteList = baseScale[value].map(x => (x+state.base.rootNoteOfScale[i]) % 12)
 
