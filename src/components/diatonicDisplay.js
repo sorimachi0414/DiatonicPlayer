@@ -11,12 +11,13 @@ import {
   drawTab,
   drawSecDominant,
   soundNameList,
+  instList,
   subDominantMinorChord,
   secDominantMinorChords,
   secDominantHarmonicMinorChords,
   secDominantMelodicMinorChords,
   secDominantMajorChords,
-  passingDimToSecDominantChords
+  passingDimToSecDominantChords, notesToTonejsChord, checkChordName
 } from "../subCord";
 
 
@@ -45,14 +46,29 @@ const DiatonicDisplay = (props)=> {
     let templBlock =(args) =>{
       //args = [I,0],[III,2],...
       let res = []
-      for(let arg of args){
+      args.forEach((arg)=>{
         //arg[1] likes 0,etc
+        let triadChord = [...props.diatonics.diatonicChords[arg[1]]]
+        triadChord.pop()
+        console.log("triadChord",triadChord)
+        let triadChordName = checkChordName(triadChord)
+        console.log(triadChordName)
         res.push(
+          <>
+            <Col xs={3} className={"py-2"}>
+              {arg[0]} <img alt="icon" src={drawTab(props.diatonics.chordNames[arg[1]],props.diatonics.flgHighChord)}
+                        onClick={()=>instList['aGuitar'].triggerAttackRelease(notesToTonejsChord(props.diatonics.diatonicChords[arg[1]]), "2n")}
+            />
+            </Col>
           <Col xs={3} className={"py-2"}>
-            {arg[0]} <img alt="icon" src={drawTab(props.diatonics.chordNames[arg[1]],props.diatonics.flgHighChord)} />
+            {arg[0]} <img alt="icon" src={drawTab(triadChordName,props.diatonics.flgHighChord)}
+                          onClick={()=>instList['aGuitar'].triggerAttackRelease(notesToTonejsChord(triadChord), "2n")}
+          />
           </Col>
+          </>
         )
-      }
+      })
+
       return res
     }
 
@@ -60,7 +76,6 @@ const DiatonicDisplay = (props)=> {
     let secDominantChords
     if(props.diatonics.scale.indexOf("Major")>=0){
       secDominantChords = secDominantMajorChords(props.diatonics.keyNum)
-      console.log(secDominantChords)
     }else if(props.diatonics.scale.indexOf("Harmonic")>=0){
       secDominantChords = secDominantHarmonicMinorChords(props.diatonics.keyNum)
     }else if(props.diatonics.scale.indexOf("Melodic")>=0){
@@ -71,8 +86,6 @@ const DiatonicDisplay = (props)=> {
 
     let diminishChords = passingDimToSecDominantChords(secDominantChords)
 
-    //debug
-    console.log("passingDiminish",passingDimToSecDominantChords(secDominantChords))
 
     let secDominantDiminishBlock =[]
 

@@ -33,14 +33,7 @@ export const initialState = {
     chordNames:[
       "CM7","Dm7","Em7","Fm7","G7","Am7","Bm7b5"],
     chordsNotes:Array(7).fill(9),
-    diatonicChords:[
-      [0,3,5,7],
-      [0,3,5,7],
-      [0,3,5,7],
-      [0,3,5,7],
-      [0,3,5,7],
-      [0,3,5,7],
-    ],
+    diatonicChords:diatonicOfScaleChords([0,2,4,5,7,9,11]),
     nonDiatonicChords:{
       "SecDominant":[],
       "SubDominantMinor":[],

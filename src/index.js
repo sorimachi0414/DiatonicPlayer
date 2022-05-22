@@ -61,6 +61,7 @@ function playThisChord(chordList,length,time){
   if(length!=0) instrument.triggerAttackRelease(chordList, length,time)
 }
 
+
 const BD = (en,time) => {if(en>0)Def.drum.triggerAttackRelease(['C3'],'1m',time)}
 const SD = (en,time) => {if(en>0)Def.drum.triggerAttackRelease(['C4'],'1m',time)}
 const HHC = (en,time) => {if(en>0)Def.drum.triggerAttackRelease(['C5'],'1m',time)}
@@ -93,7 +94,6 @@ Tone.Transport.scheduleRepeat((time) => {
   if(state.step>=95){
     store.dispatch({type:'RENEW_CHORD_LIST'})
   }
-
 
   //tickTack
   store.dispatch({type:'STEP'})
