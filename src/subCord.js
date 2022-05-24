@@ -504,12 +504,23 @@ export const drawSecDominant=(scaleNotes,flgHighChord)=>{
 /////////////////////////////////////
 export const notesToTonejsChord =(notes)=>{
   //notes = [0,4,7,10]
-  console.log("toPlay",notes)
+  console.log(notes)
   let tonejsChord=[]
-  let suffix
+  let suffix=2
+  let lastNote=0
 
   notes.forEach((val,index)=>{
-    suffix = index==0 ? 2:3
+    if(index==0){
+
+    }else if(index==1){
+      suffix+=1
+    }else{
+      console.log(index,suffix,val,lastNote)
+      if(val<lastNote){
+        suffix+=1
+      }
+      lastNote=val
+    }
     tonejsChord.push(soundNameList[val]+suffix)
     })
   console.log(tonejsChord)

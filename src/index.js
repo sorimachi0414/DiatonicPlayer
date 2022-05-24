@@ -16,11 +16,12 @@ import { Provider } from 'react-redux';
 import { connect } from 'react-redux';
 import {BPMChanger_func} from './components/bpmChanger.js'
 import {ChordSelectorRedux_func} from './components/chordSelector.js'
-import {ScaleSelectorRedux_func} from './components/scaleSelector'
+import {ScaleSelectorFooterRedux_func, ScaleSelectorRedux_func} from './components/scaleSelector'
 import {PlayStopButton_func} from './components/playStopButton.js'
 import {MusicSelector_func} from './components/musicSelector.js'
 import {mainReducer} from "./reducers/reducer";
 import {DiatonicDisplay_func} from "./components/diatonicDisplay";
+import {FooterRedux_func} from "./components/footer";
 
 ///debug content
 const reducer = () => combineReducers({
@@ -125,7 +126,7 @@ const MainClock =(props)=>{
           <Col  xs={12} md={10} className="text-center">
             Diatonic Chord Player
           </Col>
-          <Col xs="12" sm={12} md={10} lg={8} xl={6} className="px-0">
+          <Col xs={12} sm={12} md={10} lg={8} xl={6} className="px-0">
 
             <div className="card my-2">
               <div className="card-header">
@@ -157,25 +158,16 @@ const MainClock =(props)=>{
             </div>
           </Col>
         </Row>
-        <div className="d-block d-sm-none">xs 576px</div>
-        <div className="d-none d-sm-block d-md-none">sm >576px</div>
-        <div className="d-none d-md-block d-lg-none">md >768px</div>
-        <div className="d-none d-lg-block d-xl-none">lg >992px</div>
-        <div className="d-none d-xl-block">xl >1200px</div>
+
       </Container>
 
       <Container>
         <Row className="navbar navbar-light bg-light fixed-bottom">
-          <Col xs={12} sm={10} md={8} lg={6} className="offset-sm-1 offset-md-2 offset-lg-3">
+          <Col xs={12} sm={10} md={10} lg={6} className="offset-sm-1 offset-md-2 offset-lg-3">
             <Row className="px-1 mx-0">
-              <Col xs={3} md={3} className="mx-0 px-0">
-                <PlayStopButton_func
-                />
-              </Col>
-              <Col xs={8} md={8} className='align-self-center px-1'>
-                <BPMChanger_func
-                />
-              </Col>
+
+                <FooterRedux_func />
+
             </Row>
           </Col>
     </Row>

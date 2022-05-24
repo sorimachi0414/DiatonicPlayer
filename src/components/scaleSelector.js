@@ -8,6 +8,11 @@ import {soundNameList, masterScale,baseScale, fretNum, defaultState} from "../su
 import {FingerBoard} from './fingerBoard.js'
 import {store} from "../index";
 
+const ScaleSelectorFooterRedux =(props)=>{
+  let i =0
+  return 0
+}
+
 const ScaleSelectorRedux =(props) => {
 
   function scaleProcessor(key,type){
@@ -18,7 +23,7 @@ const ScaleSelectorRedux =(props) => {
     return(
       <Col key={i} xs={12}>
         <Row>
-        <Col xs={2}>
+        <Col xs={3}>
           <ThreeButtonChanger
             class={"scaleNoteSelector"}
             color={'btn btn-outline-primary w-100'}
@@ -114,3 +119,5 @@ const mapDispatchToProps=(dispatch)=>{
   }
 }
 export const ScaleSelectorRedux_func =　connect(mapStateToProps, mapDispatchToProps)(ScaleSelectorRedux);
+export const ScaleSelectorFooterRedux_func =　connect(mapStateToProps, mapDispatchToProps)(ScaleSelectorFooterRedux);
+
