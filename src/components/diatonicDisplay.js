@@ -65,13 +65,13 @@ const DiatonicDisplay = (props)=> {
               <Col xs={12} className={"py-2"}>
                 <img alt="icon" className="img-fluid d-block mx-auto"
                     src={drawTab(props.diatonics.chordNames[arg[1]],props.diatonics.flgHighChord)}
-                    onClick={()=>instList['aGuitar'].triggerAttackRelease(notesToTonejsChord(props.diatonics.diatonicChords[arg[1]]), "2n")}
+                     onMouseDown={()=>instList['aGuitar'].triggerAttackRelease(notesToTonejsChord(props.diatonics.diatonicChords[arg[1]]), "2n")}
                 />
               </Col>
               <Col xs={12} className={"py-2"}>
                 <img alt="icon"  className="img-fluid d-block mx-auto"
                    src={drawTab(triadChordName,props.diatonics.flgHighChord)}
-                   onClick={()=>instList['aGuitar'].triggerAttackRelease(notesToTonejsChord(triadChord), "2n")}
+                     onMouseDown={()=>instList['aGuitar'].triggerAttackRelease(notesToTonejsChord(triadChord), "2n")}
                 />
               </Col>
             </Row>
@@ -96,7 +96,6 @@ const DiatonicDisplay = (props)=> {
 
     let diminishChords = passingDimToSecDominantChords(secDominantChords)
 
-
     let secDominantDiminishBlock =[]
 
     for(let index=0;index<secDominantChords.length;index++){
@@ -105,15 +104,21 @@ const DiatonicDisplay = (props)=> {
         <Row>
           <Col xs={2} sm={3} className={"py-2"}>
             <img alt="icon"  className="img-fluid d-block mx-auto"
-                 src={drawTab(secDominantChords[index],1,"( => "+tempTonic+")")} />
+                 src={drawTab(secDominantChords[index],1,"( => "+tempTonic+")")}
+                 onMouseDown={()=>instList['aGuitar'].triggerAttackRelease(notesToTonejsChord(secDominantChords[index]), "2n")}
+            />
+
           </Col>
 
           {diminishChords[index].map(x=>
             <Col xs={2} sm={2} className={"py-2"}>
               <img alt="icon"  className="img-fluid d-block mx-auto"
-                   src={drawTab(x,1,)} />
+                   src={drawTab(x,1,)}
+                   onMouseDown={()=>instList['aGuitar'].triggerAttackRelease(notesToTonejsChord(x), "2n")}
+              />
             </Col>
-          )}
+          )
+          }
         </Row>
       )
 
