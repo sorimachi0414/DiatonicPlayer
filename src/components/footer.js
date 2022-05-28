@@ -20,16 +20,19 @@ const FooterRedux =(props) => {
             <span className={"fs-2"}>{soundNameList[props.diatonics.keyNum]} {props.diatonics.scale.substr(3)}</span>
           </Col>
           <Col xs={3}>
-            <button className="btn btn-outline-primary p-0 w-100 h-100" value={props.value} onClick={props.onClickN}>{"<"}</button>
+            <button className="btn btn-outline-primary p-0 w-100 h-100" value={props.value} onClick={()=>props.shiftScaleNote(0,-1)}>{"<"}</button>
           </Col>
           <Col xs={3}>
-            <button className="btn btn-outline-primary p-0 w-100 h-100" value={props.value} onClick={props.onClickP}>{">"}</button>
+            <button className="btn btn-outline-primary p-0 w-100 h-100" value={props.value} onClick={()=>props.shiftScaleNote(0,1)}>{">"}</button>
+          </Col>
+          <Col xs={6}>
+            <button className="btn btn-outline-primary p-0 w-100 h-100" value={props.value} onClick={()=>null}>{"> scale"}</button>
           </Col>
         </Row>
       </Col>
       <Col xs={6}>
         <Row className={"m-2"}>
-          <Col xs={6}>
+          <Col xs={12} sm={10}>
             <button className="btn btn-outline-primary p-0 w-100 h-100"
                     value={"High Chord"} onClick={()=>props.flipHighChord()}>{"High Chord"}</button>
           </Col>

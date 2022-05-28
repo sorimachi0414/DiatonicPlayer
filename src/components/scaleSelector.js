@@ -23,7 +23,7 @@ const ScaleSelectorRedux =(props) => {
     return(
       <Col key={i} xs={12}>
         <Row>
-        <Col xs={3}>
+        <Col xs={5} md={3}>
           <ThreeButtonChanger
             class={"scaleNoteSelector"}
             color={'btn btn-outline-primary w-100'}
@@ -33,7 +33,7 @@ const ScaleSelectorRedux =(props) => {
             onClickN={() => props.shiftScaleNote(i,-1)}
           />
         </Col>
-        <Col xs={5}>
+        <Col xs={7} md={5}>
           {/*Base Scale*/}
           <ListedSelector
             chordOrScale={'Scale'}

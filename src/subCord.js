@@ -257,7 +257,7 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
   }
   //chordName likes "CM7",etc
   //settings
-  let tabWidth = 120
+  let tabWidth = 100
   let tabHeight =110
 
   // A---------B
@@ -266,30 +266,31 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
   // | c-----d
   // C---------D
 
-  let aX = 20
+  let aX = 12
   let aY = 25
   let xNum = 5
-  let xInt = 15
+  let xInt = 13
   let yInt = 12
   let bX = aX+xNum*xInt
   let cY = aY+5*yInt
+  let fretNumInitialX = 10
+  let soundNameX = 17 //Max width - soundNamex
 
 
   let bgColor = '#eee'
   let natWidth = 2
   let natColor = "#000"
   let lineWidth = 1
-  let pointSize = 4
-  let openCircleSize = 5
-  let barreWidth = 10
+  let pointSize = 4.5
+  let openCircleSize = 4
+  let barreWidth = 9
 
-  let fretNumFont = "12px sans-serif"
+  let fretNumFont = "11px sans-serif"
   let ChordNameLabelFont ="14px sans-serif"
   let muteStringMarkFont = "14px sans-serif"
   let stringNoteFont = "10px sans-serif"
 
   //Initial
-
   let barreFret=0
   let barreLength=0
   let chordTabs=chordTabList
@@ -387,7 +388,7 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
 
       }else　if(val==0) {
         //Open String
-        ctx.arc( aX+val*xInt - xInt/2, stringIndex*yInt+aY, pointSize, 0, 2 * Math.PI, false ) ;
+        ctx.arc( aX+val*xInt - xInt/2, stringIndex*yInt+aY,openCircleSize , 0, 2 * Math.PI, false ) ;
         ctx.stroke()
         //depict sound name
         let thisStringNote = stringFretToNote(stringIndex,val+pictFirstFret-1)
@@ -395,13 +396,13 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
 
       }else{
         //Normal string
-        ctx.arc( aX+val*xInt - xInt/2, stringIndex*yInt+aY, openCircleSize, 0, 2 * Math.PI, false ) ;
+        ctx.arc( aX+val*xInt - xInt/2, stringIndex*yInt+aY, pointSize, 0, 2 * Math.PI, false ) ;
         ctx.fill()
 
         //depict sound name
         let thisStringNote = stringFretToNote(stringIndex,val+pictFirstFret-1)
         ctx.font = stringNoteFont
-        ctx.fillText(thisStringNote, tabWidth-20, stringIndex*yInt+aY+4);
+        ctx.fillText(thisStringNote, tabWidth-soundNameX, stringIndex*yInt+aY+4);
 
 
       }
@@ -427,7 +428,7 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
       let textWidth = ctx.measureText( i+pictFirstFret ).width ;
 
       //ctx.fillText(i+pictFirstFret, 20+i*xInt+5, cY+yInt+5)
-      ctx.fillText(i+pictFirstFret, 20+i*xInt+8-textWidth/2, cY+yInt+5)
+      ctx.fillText(i+pictFirstFret, fretNumInitialX+i*xInt+8-textWidth/2, cY+yInt+5)
     }
   }
 
@@ -761,6 +762,19 @@ export const chordTabListH={
   "Adim7"   :[8-3,10-3,8-3,10-3,9-3,8-3],
   "A#dim7"  :[8-2,10-2,8-2,10-2,9-2,8-2],
   "Bdim7"   :[8-1,10-1,8-1,10-1,9-1,8-1],
+
+  "Cdim"   :[8+0,7+0,8+0,7+0,-1,-1],
+  "C#dim"  :[8+1,7+1,8+1,7+1,-1,-1],
+  "Ddim"   :[8+2,7+2,8+2,7+2,-1,-1],
+  "D#dim"  :[3+0,1+0,2+0,1+0,-1,-1],
+  "Edim"   :[3+1,1+1,2+1,1+1,-1,-1],
+  "Fdim"   :[3+2,1+2,2+2,1+2,-1,-1],
+  "F#dim"  :[3+3,1+3,2+3,1+3,-1,-1],
+  "Gdim"   :[3+4,1+4,2+4,1+4,-1,-1],
+  "G#dim"  :[3+5,1+5,2+5,1+5,-1,-1],
+  "Adim"   :[3+6,1+6,2+6,1+6,-1,-1],
+  "A#dim"  :[3+7,1+7,2+7,1+7,-1,-1],
+  "Bdim"   :[3+8,1+8,2+8,1+8,-1,-1],
 
   "CM7"   :[3,5,4,5,3,3],
   "C#M7"  :[3+1,5+1,4+1,5+1,3+1,3+1],

@@ -11,13 +11,13 @@ export const ChordChopperCheckBox =(props)=>{
 export const ThreeButtonChanger =(props)=>{
   return(
     <Row className="p-2 px-3">
-      <Col sm={3} md={3} className="p-0 m-0">
+      <Col xs={3} sm={3} md={3} className="p-0 m-0">
         <button className="btn btn-outline-primary p-0 w-100 h-100" value={props.value} onClick={props.onClickN}>{"<"}</button>
       </Col>
-      <Col sm={6} md={6} className="p-0 m-0 ">
+      <Col xs={6} sm={6} md={6} className="p-0 m-0 ">
         <button className={props.color} value={props.value} onClick={props.onClickP}><span className="fs-2"> {props.value}</span></button>
       </Col>
-      <Col sm={3} md={3} className="p-0 m-0">
+      <Col xs={3} sm={3} md={3} className="p-0 m-0">
         <button className="btn btn-outline-primary p-0 w-100 h-100" value={props.value} onClick={props.onClickP}>{">"}</button>
       </Col>
     </Row>

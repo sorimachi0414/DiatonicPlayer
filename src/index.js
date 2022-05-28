@@ -126,7 +126,7 @@ const MainClock =(props)=>{
           <Col  xs={12} md={10} className="text-center">
             Diatonic Chord Player
           </Col>
-          <Col xs={12} sm={12} md={10} lg={8} xl={6} className="px-0">
+          <Col xs={12} sm={12} md={12} lg={10} xl={8} className="px-0">
 
             <div className="card my-2">
               <div className="card-header">
