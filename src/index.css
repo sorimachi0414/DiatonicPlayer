@@ -2,6 +2,10 @@
   --wh: 34;
 }
 
+img{
+  pointer-events: none;
+}
+
 .bpmDisplay{
   font-size:20px;
   font-weight:bold;
