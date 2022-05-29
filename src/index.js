@@ -110,8 +110,13 @@ Tone.Transport.scheduleRepeat((time) => {
 const WholeBlock =(props)=>{
 
   React.useEffect(() => {
-    //Loading state from localStorage
     //called once
+    const touchDevice = window.ontouchstart !== undefined ? 1 : 0;
+    store.dispatch(
+      {type:'TOUCH_DEVICE_ON',touchDevice:touchDevice}
+    )
+
+    //Loading state from localStorage
     document.title = 'Diatonic Chords Generator';
     if ("base" in localStorage) {
       let base=JSON.parse(localStorage.getItem('base'))
@@ -150,16 +155,6 @@ const WholeBlock =(props)=>{
               </Row>
             </div>
 
-            <div className="card my-2">
-              <div className="card-header">
-                Chord Player
-              </div>
-
-              <MusicSelector_func />
-              <Row className='card-body pt-1'>
-                {/*<ChordSelectorRedux_func/>*/}
-              </Row>
-            </div>
           </Col>
         </Row>
 

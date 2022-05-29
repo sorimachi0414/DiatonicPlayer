@@ -18,38 +18,42 @@ import {
 } from "../subCord";
 
 
-const DiatonicDisplay = (props)=> {
+const DiatonicDisplay = (props) => {
 
   //flg High Chord change Buuton
   let highChordButton =
     <Col>
       <button className="btn btn-outline-primary p-0 w-100 h-100"
-              value={"High Chord"} onClick={()=>props.flipHighChord()}>{"High Chord"}</button>
+              value={"High Chord"} onClick={() => props.flipHighChord()}>{"High Chord"}</button>
     </Col>
 
   //tenkai = inversion
   let inversionButton =
     <Col>
       <button className="btn btn-outline-primary p-0 w-100 h-100"
-              value={"High Chord"} onClick={()=>props.flipHighChord()}>{"Display Inversion Chord"}</button>
+              value={"High Chord"} onClick={() => props.flipHighChord()}>{"Display Inversion Chord"}</button>
     </Col>
 
   //Diatonic Block template
-  let diatonicViewBlock =(diatonicOrder)=>{
+  let diatonicViewBlock = (diatonicOrder) => {
     //diatonicOrder = ["Tonic",[["I",0],["III",2],["VI",5]]],...
-    let eachFunctionChordsBlock =(orders,title="",color="") =>{
+    let eachFunctionChordsBlock = (orders, title = "", color = "") => {
       //orders = [I,0],[III,2],...
       let fundamentalDiatonics = []
-      orders.forEach(([degreeRoma,degreeArabic])=>{
+      orders.forEach(([degreeRoma, degreeArabic]) => {
         //orders[1] likes 0,etc
         let triadChord = [...props.diatonics.diatonicChords[degreeArabic]] //popで破壊されるので値渡し
         triadChord.pop()
         let triadChordName = checkChordName(triadChord)
 
+        let playSound = (flg)=>{
+          if(flg==0) instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(props.diatonics.diatonicChords[degreeArabic]), "2n");
+        }
+
         fundamentalDiatonics.push(
           <Col xs={4} sm={3} className={"py-2 px-3"}>
             <Row className={"pb-2 border rounded"}>
-              <Col xs={8} md={8} className={color+" text-white px-1 text-truncate"}>
+              <Col xs={8} md={8} className={color + " text-white px-1 text-truncate"}>
                 {title}
               </Col>
               <Col xs={4} md={4}>
@@ -58,14 +62,23 @@ const DiatonicDisplay = (props)=> {
 
               <Col xs={12} className={"py-2"}>
                 <img alt="icon" className="img-fluid d-block mx-auto"
-                    src={drawTab(props.diatonics.chordNames[degreeArabic],props.diatonics.flgHighChord)}
-                     onMouseDown={()=>instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(props.diatonics.diatonicChords[degreeArabic]), "2n")}
+                     src={drawTab(props.diatonics.chordNames[degreeArabic], props.diatonics.flgHighChord)}
+                     onTouchStart={()=>
+                       instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(props.diatonics.diatonicChords[degreeArabic]), "2n")
+                     }
+                     onMouseDown={()=>{
+                       if(props.diatonics.touchDevice==0){
+                         instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(props.diatonics.diatonicChords[degreeArabic]), "2n")
+                       }
+                     }
+                     }
+
                 />
               </Col>
               <Col xs={12} className={"py-2"}>
-                <img alt="icon"  className="img-fluid d-block mx-auto"
-                   src={drawTab(triadChordName,props.diatonics.flgHighChord)}
-                     onMouseDown={()=>instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(triadChord), "2n")}
+                <img alt="icon" className="img-fluid d-block mx-auto"
+                     src={drawTab(triadChordName, props.diatonics.flgHighChord)}
+                     onMouseDown={() => instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(triadChord), "2n")}
                 />
               </Col>
             </Row>
@@ -78,30 +91,30 @@ const DiatonicDisplay = (props)=> {
 
     //Sec Dominant Block
     let secDominantChords
-    if(props.diatonics.scale.indexOf("Major")>=0){
+    if (props.diatonics.scale.indexOf("Major") >= 0) {
       secDominantChords = secDominantMajorChords(props.diatonics.keyNum)
-    }else if(props.diatonics.scale.indexOf("Harmonic")>=0){
+    } else if (props.diatonics.scale.indexOf("Harmonic") >= 0) {
       secDominantChords = secDominantHarmonicMinorChords(props.diatonics.keyNum)
-    }else if(props.diatonics.scale.indexOf("Melodic")>=0){
+    } else if (props.diatonics.scale.indexOf("Melodic") >= 0) {
       secDominantChords = secDominantMelodicMinorChords(props.diatonics.keyNum)
-    }else{
+    } else {
       secDominantChords = secDominantMinorChords(props.diatonics.keyNum)
     }
 
     let diminishChords = passingDimToSecDominantChords(secDominantChords)
 
-    let secDominantDiminishBlock =[]
+    let secDominantDiminishBlock = []
 
-    for(let index=0;index<secDominantChords.length;index++){
-      let tempTonic = soundNameList[(secDominantChords[index][0] +5)%12]
+    for (let index = 0; index < secDominantChords.length; index++) {
+      let tempTonic = soundNameList[(secDominantChords[index][0] + 5) % 12]
       secDominantDiminishBlock.push(
         <Row className={"border"}>
           <Col xs={4} sm={3}>
             <Row>
               <Col className={"py-2"}>
-                <img alt="icon"  className="img-fluid d-block mx-auto"
-                     src={drawTab(secDominantChords[index],1,"( => "+tempTonic+")")}
-                     onMouseDown={()=>instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(secDominantChords[index]), "2n")}
+                <img alt="icon" className="img-fluid d-block mx-auto"
+                     src={drawTab(secDominantChords[index], 1, "( => " + tempTonic + ")")}
+                     onMouseDown={() => instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(secDominantChords[index]), "2n")}
                 />
 
               </Col>
@@ -110,11 +123,11 @@ const DiatonicDisplay = (props)=> {
 
           <Col><Row>
 
-            {diminishChords[index].map(x=>
+            {diminishChords[index].map(x =>
               <Col xs={6} sm={3} md={3} className={"py-2"}>
-                <img alt="icon"  className="img-fluid d-block mx-auto"
-                     src={drawTab(x,1,)}
-                     onMouseDown={()=>instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(x), "2n")}
+                <img alt="icon" className="img-fluid d-block mx-auto"
+                     src={drawTab(x, 1,)}
+                     onMouseDown={() => instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(x), "2n")}
                 />
               </Col>
             )
@@ -126,21 +139,21 @@ const DiatonicDisplay = (props)=> {
     }
 
     //Sub Dominant Minor Block
-    let subDominantMinorCode =""
-    if(props.diatonics.scale.indexOf("Major")>=0){
+    let subDominantMinorCode = ""
+    if (props.diatonics.scale.indexOf("Major") >= 0) {
       subDominantMinorCode =
         <Col xs={4} sm={3} className={"py-2 px-3"}>
           <Row className={"pb-2 border rounded"}>
-            <Col xs={8} className={"bg-success"+" text-white px-1 text-truncate"}>
+            <Col xs={8} className={"bg-success" + " text-white px-1 text-truncate"}>
               {"SD Minor (non-Diat.)"}
             </Col>
             <Col xs={4}>
               {"IV"}
             </Col>
             <Col xs={12} className={"py-2"}>
-              <img alt="icon"  className="img-fluid d-block mx-auto"
-                   src={drawTab(subDominantMinorChord(props.diatonics.keyNum),props.diatonics.flgHighChord)}
-                   onMouseDown={()=>instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(subDominantMinorChord(props.diatonics.keyNum)), "2n")}
+              <img alt="icon" className="img-fluid d-block mx-auto"
+                   src={drawTab(subDominantMinorChord(props.diatonics.keyNum), props.diatonics.flgHighChord)}
+                   onMouseDown={() => instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(subDominantMinorChord(props.diatonics.keyNum)), "2n")}
               />
             </Col>
           </Row>
@@ -148,21 +161,21 @@ const DiatonicDisplay = (props)=> {
     }
 
     //parallel chords
-    let paraChordsBlock =[]
-    for(let x of[0,1,2]){
+    let paraChordsBlock = []
+    for (let x of [0, 1, 2]) {
       paraChordsBlock.push(
         <Col xs={4} sm={3} className={"py-2 px-3"}>
           <Row className={"pb-2 border rounded"}>
-            <Col xs={8} className={"bg-success"+" text-white px-1 text-truncate"}>
+            <Col xs={8} className={"bg-success" + " text-white px-1 text-truncate"}>
               {"Parallel Key(non-Diat.)"}
             </Col>
             <Col xs={4}>
-              {Array("III","VI","VII")[x]}
+              {Array("III", "VI", "VII")[x]}
             </Col>
             <Col xs={12} className={"py-2"}>
-              <img alt="icon"  className="img-fluid d-block mx-auto"
-                   src={drawTab(props.diatonics.paraScaleChords[x],props.diatonics.flgHighChord)}
-                   onMouseDown={()=>instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(props.diatonics.paraScaleChords[x]), "2n")}
+              <img alt="icon" className="img-fluid d-block mx-auto"
+                   src={drawTab(props.diatonics.paraScaleChords[x], props.diatonics.flgHighChord)}
+                   onMouseDown={() => instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(props.diatonics.paraScaleChords[x]), "2n")}
               />
             </Col>
           </Row>
@@ -170,57 +183,57 @@ const DiatonicDisplay = (props)=> {
       )
     }
 
-    let diatonicViewCode=[]
+    let diatonicViewCode = []
     diatonicViewCode.push(
       <Col className={"mx- 0px-0 align-self-center"}>
-      <Row className={"my-2"}>
-        {eachFunctionChordsBlock(diatonicOrder[0][1],diatonicOrder[0][0],"bg-info")}
+        <Row className={"my-2"}>
+          {eachFunctionChordsBlock(diatonicOrder[0][1], diatonicOrder[0][0], "bg-info")}
 
-        {eachFunctionChordsBlock(diatonicOrder[1][1],diatonicOrder[1][0],"bg-warning")}
+          {eachFunctionChordsBlock(diatonicOrder[1][1], diatonicOrder[1][0], "bg-warning")}
 
-        {eachFunctionChordsBlock(diatonicOrder[2][1],diatonicOrder[2][0],"bg-danger")}
-        {subDominantMinorCode}
-        {paraChordsBlock}
-      </Row>
+          {eachFunctionChordsBlock(diatonicOrder[2][1], diatonicOrder[2][0], "bg-danger")}
+          {subDominantMinorCode}
+          {paraChordsBlock}
+        </Row>
 
-      <Row className={"my-2"}>
-        <Col xs={12} className={"bg-success text-white"}>
-          Secondary Dominant(non-Diatonic Chords)
-        </Col>
-        <Col className={"border py-2 px-4"}>
-          <Row>
-            <Col xs={2} sm={3} className={"bg-info text-white text-truncate"}>2ndary Dominants</Col>
+        <Row className={"my-2"}>
+          <Col xs={12} className={"bg-success text-white"}>
+            Secondary Dominant(non-Diatonic Chords)
+          </Col>
+          <Col className={"border py-2 px-4"}>
+            <Row>
+              <Col xs={2} sm={3} className={"bg-info text-white text-truncate"}>2ndary Dominants</Col>
 
-            <Col xs={10} sm={9} className={"bg-secondary text-white text-truncate"}>Diminsh Chords</Col>
-          </Row>
-          {secDominantDiminishBlock}
-        </Col>
-      </Row>
+              <Col xs={10} sm={9} className={"bg-secondary text-white text-truncate"}>Diminsh Chords</Col>
+            </Row>
+            {secDominantDiminishBlock}
+          </Col>
+        </Row>
 
-    </Col>
+      </Col>
     )
 
     return diatonicViewCode
   }
 
   let diatonicStructures
-  if(props.diatonics.scale.indexOf("Major")>=0){
+  if (props.diatonics.scale.indexOf("Major") >= 0) {
     diatonicStructures = [
-      ["Tonic",[["I",0],["III",2],["VI",5]]],
-      ["SubDominant",[["II",1],["IV",3],]],
-      ["Dominant",[["V",4],["VII",6],]],
+      ["Tonic", [["I", 0], ["III", 2], ["VI", 5]]],
+      ["SubDominant", [["II", 1], ["IV", 3],]],
+      ["Dominant", [["V", 4], ["VII", 6],]],
     ]
-  }  else if (props.diatonics.scale.indexOf("Melodic")>=0){
+  } else if (props.diatonics.scale.indexOf("Melodic") >= 0) {
     diatonicStructures = [
-      ["Tonic Minor",[["I",0],["III",2],["VI",5]]],
-      ["SubDominant Minor",[["II",1],]],
-      ["Dominant Minor",[["IV",3],["V",4],["VII",6],]],
+      ["Tonic Minor", [["I", 0], ["III", 2], ["VI", 5]]],
+      ["SubDominant Minor", [["II", 1],]],
+      ["Dominant Minor", [["IV", 3], ["V", 4], ["VII", 6],]],
     ]
-  } else if (props.diatonics.scale.indexOf("minor")>=0){
+  } else if (props.diatonics.scale.indexOf("minor") >= 0) {
     diatonicStructures = [
-      ["Tonic Minor",[["I",0],["III",2],]],
-      ["SubDominant Minor",[["II",1],["IV",3],["VI",5]]],
-      ["Dominant Minor",[["V",4],["VII",6],]],
+      ["Tonic Minor", [["I", 0], ["III", 2],]],
+      ["SubDominant Minor", [["II", 1], ["IV", 3], ["VI", 5]]],
+      ["Dominant Minor", [["V", 4], ["VII", 6],]],
     ]
   }
 
@@ -228,12 +241,13 @@ const DiatonicDisplay = (props)=> {
 
 
   //Return Block
-  return(
+  return (
 
-      <Col>
-        <Row className={""}>
-          {diatonicViewBlock(diatonicStructures)}
-        </Row>
+    <Col>
+      <Row className={""}>
+        {diatonicViewBlock(diatonicStructures)}
+      </Row>
+      {/*
         <Row>
           <Col xs={12} className={"bg-info"}>
             History
@@ -243,28 +257,28 @@ const DiatonicDisplay = (props)=> {
           <Col xs={3}>III</Col>
           <Col xs={3}>IV</Col>
         </Row>
-        <Row>
-          {highChordButton}
-          {inversionButton}
-          {/*Secondary Dominant*/}
-        </Row>
+        */}
+      <Row>
+        {highChordButton}
+        {inversionButton}
+      </Row>
 
-      </Col>
+    </Col>
 
   )
 }
 
 let mapStateToProps = (state) => {
   return {
-    diatonics:state.stateManager.diatonics,
+    diatonics: state.stateManager.diatonics,
   }
 }
-let mapDispatchToProps=(dispatch)=>{
-  return{
-    flipHighChord:function(){
+let mapDispatchToProps = (dispatch) => {
+  return {
+    flipHighChord: function () {
       return dispatch(flipHighChord())
     }
   }
 }
 
-export const DiatonicDisplay_func =　connect(mapStateToProps, mapDispatchToProps)(DiatonicDisplay);
+export const DiatonicDisplay_func = connect(mapStateToProps, mapDispatchToProps)(DiatonicDisplay);

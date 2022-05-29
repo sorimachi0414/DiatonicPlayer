@@ -5,9 +5,10 @@ import Row from "react-bootstrap/Row";
 
 //variables description
 //
-// 0 : note or noteNum
+// 0,1,2,...11 : note or noteNum.0 = C,1 = C#, 11=B
+// C,C#,D,... : noteName
+// Cm7,Fdim7 : chordName
 // [0,4,7] : notes or chord
-// C,G7 : noteName
 // [[0,4,7],[2,6,9]] : chords
 // [0,2,4,5,7,9,11] : scale
 // [scale,scale,scale] : scales
@@ -143,7 +144,6 @@ export const convertSoundNameNum = (arg)=>{
   let argArray = JSON.parse(JSON.stringify(arg))
   argArray.forEach((each,i)=>{
     if(Array.isArray(each)){
-      console.log("isArray")
       //二次元配列
       each.forEach((elem,j)=>{
         if(Number.isInteger(elem)){
@@ -454,7 +454,6 @@ export const drawSecDominant=(scaleNotes,flgHighChord)=>{
       let root = scaleNotes[index] //scaleNote[2] = E(4) in Major
       let secondRoot = (root+12 - 5) %12 // E -5 = 16 -5 = 11 => B
       //rid non-scale note or Key like C
-      console.log("secRoot",secondRoot,scaleNotes)
       if (scaleNotes.indexOf(secondRoot)>=0 ){
         subDominants.push([root,secondRoot])
         subDominantsNames.push([soundNameList[root],soundNameList[secondRoot]+"7"])
@@ -505,7 +504,6 @@ export const drawSecDominant=(scaleNotes,flgHighChord)=>{
 /////////////////////////////////////
 export const notesToTonejsChord =(notes)=>{
   //notes = [0,4,7,10]
-  console.log(notes)
   let tonejsChord=[]
   let suffix=2
   let lastNote=0
@@ -516,7 +514,6 @@ export const notesToTonejsChord =(notes)=>{
     }else if(index==1){
       suffix+=1
     }else{
-      console.log(index,suffix,val,lastNote)
       if(val<lastNote){
         suffix+=1
       }
@@ -524,7 +521,7 @@ export const notesToTonejsChord =(notes)=>{
     }
     tonejsChord.push(soundNameList[val]+suffix)
     })
-  console.log(tonejsChord)
+
   return tonejsChord
 }
 

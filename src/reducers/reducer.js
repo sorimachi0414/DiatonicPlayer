@@ -41,6 +41,7 @@ export const initialState = {
     ],
     inst:'aGuitar',
     //裏コード：CにおけるC#7
+    touchDevice:0,
 
   },
   //base:Not use now
@@ -187,7 +188,7 @@ export const setBaseScale=(i,value)=> {
     let eachScale=masterScale[key]
     let valid=true
     for(let eachNote of eachScale){
-      console.log(eachNote)
+
       if(baseScale[value].includes(eachNote)==false) {
         valid=false
       }
@@ -257,6 +258,11 @@ export const mainReducer= (state = initialState, action) => {
     //mainReducerは、受け取った変数をStateに反映するだけ。
     case 'LOAD_LOCALSTORAGE':
       return{...state,base:action.base}
+    case 'TOUCH_DEVICE_ON':
+      return {
+        ...state,
+        diatonics: {...state.diatonics, touchDevice: action.touchDevice}
+      }
 
     case 'SET_BASE_SCALE':
       return{
