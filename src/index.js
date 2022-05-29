@@ -9,19 +9,18 @@ import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container'
 
-
 //Redux
 import { createStore, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
 import { connect } from 'react-redux';
-import {BPMChanger_func} from './components/bpmChanger.js'
-import {ChordSelectorRedux_func} from './components/chordSelector.js'
 import {ScaleSelectorFooterRedux_func, ScaleSelectorRedux_func} from './components/scaleSelector'
-import {PlayStopButton_func} from './components/playStopButton.js'
 import {MusicSelector_func} from './components/musicSelector.js'
 import {mainReducer} from "./reducers/reducer";
 import {DiatonicDisplay_func} from "./components/diatonicDisplay";
 import {FooterRedux_func} from "./components/footer";
+import {PlayStopButton_func} from './components/playStopButton.js'
+import {BPMChanger_func} from './components/bpmChanger.js'
+import {ChordSelectorRedux_func} from './components/chordSelector.js'
 
 ///debug content
 const reducer = () => combineReducers({
@@ -35,11 +34,13 @@ export const store = createStore(
 
 //stateが更新された時のコールバック
 store.subscribe(()=>{
+  /*
   let state = store.getState().stateManager
   playStopSwitch(state.base.isPlay)
   Tone.Transport.bpm.value = state.base.bpm
   instrument=Def.instList[state.base.inst]
-  //Debug unset commentout for release Todo:
+   */
+  //TODO:Debug unset commentout for release
   //localStorage.setItem('base', JSON.stringify(state.base));
 });
 
@@ -47,7 +48,9 @@ store.subscribe(()=>{
 //スマートフォンでのダブルタップ抑制
 document.addEventListener("dblclick", function(e){ e.preventDefault();}, { passive: false });
 
-//Logic-------
+//将来的な機能追加で使用するコード
+//ステップシーケンサー
+/*
 function playStopSwitch(status){
   Def.organ.context.resume();
   Def.drum.context.resume();
@@ -55,13 +58,13 @@ function playStopSwitch(status){
   Def.eGuitar.context.resume();
   Def.aGuitar.context.resume();
   (status==1)?Tone.Transport.start():Tone.Transport.stop();
-}
+}*/
 
+/*
 let instrument=Def.instList['organ']
 function playThisChord(chordList,length,time){
   if(length!=0) instrument.triggerAttackRelease(chordList, length,time)
 }
-
 
 const BD = (en,time) => {if(en>0)Def.drum.triggerAttackRelease(['C3'],'1m',time)}
 const SD = (en,time) => {if(en>0)Def.drum.triggerAttackRelease(['C4'],'1m',time)}
@@ -79,7 +82,8 @@ function exPlan16to48(argList){
   }
   return list
 }
-
+*/
+/*
 //Redux Schedule Repeat
 Tone.Transport.scheduleRepeat((time) => {
   let state = store.getState().stateManager.base
@@ -100,17 +104,17 @@ Tone.Transport.scheduleRepeat((time) => {
   store.dispatch({type:'STEP'})
 
 }, tickTackInterval, "0m");
-
+*/
 
 // VIEW----------------------------------------
-const MainClock =(props)=>{
+const WholeBlock =(props)=>{
 
   React.useEffect(() => {
+    //Loading state from localStorage
     //called once
     document.title = 'Diatonic Chords Generator';
     if ("base" in localStorage) {
       let base=JSON.parse(localStorage.getItem('base'))
-      console.log('disppp')
       store.dispatch(
         {type:'LOAD_LOCALSTORAGE',base:{...base,isPlay:false,isPlayLabel:'Play'}}
       )
@@ -139,7 +143,7 @@ const MainClock =(props)=>{
 
             <div className="card my-2">
               <div className="card-header">
-                Diatonic Chord
+                Diatonic Chords
               </div>
               <Row className='card-body pt-1'>
                 <DiatonicDisplay_func />
@@ -153,7 +157,7 @@ const MainClock =(props)=>{
 
               <MusicSelector_func />
               <Row className='card-body pt-1'>
-                <ChordSelectorRedux_func />
+                {/*<ChordSelectorRedux_func/>*/}
               </Row>
             </div>
           </Col>
@@ -179,7 +183,7 @@ const MainClock =(props)=>{
 
 ReactDOM.render(
   <Provider store={store}>
-    <MainClock />
+    <WholeBlock />
   </Provider>,
   document.getElementById('root')
 );
