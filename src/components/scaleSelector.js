@@ -41,7 +41,8 @@ const ScaleSelectorRedux =(props) => {
             optionList={baseScale}
             class={"scaleTypeSelector"}
             boxNum={i}
-            value={props.base.typeOfScale[i]}
+            /*value={props.base.typeOfScale[i]}*/
+            value={props.diatonics.scale}
             //value={masterScale[props.base.typeOfScale[i]]}
             onChange={(i,value) => props.setBaseScale(i,value)}
           />

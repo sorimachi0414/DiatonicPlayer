@@ -226,23 +226,6 @@ export const setBaseScale=(i,value)=> {
     }
   }
 
-  // //make diatonicChords from a scale
-  // let diatonicChords=scaleToDiatonicChords(scaleNoteList)
-  // //add base sound
-  // diatonicChords.map((val,index)=>{
-  //   diatonicChords[index].push(soundNameList[scaleNoteList[index]]+'2')
-  // })
-  //
-  // //make Chord Name like CM7,Dm7,...
-  // let diatonicChordsNum = convertSoundNameNum(diatonicChords)
-  // let diatonicChordNames = diatonicChordsNum.map(x=>checkChordName(x))
-  //
-  // let chordList=[]
-  // chordList[0]=diatonicChords[0]
-  // chordList[1]=diatonicChords[3]
-  // chordList[2]=diatonicChords[4]
-  // chordList[3]=diatonicChords[0]
-
   let diatonicChords = diatonicOfScaleChords(scaleNotes)
   let diatonicChordNames = diatonicChords.map(x=>checkChordName(x))
 
@@ -274,6 +257,30 @@ export const setScaleType=(i,value)=> {
   return {type: 'SET_SCALE_TYPE', payload:list,meta:rawScaleNoteList,i:i}
 }
 
+export const shiftScaleType=(i)=>{
+  let state = store.getState().stateManager
+
+  //連想配列をArrayに変換
+  let baseScaleArray=[]
+  for(let key in baseScale){
+    baseScaleArray.push([key,baseScale[key]])
+  }
+
+  let currentKeyNum=0
+  let optionNum = baseScaleArray.length
+  baseScaleArray.forEach((array,index)=>{
+      if(array[0]==state.diatonics.scale) currentKeyNum=index
+    }
+  )
+
+  let nextScaleName = baseScaleArray[(currentKeyNum+i)%optionNum][0]
+  let nextScaleNotes = baseScaleArray[(currentKeyNum+i)%optionNum][1]
+
+  console.log(currentKeyNum,baseScaleArray)
+
+  return{type:'SET_DIATONIC_SCALE_TYPE',scale:nextScaleName,scaleNotes:nextScaleNotes }
+}
+
 
 
 //This is Reudcer
@@ -289,6 +296,13 @@ export const mainReducer= (state = initialState, action) => {
         diatonics:{...state.diatonics,scale:action.scale,chordNames:action.diatonicNames,
           chordsNotes:action.diatonicChords,scaleNotes:action.scaleNotes,paraScaleNotes:action.paraScaleNotes,paraScaleChords:action.paraScaleChords,},
         base:{...state.base,availableScales:action.meta,chordList:action.chordList,}
+      }
+
+    case 'SET_DIATONIC_SCALE_TYPE':
+      console.log(action.scale)
+      return{
+        ...state,
+      diatonics:{...state.diatonics,scale:action.scale,scaleNotes:action.scaleNotes},
       }
 
     case 'SET_SCALE_TYPE':
@@ -356,7 +370,6 @@ export const mainReducer= (state = initialState, action) => {
       chord2 = getCadence(chord1)
       chord3 = getCadence(chord2)
       chord4 = getCadence(chord3)
-
 
 
       let chordList=[]

@@ -39,7 +39,9 @@ export const DropDownSelector =(props)=> {
 }
 
 export class ListedSelector extends React.Component{
+
   render(){
+    console.log(this.props.value)
     let options=[]
     for (let key in this.props.optionList) {
       options.push(
@@ -52,7 +54,7 @@ export class ListedSelector extends React.Component{
         size={5}
         defaultValue={this.props.initList}
         className="form-select p-1"
-        //value={this.props.value}
+        value={this.props.value}
         onClick={(e)=>this.props.onChange(this.props.boxNum,e.target.value)}>
         {options}
       </select>

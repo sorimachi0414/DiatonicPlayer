@@ -1,13 +1,10 @@
 import Col from "react-bootstrap/Col";
-import {setScaleType, setBaseScale, shiftScaleNote, flipHighChord} from "../reducers/reducer";
+import {setScaleType, setBaseScale, shiftScaleNote, flipHighChord,shiftScaleType} from "../reducers/reducer";
 import Row from "react-bootstrap/Row";
 import {connect} from "react-redux";
 import React from "react";
 import {ThreeButtonChanger,ListedSelector} from "./common";
 import {soundNameList, masterScale,baseScale, fretNum, defaultState} from "../subCord"
-import {FingerBoard} from './fingerBoard.js'
-import {store} from "../index";
-import {ScaleSelectorFooterRedux_func} from "./scaleSelector";
 
 const FooterRedux =(props) => {
 
@@ -26,7 +23,7 @@ const FooterRedux =(props) => {
             <button className="btn btn-outline-primary p-0 w-100 h-100" value={props.value} onClick={()=>props.shiftScaleNote(0,1)}>{">"}</button>
           </Col>
           <Col xs={6}>
-            <button className="btn btn-outline-primary p-0 w-100 h-100" value={props.value} onClick={()=>null}>{"> scale"}</button>
+            <button className="btn btn-outline-primary p-0 w-100 h-100" value={props.value} onClick={()=>props.shiftScaleType(1)}>{"> scale"}</button>
           </Col>
         </Row>
       </Col>
@@ -156,7 +153,10 @@ const mapDispatchToProps=(dispatch)=>{
     },
     flipHighChord:function(){
       return dispatch(flipHighChord())
-    }
+    },
+    shiftScaleType:function (i){
+      return dispatch(shiftScaleType(i))
+    },
   }
 }
 export const FooterRedux_func =　connect(mapStateToProps, mapDispatchToProps)(FooterRedux);
