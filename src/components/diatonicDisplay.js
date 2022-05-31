@@ -3,7 +3,7 @@ import Col from "react-bootstrap/Col";
 import * as Def from "../subCord";
 import {changeDrum, changeInstP, flipHighChord} from "../reducers/reducer";
 import {connect} from "react-redux";
-import React from "react";
+import React, {createRef, useEffect, useRef} from "react";
 
 import {
   drawTab,
@@ -19,6 +19,31 @@ import {
 
 
 const DiatonicDisplay = (props) => {
+  const onTouchStart = (event) => {
+    event.preventDefault(); // ここでpreventDefault()を呼べる
+    //const touchEvent = event as TouchEvent;
+    console.log(event.changedTouches[0].pageX);
+  };
+
+  //const tabRef = useRef(null);
+  const tabRef = useRef([]);
+  const list = [0,1,2,3,4,5,6]
+  list.forEach((_,i)=>
+    tabRef.current[i]=React.createRef()
+  )
+
+  useEffect(() => {
+      //tabRef.current[0].current.addEventListener("touchstart", onTouchStart, {passive: false});
+    list.forEach((_,i)=>
+      tabRef.current[i].current.addEventListener("touchstart", onTouchStart, {passive: false})
+    )
+
+    return (() => {
+      list.forEach((_,i)=>
+      tabRef.current[i].current.removeEventListener("touchstart", onTouchStart)
+    )
+    });
+  });
 
   //flg High Chord change Buuton
   let highChordButton =
@@ -46,8 +71,8 @@ const DiatonicDisplay = (props) => {
         triadChord.pop()
         let triadChordName = checkChordName(triadChord)
 
-        let playSound = (flg)=>{
-          if(flg==0) instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(props.diatonics.diatonicChords[degreeArabic]), "2n");
+        let playSound = (e)=>{
+          instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(props.diatonics.diatonicChords[degreeArabic]), "2n");
         }
 
         fundamentalDiatonics.push(
@@ -61,24 +86,20 @@ const DiatonicDisplay = (props) => {
               </Col>
 
               <Col xs={12} className={"py-2"}>
-                <img alt="icon" className="img-fluid d-block mx-auto"
+                <img alt="icon" className="img-fluid d-block mx-auto" key={degreeArabic}
                      src={drawTab(props.diatonics.chordNames[degreeArabic], props.diatonics.flgHighChord)}
-                     onTouchStart={()=>
-                       instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(props.diatonics.diatonicChords[degreeArabic]), "2n")
-                     }
-                     onMouseDown={()=>{
-                       if(props.diatonics.touchDevice==0){
-                         instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(props.diatonics.diatonicChords[degreeArabic]), "2n")
-                       }
-                     }
-                     }
-
+                     ref={tabRef.current[degreeArabic]}
+                     onMouseDown={playSound}
+                     onTouchStart={playSound}
                 />
               </Col>
               <Col xs={12} className={"py-2"}>
-                <img alt="icon" className="img-fluid d-block mx-auto"
+                <img alt="icon" className="img-fluid d-block mx-auto" key={degreeArabic+'2'}
                      src={drawTab(triadChordName, props.diatonics.flgHighChord)}
-                     onMouseDown={() => instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(triadChord), "2n")}
+                     //ref={tabRef.current[degreeArabic]}
+                     onMouseDown={playSound}
+                     onTouchStart={playSound}
+                     //onMouseDown={() => instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(triadChord), "2n")}
                 />
               </Col>
             </Row>

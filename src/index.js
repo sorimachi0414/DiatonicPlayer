@@ -111,6 +111,8 @@ const WholeBlock =(props)=>{
 
   React.useEffect(() => {
     //called once
+
+    //TODO:don't work on surface like device
     const touchDevice = window.ontouchstart !== undefined ? 1 : 0;
     store.dispatch(
       {type:'TOUCH_DEVICE_ON',touchDevice:touchDevice}
