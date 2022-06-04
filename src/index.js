@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import * as Tone from "tone";
 import * as Def from "./subCord.js"
-import {stepNum,tickTackInterval} from "./subCord"
+import {instList, stepNum, tickTackInterval} from "./subCord"
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col';
@@ -47,6 +47,8 @@ store.subscribe(()=>{
 // ----------------------------------------
 //スマートフォンでのダブルタップ抑制
 document.addEventListener("dblclick", function(e){ e.preventDefault();}, { passive: false });
+
+//Tone.js
 
 //将来的な機能追加で使用するコード
 //ステップシーケンサー
@@ -107,16 +109,11 @@ Tone.Transport.scheduleRepeat((time) => {
 */
 
 // VIEW----------------------------------------
+export let buffers={}
 const WholeBlock =(props)=>{
 
   React.useEffect(() => {
     //called once
-
-    //TODO:don't work on surface like device
-    const touchDevice = window.ontouchstart !== undefined ? 1 : 0;
-    store.dispatch(
-      {type:'TOUCH_DEVICE_ON',touchDevice:touchDevice}
-    )
 
     //Loading state from localStorage
     document.title = 'Diatonic Chords Generator';
@@ -126,6 +123,35 @@ const WholeBlock =(props)=>{
         {type:'LOAD_LOCALSTORAGE',base:{...base,isPlay:false,isPlayLabel:'Play'}}
       )
     }
+
+    // for(let key in instList){
+    //   instList[key].onload = ()=>{
+    //     console.log('onload')
+    //     store.dispatch(
+    //       {type:'TONEJS_LOADED',load:true}
+    //     )
+    //   }
+    // }
+
+    //Load inst audio buffer
+
+    //load inst tone.js
+    // let inst = store.getState().stateManager.diatonics.inst
+    //
+    // buffers[inst] = new Tone.Sampler({
+    //   urls: {
+    //     B2: "agB2.mp3",
+    //     B3: "agB3.mp3",
+    //     B4: "agB4.mp3",
+    //   },
+    //   baseUrl: "./",
+    //   volume:-10,
+    //   onload:()=>{
+    //     store.dispatch(
+    //       {type:'TONEJS_LOADED',load:true}
+    //     )
+    //   }
+    // }).toDestination();
 
   }, []);
 

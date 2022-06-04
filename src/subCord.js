@@ -2,6 +2,7 @@
 import * as Tone from "tone";
 import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
+import {store} from "./index";
 
 //variables description
 //
@@ -505,22 +506,64 @@ export const drawSecDominant=(scaleNotes,flgHighChord)=>{
 export const notesToTonejsChord =(notes)=>{
   //notes = [0,4,7,10]
   let tonejsChord=[]
-  let suffix=2
+  let suffix=3
   let lastNote=0
+  let lastVal=0
+  let currentOctave=2
+  let currentVal
 
   notes.forEach((val,index)=>{
-    if(index==0){
+    currentVal = val+12*currentOctave
+    switch(1){
+      case 1:
+        //Good for Piano.Bad for Acoustic Guitar
+        if(currentVal<lastVal) currentOctave+=1
+        tonejsChord.push(soundNameList[val]+currentOctave)
+        lastVal=currentVal
+        break;
+      case 2 :
+        if(index==0){
 
-    }else if(index==1){
-      suffix+=1
-    }else{
-      if(val<lastNote){
-        suffix+=1
-      }
-      lastNote=val
+        }else if (index==1){
+          currentOctave+=1
+        }else {
+          currentVal = val+12*currentOctave
+          console.log(currentVal,lastVal)
+          if (currentVal < lastVal) currentOctave += 1
+          //if(index==3) currentOctave+=1
+        }
+        currentVal = val+12*currentOctave
+        tonejsChord.push(soundNameList[val]+currentOctave)
+        lastVal=currentVal
+        break;
+      case 3:
+        //Not use.has Sound separation. Good for acoustic guitar, but is bit strange.
+        if(index==0){
+          suffix=2
+          if(val>5) suffix=1
+
+        }else if(index==1){
+
+          suffix+=1
+
+          //suffix=3
+        }else{
+          suffix=3
+          // if(val<lastNote){
+          //   suffix+=1
+          // }
+          // lastNote=val
+        }
+        tonejsChord.push(soundNameList[val]+suffix)
+        break;
     }
-    tonejsChord.push(soundNameList[val]+suffix)
+    console.log(tonejsChord)
     })
+
+  //debug
+  // suffix+=1
+  // tonejsChord.push(soundNameList[notes[0]]+3)
+  // tonejsChord.push(soundNameList[notes[0]]+1)
 
   return tonejsChord
 }
@@ -571,6 +614,7 @@ export const baseScale = {
 
 
 // ----------------------------------------
+//Note:Guitar strings are E2,A3,D3,G3,B3,E4
 export const organ = new Tone.Sampler(
   {
     urls:{
@@ -580,20 +624,13 @@ export const organ = new Tone.Sampler(
     },
     baseUrl:"./",
     volume:-15,
-  }
-).toDestination();
-
-export const drum = new Tone.Sampler(
-  {
-    urls:{
-      C3: "BD.mp3",
-      C4: "SD.mp3",
-      C5: "HHC.mp3",
+    onload:()=>{
+      store.dispatch(
+        {type:'TONEJS_LOADED',load:true}
+      )
     },
-    baseUrl:"./",
   }
 ).toDestination();
-
 
 export const piano = new Tone.Sampler({
   urls: {
@@ -602,26 +639,55 @@ export const piano = new Tone.Sampler({
   },
   baseUrl: "./",
   volume:-15,
+  onload:()=>{
+    store.dispatch(
+      {type:'TONEJS_LOADED',load:true}
+    )
+  },
 }).toDestination();
 
 export const eGuitar = new Tone.Sampler({
   urls: {
+    C2:'GuitarC2.mp3',
     C3:'GuitarC3.mp3',
     C4:'GuitarC4.mp3',
   },
   baseUrl: "./",
   volume:-10,
+  onload:()=>{
+    store.dispatch(
+      {type:'TONEJS_LOADED',load:true}
+    )
+  },
 }).toDestination();
 
 export const aGuitar = new Tone.Sampler({
   urls: {
+    //mp3 is 1 octave higher than file name
     B2: "agB2.mp3",
     B3: "agB3.mp3",
     B4: "agB4.mp3",
   },
   baseUrl: "./",
   volume:-10,
+  onload:()=>{
+    store.dispatch(
+          {type:'TONEJS_LOADED',load:true}
+        )
+  },
+
 }).toDestination();
+
+// export const drum = new Tone.Sampler(
+//   {
+//     urls:{
+//       C3: "BD.mp3",
+//       C4: "SD.mp3",
+//       C5: "HHC.mp3",
+//     },
+//     baseUrl:"./",
+//   }
+// ).toDestination();
 
 export const instList={
   'piano':piano,
@@ -629,6 +695,8 @@ export const instList={
   'aGuitar':aGuitar,
   'organ':organ,
 }
+
+
 
 
 /////////////////////////////////////

@@ -4,6 +4,7 @@ import * as Def from "../subCord";
 import {changeDrum, changeInstP, flipHighChord} from "../reducers/reducer";
 import {connect} from "react-redux";
 import React, {createRef, useEffect, useRef} from "react";
+import {buffers} from "../index";
 
 import {
   drawTab,
@@ -16,27 +17,34 @@ import {
   secDominantMajorChords,
   passingDimToSecDominantChords, notesToTonejsChord, checkChordName
 } from "../subCord";
+import * as Tone from "tone";
 
 export const GuitarTab = (props) => {
 
-  const onTouchStart = (event) => {
-    event.preventDefault() // ここでpreventDefault()を呼べる
+  let onTouchStart = (event) => {
     instList[props.inst].triggerAttackRelease(props.sound,"2n")
+    event.preventDefault() // ここでpreventDefault()を呼べる
   }
-  const onMouseDown = (event) => {
-    event.preventDefault() // ここでpreventDefault()を呼べる
+  let onMouseDown = (event) => {
     instList[props.inst].triggerAttackRelease(props.sound,"2n")
+    console.log(props.sound)
+    event.preventDefault()
+
   }
   const ref = useRef(null);
 
   useEffect(() => {
-    ref.current?.addEventListener("touchstart", onTouchStart, {passive: false})
-    ref.current?.addEventListener("mousedown", onMouseDown, {passive: false})
-    return (() => {
-      ref.current?.removeEventListener("touchstart", onTouchStart)
-      ref.current?.removeEventListener("mousedown", onMouseDown)
-    }
+    if(props.loadGood){
+      ref.current?.addEventListener("touchstart", onTouchStart, {passive: false})
+      ref.current?.addEventListener("mousedown", onMouseDown, {passive: false})
+      return (() => {
+
+        ref.current?.removeEventListener("touchstart", onTouchStart)
+        ref.current?.removeEventListener("mousedown", onMouseDown)
+      }
     )
+    }
+
   })
 
   return (
@@ -48,36 +56,6 @@ export const GuitarTab = (props) => {
 }
 
 const DiatonicDisplay = (props) => {
-
-  const onTouchStart = (event) => {
-    console.log(event)
-    event.preventDefault(); // ここでpreventDefault()を呼べる
-    //const touchEvent = event as TouchEvent;
-    console.log(event.changedTouches[0].pageX);
-  };
-
-  //const tabRef = useRef(null);
-  const tabRef = useRef([]);
-  const list = [...Array(40)].map((_, i) => i)
-  list.forEach((_,i)=>
-    tabRef.current[i]=React.createRef()
-  )
-
-  useEffect(() => {
-    list.forEach((_,i)=> {
-      console.dir(tabRef.current[i].current)
-      tabRef.current[i].current?.addEventListener("touchstart", onTouchStart, {passive: false})
-      }
-    )
-
-    return (() => {
-      list.forEach((_,i)=>{
-        tabRef.current[i].current?.removeEventListener("touchstart", onTouchStart)
-      }
-    )
-    });
-  });
-
   //flg High Chord change Buuton
   let highChordButton =
     <Col>
@@ -104,11 +82,6 @@ const DiatonicDisplay = (props) => {
         triadChord.pop()
         let triadChordName = checkChordName(triadChord)
 
-        let playSound = (arg)=>{
-          console.log(9)
-          //instList[props.diatonics.inst].triggerAttackRelease(e, "2n");
-        }
-
         fundamentalDiatonics.push(
           <Col xs={4} sm={3} className={"py-2 px-3"}>
             <Row className={"pb-2 border rounded"}>
@@ -125,14 +98,8 @@ const DiatonicDisplay = (props) => {
                   flgHighChord={props.diatonics.flgHighChord}
                   sound={notesToTonejsChord(props.diatonics.diatonicChords[degreeArabic])}
                   inst={props.diatonics.inst}
+                  loadGood={props.diatonics.loadComplete}
                   />
-                {/*<img alt="icon" className="img-fluid d-block mx-auto" key={degreeArabic}*/}
-                {/*     src={drawTab(props.diatonics.chordNames[degreeArabic], props.diatonics.flgHighChord)}*/}
-                {/*     ref={tabRef.current[degreeArabic]}*/}
-                {/*     //onMouseDown={playSound(1)}*/}
-                {/*     //onMouseDown={playSound(notesToTonejsChord(props.diatonics.diatonicChords[degreeArabic]))}*/}
-                {/*     //onTouchStart={playSound(notesToTonejsChord(props.diatonics.diatonicChords[degreeArabic]))}*/}
-                {/*/>*/}
               </Col>
               <Col xs={12} className={"py-2"}>
                 <GuitarTab
@@ -140,15 +107,9 @@ const DiatonicDisplay = (props) => {
                   flgHighChord={props.diatonics.flgHighChord}
                   sound={notesToTonejsChord(triadChord)}
                   inst={props.diatonics.inst}
+                  loadGood={props.diatonics.loadComplete}
+
                 />
-                {/*<img alt="icon" className="img-fluid d-block mx-auto" key={degreeArabic+'2'}*/}
-                {/*     src={drawTab(triadChordName, props.diatonics.flgHighChord)}*/}
-                {/*     //ref={tabRef.current[degreeArabic]}*/}
-                {/*     ref={tabRef.current[degreeArabic]}*/}
-                {/*     onMouseDown={playSound(notesToTonejsChord(triadChord))}*/}
-                {/*     onTouchStart={playSound(notesToTonejsChord(triadChord))}*/}
-                {/*     //onMouseDown={() => instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(triadChord), "2n")}*/}
-                {/*/>*/}
               </Col>
             </Row>
           </Col>
@@ -187,12 +148,9 @@ const DiatonicDisplay = (props) => {
                   flgHighChord={props.diatonics.flgHighChord}
                   sound={notesToTonejsChord(secDominantChords[index])}
                   inst={props.diatonics.inst}
-                />
-                {/*<img alt="icon" className="img-fluid d-block mx-auto"*/}
-                {/*     src={drawTab(secDominantChords[index], 1, "( => " + tempTonic + ")")}*/}
-                {/*     onMouseDown={() => instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(secDominantChords[index]), "2n")}*/}
-                {/*/>*/}
+                  loadGood={props.diatonics.loadComplete}
 
+                />
               </Col>
             </Row>
           </Col>
@@ -206,12 +164,9 @@ const DiatonicDisplay = (props) => {
                   flgHighChord={props.diatonics.flgHighChord}
                   sound={notesToTonejsChord(x)}
                   inst={props.diatonics.inst}
-                />
+                  loadGood={props.diatonics.loadComplete}
 
-                {/*<img alt="icon" className="img-fluid d-block mx-auto"*/}
-                {/*     src={drawTab(x, 1,)}*/}
-                {/*     onMouseDown={() => instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(x), "2n")}*/}
-                {/*/>*/}
+                />
               </Col>
             )
             }
@@ -239,11 +194,9 @@ const DiatonicDisplay = (props) => {
                 flgHighChord={props.diatonics.flgHighChord}
                 sound={notesToTonejsChord(subDominantMinorChord(props.diatonics.keyNum))}
                 inst={props.diatonics.inst}
+                loadGood={props.diatonics.loadComplete}
+
               />
-              {/*<img alt="icon" className="img-fluid d-block mx-auto"*/}
-              {/*     src={drawTab(subDominantMinorChord(props.diatonics.keyNum), props.diatonics.flgHighChord)}*/}
-              {/*     onMouseDown={() => instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(subDominantMinorChord(props.diatonics.keyNum)), "2n")}*/}
-              {/*/>*/}
             </Col>
           </Row>
         </Col>
@@ -262,9 +215,13 @@ const DiatonicDisplay = (props) => {
               {Array("III", "VI", "VII")[x]}
             </Col>
             <Col xs={12} className={"py-2"}>
-              <img alt="icon" className="img-fluid d-block mx-auto"
-                   src={drawTab(props.diatonics.paraScaleChords[x], props.diatonics.flgHighChord)}
-                   onMouseDown={() => instList[props.diatonics.inst].triggerAttackRelease(notesToTonejsChord(props.diatonics.paraScaleChords[x]), "2n")}
+              <GuitarTab
+                tab={props.diatonics.paraScaleChords[x]}
+                flgHighChord={props.diatonics.flgHighChord}
+                sound={notesToTonejsChord(props.diatonics.paraScaleChords[x])}
+                inst={props.diatonics.inst}
+                loadGood={props.diatonics.loadComplete}
+
               />
             </Col>
           </Row>

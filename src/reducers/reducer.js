@@ -3,11 +3,12 @@
   checkChordName,
   scaleToDiatonicChords,
   masterChord,
-  soundNameList, calcDiatonicChords, diatonicOfScaleChords, parallelScaleChords
+  soundNameList, calcDiatonicChords, diatonicOfScaleChords, parallelScaleChords, instList
 } from '../subCord.js'
-import {store} from '../index.js'
+import {buffers, store} from '../index.js'
 import {masterScale} from "../subCord.js";
 import * as Def from "../subCord";
+import * as Tone from "tone";
 
 //Reducerについて
 //UIからdispatchで、reducer.jsの関数を実行
@@ -41,7 +42,10 @@ export const initialState = {
     ],
     inst:'aGuitar',
     //裏コード：CにおけるC#7
-    touchDevice:0,
+    //touchDevice:0,
+    audioLoadCount: 0,
+    loadComplete:false,
+
 
   },
   //base:Not use now
@@ -148,6 +152,25 @@ export const playStopType = (value)=>{
 }
 
 export const changeInstP=(value)=>{
+  //TODO:Add function
+  // bufferLoad and
+
+  // let test = new Tone.Sampler({
+  //   urls: {
+  //     B2: "agB2.mp3",
+  //     B3: "agB3.mp3",
+  //     B4: "agB4.mp3",
+  //   },
+  //   baseUrl: "./",
+  //   volume:-10,
+  //   onload:()=>{
+  //     console.log('onLoadeddd')
+  //     store.dispatch(
+  //       {type:'TONEJS_LOADED',load:true}
+  //     )
+  //   }
+  // }).toDestination();
+
   return{ type:'CHANGE_INST',value  }
 }
 
@@ -168,6 +191,7 @@ export const countDown = (value) => {
 }
 
 export const setBaseScale=(i,value)=> {
+  //TODO:triad change is not work
   let state = store.getState().stateManager
   //For diatonic
   let scaleNotes = baseScale[value].map(x=>(x+state.diatonics.keyNum)%12)
@@ -264,11 +288,19 @@ export const mainReducer= (state = initialState, action) => {
         diatonics: {...state.diatonics, touchDevice: action.touchDevice}
       }
 
+    case 'TONEJS_LOADED':
+      let count = state.diatonics.audioLoadCount +1
+      let loadComplete = Object.keys(instList).length<=count?true:false
+      return{
+        ...state,
+        diatonics:{...state.diatonics,audioLoadCount:count,loadComplete:loadComplete}
+      }
+
     case 'SET_BASE_SCALE':
       return{
         ...state,
         diatonics:{...state.diatonics,scale:action.scale,chordNames:action.diatonicNames,
-          chordsNotes:action.diatonicChords,scaleNotes:action.scaleNotes,paraScaleNotes:action.paraScaleNotes,paraScaleChords:action.paraScaleChords,},
+          diatonicChords:action.diatonicChords,scaleNotes:action.scaleNotes,paraScaleNotes:action.paraScaleNotes,paraScaleChords:action.paraScaleChords,},
         base:{...state.base,availableScales:action.meta,chordList:action.chordList,}
       }
 
