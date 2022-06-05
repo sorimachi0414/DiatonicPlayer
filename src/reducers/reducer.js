@@ -40,7 +40,7 @@ export const initialState = {
       [8,0,3,7],
       [10,2,5,8],
     ],
-    inst:'aGuitar',
+    inst:'piano',
     //裏コード：CにおけるC#7
     //touchDevice:0,
     audioLoadCount: 0,
@@ -152,25 +152,6 @@ export const playStopType = (value)=>{
 }
 
 export const changeInstP=(value)=>{
-  //TODO:Add function
-  // bufferLoad and
-
-  // let test = new Tone.Sampler({
-  //   urls: {
-  //     B2: "agB2.mp3",
-  //     B3: "agB3.mp3",
-  //     B4: "agB4.mp3",
-  //   },
-  //   baseUrl: "./",
-  //   volume:-10,
-  //   onload:()=>{
-  //     console.log('onLoadeddd')
-  //     store.dispatch(
-  //       {type:'TONEJS_LOADED',load:true}
-  //     )
-  //   }
-  // }).toDestination();
-
   return{ type:'CHANGE_INST',value  }
 }
 
@@ -273,8 +254,6 @@ export const shiftScaleType=(i)=>{
 
   return{type:'SET_DIATONIC_SCALE_TYPE',scale:nextScaleName,scaleNotes:nextScaleNotes }
 }
-
-
 
 //This is the Reudcer
 export const mainReducer= (state = initialState, action) => {
