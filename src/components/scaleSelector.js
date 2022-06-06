@@ -4,8 +4,8 @@ import Row from "react-bootstrap/Row";
 import {connect} from "react-redux";
 import React from "react";
 import {ThreeButtonChanger, ListedSelector} from "./common";
-import {soundNameList, masterScale, baseScale, fretNum, defaultState} from "../subCord"
-import {FingerBoard} from './fingerBoard.js'
+import {soundNameList,} from "../subCord"
+import {baseScale,} from "../musicDefinition"
 import {store} from "../index";
 
 const ScaleSelectorRedux = (props) => {
@@ -18,7 +18,6 @@ const ScaleSelectorRedux = (props) => {
             <ThreeButtonChanger
               class={"scaleNoteSelector"}
               color={'btn btn-outline-primary w-100'}
-              color={props.base.blocksColor[i]}
               value={soundNameList[props.diatonics.keyNum]}
               onClickP={() => props.shiftScaleNote(i, 1)}
               onClickN={() => props.shiftScaleNote(i, -1)}
@@ -28,13 +27,11 @@ const ScaleSelectorRedux = (props) => {
             {/*Base Scale*/}
             <ListedSelector
               chordOrScale={'Scale'}
-              initList={props.base.typeOfScale[i]}
+              initList={props.diatonics.scale}
               optionList={baseScale}
               class={"scaleTypeSelector"}
               boxNum={i}
-              /*value={props.base.typeOfScale[i]}*/
               value={props.diatonics.scale}
-              //value={masterScale[props.base.typeOfScale[i]]}
               onChange={(i, value) => props.setBaseScale(i, value)}
             />
           </Col>
@@ -52,22 +49,6 @@ const ScaleSelectorRedux = (props) => {
   return (
     <Row>
       {selectors}
-      {/*
-        <FingerBoard/>
-        <Col xs={12} sm={6}>
-        <button className="btn btn-outline-success" onClick={()=>props.flipSymbol()} >
-        change Circle to Number
-        </button>
-        </Col>
-        <Col xs={12} sm={6}>
-        <button className="btn btn-outline-warning" onClick={() => {
-        //localStorage.clear()}
-        let base = defaultState
-        store.dispatch({type: 'LOAD_LOCALSTORAGE', base: base})
-      }
-      }>  Reset save data</button>
-        </Col>
-      */}
     </Row>
   )
 
@@ -85,9 +66,7 @@ const mapDispatchToProps = (dispatch) => {
     setBaseScale: function (i, value) {
       return dispatch(setBaseScale(i, value))
     },
-    setScaleType: function (i, value) {
-      return dispatch(setScaleType(i, value))
-    },
+
     flipSymbol: function () {
       return dispatch({type: 'FLIP_SYMBOL'})
     }

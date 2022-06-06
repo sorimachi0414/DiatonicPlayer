@@ -1,6 +1,5 @@
 import Col from "react-bootstrap/Col";
 import {
-  setScaleType,
   setBaseScale,
   shiftScaleNote,
   flipHighChord,
@@ -11,7 +10,8 @@ import Row from "react-bootstrap/Row";
 import {connect} from "react-redux";
 import React from "react";
 import {ThreeButtonChanger, ListedSelector, DropDownSelector} from "./common";
-import {soundNameList, masterScale, baseScale, fretNum, defaultState} from "../subCord"
+import {soundNameList,} from "../subCord"
+import {baseScale,} from "../musicDefinition"
 import * as Def from "../subCord";
 
 const FooterRedux = (props) => {
@@ -123,9 +123,7 @@ const mapDispatchToProps = (dispatch) => {
     setBaseScale: function (i, value) {
       return dispatch(setBaseScale(i, value))
     },
-    setScaleType: function (i, value) {
-      return dispatch(setScaleType(i, value))
-    },
+
     flipSymbol: function () {
       return dispatch({type: 'FLIP_SYMBOL'})
     },

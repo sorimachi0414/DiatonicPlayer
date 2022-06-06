@@ -1,20 +1,23 @@
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
 import * as Def from "../subCord";
-import {changeDrum, changeInstP, flipHighChord} from "../reducers/reducer";
+import { flipHighChord} from "../reducers/reducer";
 import {connect} from "react-redux";
 import React, {createRef, useEffect, useRef} from "react";
 import {buffers} from "../index";
 
-import {
-  drawTab,
-  soundNameList,
-  instList,
+import{
   subDominantMinorChord,
   secDominantMinorChords,
   secDominantHarmonicMinorChords,
   secDominantMelodicMinorChords,
   secDominantMajorChords,
+} from "../musicDefinition"
+import {
+  drawTab,
+  soundNameList,
+  instList,
+
   passingDimToSecDominantChords, notesToTonejsChord, checkChordName
 } from "../subCord";
 import * as Tone from "tone";
@@ -29,7 +32,6 @@ export const GuitarTab = (props) => {
     instList[props.inst].triggerAttackRelease(props.sound,"2n")
     console.log(props.sound)
     event.preventDefault()
-
   }
   const ref = useRef(null);
 
@@ -38,7 +40,6 @@ export const GuitarTab = (props) => {
       ref.current?.addEventListener("touchstart", onTouchStart, {passive: false})
       ref.current?.addEventListener("mousedown", onMouseDown, {passive: false})
       return (() => {
-
         ref.current?.removeEventListener("touchstart", onTouchStart)
         ref.current?.removeEventListener("mousedown", onMouseDown)
       }
@@ -63,7 +64,7 @@ const DiatonicDisplay = (props) => {
               value={"High Chord"} onClick={() => props.flipHighChord()}>{"High Chord"}</button>
     </Col>
 
-  //tenkai = inversion
+  //TODO:Inversion(tenkai) cord.
   let inversionButton =
     <Col>
       <button className="btn btn-outline-primary p-0 w-100 h-100"

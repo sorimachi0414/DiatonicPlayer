@@ -9,9 +9,7 @@ import Container from 'react-bootstrap/Container'
 //Redux
 import { createStore, combineReducers } from 'redux';
 import { Provider } from 'react-redux';
-import { connect } from 'react-redux';
-import {ScaleSelectorFooterRedux_func, ScaleSelectorRedux_func} from './components/scaleSelector'
-import {MusicSelector_func} from './components/musicSelector.js'
+import {ScaleSelectorRedux_func} from './components/scaleSelector'
 import {mainReducer} from "./reducers/reducer";
 import {DiatonicDisplay_func} from "./components/diatonicDisplay";
 import {FooterRedux_func} from "./components/footer";
