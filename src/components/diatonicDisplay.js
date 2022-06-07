@@ -1,10 +1,8 @@
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
-import * as Def from "../subCord";
 import { flipHighChord} from "../reducers/reducer";
 import {connect} from "react-redux";
 import React, {createRef, useEffect, useRef} from "react";
-import {buffers} from "../index";
 
 import{
   subDominantMinorChord,
@@ -17,16 +15,14 @@ import {
   drawTab,
   soundNameList,
   instList,
-
   passingDimToSecDominantChords, notesToTonejsChord, checkChordName
 } from "../subCord";
-import * as Tone from "tone";
 
 export const GuitarTab = (props) => {
 
   let onTouchStart = (event) => {
     instList[props.inst].triggerAttackRelease(props.sound,"2n")
-    event.preventDefault() // ここでpreventDefault()を呼べる
+    event.preventDefault()
   }
   let onMouseDown = (event) => {
     instList[props.inst].triggerAttackRelease(props.sound,"2n")

@@ -26,12 +26,6 @@ export const store = createStore(
 
 //stateが更新された時のコールバック
 store.subscribe(()=>{
-  /*
-  let state = store.getState().stateManager
-  playStopSwitch(state.base.isPlay)
-  Tone.Transport.bpm.value = state.base.bpm
-  instrument=Def.instList[state.base.inst]
-   */
   //TODO:Debug unset commentout for release
   //localStorage.setItem('base', JSON.stringify(state.base));
 });
@@ -45,16 +39,17 @@ export let buffers={}
 const WholeBlock =(props)=>{
 
   React.useEffect(() => {
-    //called once
+    //Called once
 
     //Loading state from localStorage
     document.title = 'Diatonic Chords Generator';
-    if ("base" in localStorage) {
-      let base=JSON.parse(localStorage.getItem('base'))
-      store.dispatch(
-        {type:'LOAD_LOCALSTORAGE',base:{...base,isPlay:false,isPlayLabel:'Play'}}
-      )
-    }
+    //TODO:Unset commentOut for release
+    // if ("base" in localStorage) {
+    //   let base=JSON.parse(localStorage.getItem('base'))
+    //   store.dispatch(
+    //     {type:'LOAD_LOCALSTORAGE',base:{...base,isPlay:false,isPlayLabel:'Play'}}
+    //   )
+    // }
 
   }, []);
 

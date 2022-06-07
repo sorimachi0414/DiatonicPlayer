@@ -107,6 +107,16 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
   if(Array.isArray(chordName)){
     chordName = checkChordName(chordName)
   }
+
+  let dipictLine=(context,x0,y0,x1,y1,width)=>{
+    context.beginPath () ;
+    context.strokeStyle = natColor
+    context.moveTo( x0, y0 )
+    context.lineTo( x1, y1 )
+    context.lineWidth = width ;
+    context.stroke() ;
+  }
+
   //chordName likes "CM7",etc
   //settings
   let tabWidth = 100
@@ -128,7 +138,6 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
   let fretNumInitialX = 10
   let soundNameX = 17 //Max width - soundNamex
 
-
   let bgColor = '#eee'
   let natWidth = 2
   let natColor = "#000"
@@ -149,8 +158,11 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
   if (flgHighChord) chordTabs = chordTabListH
 
   //Analysis
-  let pictFirstFret = 0
-
+  let pictFirstFret = 1
+  // i.e) pictFirstFret=3
+  // |__|__|__|__|__|
+  // |__|__|__|__|__|
+  //  3  4  5  6  7
 
   if(chordName in chordTabs){
     let tabWithoutN=[]
@@ -159,11 +171,7 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
     }
 
     let minFret = Math.min(...tabWithoutN)
-    let maxFret=Math.max(...chordTabs[chordName])
-
-    if (minFret>0) {
-      pictFirstFret = minFret-1
-    }
+    if (minFret>2) pictFirstFret = minFret-1
 
     //Barre chord
     let firstStFret=chordTabs[chordName][0]
@@ -190,46 +198,32 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
   canvasElem.height = tabHeight
   const ctx = canvasElem.getContext('2d')
 
-  // draw
-  ctx.clearRect(0, 0, tabWidth, tabHeight)
+  // drawSquare
   ctx.fillStyle = bgColor
+  ctx.clearRect(0, 0, tabWidth, tabHeight)
   ctx.fillRect(0, 0, tabWidth, tabHeight)
 
-  //horizontal
-  ctx.beginPath () ;
-  ctx.strokeStyle = natColor
-  ctx.moveTo( aX, aY )
-  ctx.lineTo( aX, cY )
-  ctx.lineWidth = natWidth ;
-  ctx.stroke() ;
+  //horizontal　Line
+  //Nat
+  dipictLine(ctx,aX,aY,aX,cY,natWidth)
 
+  //Each fret
   let yPoints = [aY,aY+yInt*1,aY+yInt*2,aY+yInt*3,aY+yInt*4,aY+yInt*5,]
   for(let arg of yPoints){
-    ctx.beginPath () ;
-    ctx.moveTo( aX, arg )
-    ctx.lineTo( bX, arg )
-    ctx.lineWidth = lineWidth ;
-    ctx.stroke() ;
+    dipictLine(ctx,aX,arg,bX,arg,lineWidth)
   }
 
-  //Vertical
+  //Vertical Line
   for(let i =0;i<=xNum;i++){
-    ctx.beginPath () ;
-    ctx.moveTo( aX+xInt*i, aY )
-    ctx.lineTo( aX+xInt*i, cY )
-    ctx.lineWidth = lineWidth ;
-    ctx.stroke() ;
+    dipictLine(ctx,aX+xInt*i, aY,aX+xInt*i, cY,lineWidth)
   }
 
   //Position Mark
   let stringIndex=0
   let pictTab=[]
   if(chordName in chordTabs){
-    if(pictFirstFret>0){
-      pictTab = chordTabs[chordName].map(x=>x-pictFirstFret+1)
-    }else{
-      pictTab = chordTabs[chordName]
-    }
+    pictTab = chordTabs[chordName].map(x=>x-pictFirstFret+1)
+
     for(let val of pictTab){
       ctx.beginPath () ;
       ctx.fillStyle = "rgba(0,0,0,1)" ;
@@ -245,7 +239,6 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
         //depict sound name
         let thisStringNote = stringFretToNote(stringIndex,val+pictFirstFret-1)
         ctx.fillText(thisStringNote, tabWidth-20, stringIndex*yInt+aY+4);
-
       }else{
         //Normal string
         ctx.arc( aX+val*xInt - xInt/2, stringIndex*yInt+aY, pointSize, 0, 2 * Math.PI, false ) ;
@@ -255,8 +248,6 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
         let thisStringNote = stringFretToNote(stringIndex,val+pictFirstFret-1)
         ctx.font = stringNoteFont
         ctx.fillText(thisStringNote, tabWidth-soundNameX, stringIndex*yInt+aY+4);
-
-
       }
       stringIndex+=1
     }
@@ -264,11 +255,7 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
     //depict barre
     if(barreFret>0){
       barreFret = barreFret - pictFirstFret+1
-      ctx.beginPath () ;
-      ctx.moveTo( aX+xInt*barreFret-xInt/2, aY+yInt*0 )
-      ctx.lineTo( aX+xInt*barreFret-xInt/2, aY+yInt*barreLength-yInt )
-      ctx.lineWidth = barreWidth
-      ctx.stroke() ;
+      dipictLine(ctx,aX+xInt*barreFret-xInt/2, aY+yInt*0,aX+xInt*barreFret-xInt/2, aY+yInt*barreLength-yInt,barreWidth)
     }
 
   }
@@ -278,8 +265,6 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
     for(let i =0;i<xNum;i++){
       ctx.font = fretNumFont
       let textWidth = ctx.measureText( i+pictFirstFret ).width ;
-
-      //ctx.fillText(i+pictFirstFret, 20+i*xInt+5, cY+yInt+5)
       ctx.fillText(i+pictFirstFret, fretNumInitialX+i*xInt+8-textWidth/2, cY+yInt+5)
     }
   }
@@ -288,9 +273,7 @@ export const drawTab=(chordName,flgHighChord,comment="")=>{
   ctx.font = ChordNameLabelFont
   ctx.fillText(chordName+ " " + comment, 5, 15);
 
-  let testPng = canvasElem.toDataURL()
-
-  return testPng
+  return canvasElem.toDataURL()
 }
 
 
@@ -356,7 +339,8 @@ export const drawSecDominant=(scaleNotes,flgHighChord)=>{
 // Definition about Sound play in Diatonic Chords
 /////////////////////////////////////
 export const notesToTonejsChord =(notes)=>{
-  //notes = [0,4,7,10]
+  //Input : notes = [0,4,7,10]
+  //Output : [C3,E3,G3,B4]
   let tonejsChord=[]
   let suffix=3
   let lastNote=0
@@ -409,7 +393,7 @@ export const notesToTonejsChord =(notes)=>{
         tonejsChord.push(soundNameList[val]+suffix)
         break;
     }
-    console.log(tonejsChord)
+    // console.log(tonejsChord)
     })
 
   //debug
@@ -495,7 +479,6 @@ export const instList={
   'aGuitar':aGuitar,
   'organ':organ,
 }
-
 
 export const convertSoundNameNum = (arg)=>{
   //arg =
